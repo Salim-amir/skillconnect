@@ -7,8 +7,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#ffffff;--ink:#0a0a0a;--mute:#525252;--line:rgba(0,0,0,.06);--card:rgba(255,255,255,.6);--primary:#ff007f;--secondary:#7000ff;--tertiary:#00d4ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{scroll-behavior:smooth;scroll-padding-top:72px;background:var(--bg)}
+:root{
+    --bg:#ffffff;--ink:#0a0a0a;
+    --mute:#525252;--line:rgba(0,0,0,.06);
+    --card:rgba(255,255,255,.6);--
+    primary:#ff007f;--
+    secondary:#7000ff;--
+    tertiary:#00d4ff;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px
+    )}
+html{
+    scroll-behavior:smooth;
+    scroll-padding-top:72px;
+    background:var(--
+    bg)}
 *{box-sizing:border-box;margin:0}
 body{background:linear-gradient(180deg,#eef0ff,#f4f1ff 50%,#eaf1ff);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.6;overflow-x:hidden; display:flex; justify-content:center; align-items:center; min-height:100vh;}
 a{color:inherit;text-decoration:none}
@@ -169,9 +183,14 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--secondary);outline-
             </div>
             
             <div class="form-group">
-                <label for="password">Password</label>
+            <label for="password">Password</label>
+            <div class="password-wrapper">
                 <input type="password" id="password" name="password" placeholder="Masukkan password" required>
-            </div>
+                <button type="button" id="togglePassword" class="toggle-btn" aria-label="Toggle password visibility">
+                <span id="eyeIcon">👁️</span>
+            </button>
+        </div>
+        </div>
             
             <button type="submit" class="btn pri">Login</button>
         </form>

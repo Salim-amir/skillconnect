@@ -174,9 +174,14 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--secondary);outline-
             </div>
             
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Minimal 8 karakter" required>
-            </div>
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="password" name="password" placeholder="Masukkan password" required>
+                <button type="button" id="togglePassword" class="toggle-btn" aria-label="Toggle password visibility">
+                <span id="eyeIcon">👁️</span>
+            </button>
+        </div>
+        </div>
             
             <button type="submit" class="btn pri">Daftar Sekarang</button>
         </form>
