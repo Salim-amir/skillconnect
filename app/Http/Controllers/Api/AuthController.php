@@ -12,78 +12,60 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            // Validasi role disesuaikan menjadi: admin, creator, member
-            'role'     => 'required|in:admin,creator,member', 
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'name.max' => 'Nama maksimal 255 karakter.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email ini sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal harus 8 karakter.',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors'  => $validator->errors()
-            ], 422);
-        }
 
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => $request->role,
+            'role'     => 'member', // Default role untuk registrasi biasa
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        \Illuminate\Support\Facades\Auth::login($user);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Registrasi berhasil',
-            'data'    => $user,
-            'token'   => $token
-        ], 201);
+        return redirect('/')->with('success', 'Registrasi berhasil');
     }
 
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $credentials = $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
+        ], [
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'password.required' => 'Password wajib diisi.',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors'  => $validator->errors()
-            ], 422);
+        if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('/')->with('success', 'Login berhasil');
         }
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email atau password salah'
-            ], 401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Login berhasil',
-            'data'    => $user,
-            'token'   => $token
-        ], 200);
+        return back()->withErrors([
+            'email' => 'Email atau password salah',
+        ])->onlyInput('email');
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        \Illuminate\Support\Facades\Auth::logout();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Berhasil logout'
-        ], 200);
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }
