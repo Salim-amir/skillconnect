@@ -21,7 +21,10 @@ header{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:c
 .brand span{background:linear-gradient(90deg,#1c2766,#7b6cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
 
 nav{display:flex;gap:26px;align-items:center;font-size:14px;color:#4b5686;font-weight:600}
-nav a:hover{color:#1c2766}
+nav a.lk{position:relative;padding-bottom:4px;transition:.2s}
+nav a.lk::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:2px;background:linear-gradient(90deg,#2b3a8f,#7b6cf6);transform:scaleX(0);transform-origin:right;transition:transform .3s ease;border-radius:2px}
+nav a.lk:hover{color:#1c2766}
+nav a.lk:hover::after{transform:scaleX(1);transform-origin:left}
 
 .btn{display:inline-block;padding:11px 24px;border-radius:10px;font-weight:700;font-size:14px;border:1.5px solid #d6d9fb;transition:.2s;font-family:'Nunito',sans-serif;cursor:pointer}
 .pri{background:linear-gradient(90deg,#2b3a8f,#7b6cf6);border-color:transparent;color:#fff;box-shadow:0 10px 26px -10px rgba(123,108,246,.7)}
