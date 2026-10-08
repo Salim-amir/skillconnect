@@ -15,11 +15,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Membuat akun Admin
+        User::create([
+            'name' => 'Admin SkillConnect',
+            'email' => 'admin@skillconnect.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'admin',
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Membuat akun Member (User biasa)
+        User::create([
+            'name' => 'User Member',
+            'email' => 'member@skillconnect.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'member',
         ]);
     }
 }
