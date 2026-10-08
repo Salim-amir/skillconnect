@@ -419,6 +419,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             </div>
         </header>
 
+        @if(session('success'))
+            <div style="background: #e5ffe5; border-left: 4px solid #008000; padding: 16px 20px; border-radius: 8px; margin-bottom: 24px; color: #008000; font-weight: 600; display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.5s;">
+                {{ session('success') }}
+                <button onclick="this.parentElement.style.display='none'" style="background: transparent; border: none; color: #008000; font-size: 20px; cursor: pointer;">&times;</button>
+            </div>
+        @endif
         @if(auth()->check() && auth()->user()->role === 'admin')
             <!-- ===================== ADMIN DASHBOARD ===================== -->
             <h1 class="page-title">Dashboard Admin</h1>
