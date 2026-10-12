@@ -236,6 +236,167 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     transform: translateY(-2px);
     box-shadow: 0 12px 24px -8px rgba(123,108,246,.8);
 }
+.btn.danger {
+    background: #d8000c;
+    color: #fff;
+}
+.btn.danger:hover {
+    background: #b00009;
+}
+.btn.ghost {
+    background: #eef0ff;
+    color: #2b3a8f;
+}
+.btn.ghost:hover {
+    background: #e0e3fa;
+}
+
+/* ===== ALERT ===== */
+.alert {
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    font-size: 14px;
+}
+.alert.success { background: #e6f7ed; color: #127345; border: 1px solid #b7e4c7; }
+.alert.error { background: #fdecec; color: #b00009; border: 1px solid #f5b5b5; }
+
+/* ===== ACTION LINKS ===== */
+.action-link {
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: 'Nunito', sans-serif;
+}
+.action-link.edit { color: #2b3a8f; margin-right: 12px; }
+.action-link.edit:hover { text-decoration: underline; }
+.action-link.delete { color: #d8000c; }
+.action-link.delete:hover { text-decoration: underline; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 39, 102, .5);
+    backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+    background: #fff;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 460px;
+    box-shadow: 0 30px 60px -20px rgba(80,70,200,.5);
+    overflow: hidden;
+    animation: pop .2s ease;
+}
+@keyframes pop {
+    from { transform: scale(.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.modal-header {
+    padding: 22px 26px;
+    border-bottom: 1.5px solid #edf0ff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.modal-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px;
+    color: #1c2766;
+}
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 26px;
+    line-height: 1;
+    color: #8f9bd8;
+    cursor: pointer;
+}
+.modal-close:hover { color: #1c2766; }
+.modal-body {
+    padding: 24px 26px;
+}
+.modal-footer {
+    padding: 18px 26px;
+    border-top: 1.5px solid #edf0ff;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* ===== FORM ===== */
+.form-group {
+    margin-bottom: 18px;
+}
+.form-group label {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    color: #4b5686;
+    margin-bottom: 6px;
+}
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e0e3fa;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    color: #1c2766;
+    transition: .2s;
+}
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #7b6cf6;
+    box-shadow: 0 0 0 3px rgba(123,108,246,.15);
+}
+.form-hint {
+    font-size: 12px;
+    color: #8f9bd8;
+    font-weight: 600;
+    margin-top: 4px;
+    display: block;
+}
+.form-error {
+    color: #d8000c;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 4px;
+    display: block;
+}
+
+/* ===== LOGOUT ===== */
+.sidebar-footer {
+    margin-top: auto;
+    padding: 16px;
+    border-top: 1.5px solid #f0f2ff;
+}
+.nav-item.logout {
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    color: #d8000c;
+}
+.nav-item.logout svg { color: #d8000c; }
+.nav-item.logout:hover {
+    background: #fdecec;
+    color: #b00009;
+}
+.nav-item.logout:hover svg { color: #b00009; }
 </style>
 </head>
 <body>
@@ -276,6 +437,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 </a>
             @endif
         </nav>
+
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="nav-item logout">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Log Out
+                </button>
+            </form>
+        </div>
     </aside>
 
     <!-- MAIN CONTENT -->
@@ -293,8 +464,24 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
         <div class="page-header">
             <h1 class="page-title">Kelola Pengguna</h1>
-            <a href="#" class="btn pri">+ Tambah Pengguna</a>
+            <button type="button" class="btn pri" onclick="openCreateModal()">+ Tambah Pengguna</button>
         </div>
+
+        @if(session('success'))
+            <div class="alert success">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="alert error">{{ session('error') }}</div>
+        @endif
+        @if($errors->any() && !old('_edit_id') && old('_form') !== 'create')
+            <div class="alert error">
+                <ul style="margin-left: 18px;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <div class="card">
             <div class="table-responsive">
@@ -312,7 +499,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     <tbody>
                         @foreach($users as $user)
                         <tr>
-                            <td style="color: #8f9bd8; font-weight: 600;">#{{ $user->id }}</td>
+                            <td style="color: #8f9bd8; font-weight: 600;">#{{ $loop->iteration }}</td>
                             <td style="font-weight: 700; color: #1c2766;">{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
@@ -324,8 +511,19 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             </td>
                             <td style="color: #8f9bd8;">{{ $user->created_at->format('d M Y') }}</td>
                             <td>
-                                <a href="#" style="color: #2b3a8f; font-weight: 700; margin-right: 10px;">Edit</a>
-                                <a href="#" style="color: #d8000c; font-weight: 700;">Hapus</a>
+                                <button type="button" class="action-link edit"
+                                    onclick="openEditModal(this)"
+                                    data-id="{{ $user->id }}"
+                                    data-name="{{ $user->name }}"
+                                    data-email="{{ $user->email }}"
+                                    data-role="{{ $user->role }}">Edit</button>
+                                <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('Yakin ingin menghapus pengguna {{ addslashes($user->name) }}? Tindakan ini tidak dapat dibatalkan.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="action-link delete">Hapus</button>
+                                </form>
                             </td>
                         </tr>
                         @endforeach
@@ -335,6 +533,173 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         </div>
 
     </main>
+
+    <!-- ===== MODAL EDIT PENGGUNA ===== -->
+    <div class="modal-overlay" id="editModal" onclick="if(event.target === this) closeEditModal();">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+            <div class="modal-header">
+                <h2 class="modal-title" id="editModalTitle">Edit Pengguna : user ID {{ $user->id }}</h2>
+                <button type="button" class="modal-close" onclick="closeEditModal()" aria-label="Tutup">&times;</button>
+            </div>
+            <form id="editForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_id" name="_edit_id" value="{{ old('_edit_id') }}">
+                <input type="hidden" name="_form" value="edit">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="edit_name">Nama Lengkap</label>
+                        <input type="text" id="edit_name" name="name" value="{{ old('name') }}" required>
+                        @error('name') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_email">Alamat Email</label>
+                        <input type="email" id="edit_email" name="email" value="{{ old('email') }}" required>
+                        @error('email') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_role">Role</label>
+                        <select id="edit_role" name="role" required>
+                            <option value="member">Member</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        @error('role') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_password">Password Baru</label>
+                        <input type="password" id="edit_password" name="password" autocomplete="new-password">
+                        <span class="form-hint">Kosongkan jika tidak ingin mengubah password.</span>
+                        @error('password') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn ghost" onclick="closeEditModal()">Batal</button>
+                    <button type="submit" class="btn pri">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL TAMBAH PENGGUNA ===== -->
+    <div class="modal-overlay" id="createModal" onclick="if(event.target === this) closeCreateModal();">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="createModalTitle">
+            <div class="modal-header">
+                <h2 class="modal-title" id="createModalTitle">Tambah Pengguna</h2>
+                <button type="button" class="modal-close" onclick="closeCreateModal()" aria-label="Tutup">&times;</button>
+            </div>
+            <form id="createForm" method="POST" action="{{ route('pengguna.store') }}">
+                @csrf
+                <input type="hidden" name="_form" value="create">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="create_name">Nama Lengkap</label>
+                        <input type="text" id="create_name" name="name" value="{{ old('name') }}" required>
+                        @error('name') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="create_email">Alamat Email</label>
+                        <input type="email" id="create_email" name="email" value="{{ old('email') }}" required>
+                        @error('email') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="create_role">Role</label>
+                        <select id="create_role" name="role" required>
+                            <option value="member" {{ old('role') === 'member' ? 'selected' : '' }}>Member</option>
+                            <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                        </select>
+                        @error('role') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="create_password">Password</label>
+                        <input type="password" id="create_password" name="password" autocomplete="new-password" required>
+                        <span class="form-hint">Minimal 8 karakter.</span>
+                        @error('password') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn ghost" onclick="closeCreateModal()">Batal</button>
+                    <button type="submit" class="btn pri">Simpan Pengguna</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const editModal = document.getElementById('editModal');
+        const editForm = document.getElementById('editForm');
+        const createModal = document.getElementById('createModal');
+        const createForm = document.getElementById('createForm');
+
+        // ===== MODAL EDIT =====
+        function openEditModal(button) {
+            const id    = button.getAttribute('data-id');
+            const name  = button.getAttribute('data-name');
+            const email = button.getAttribute('data-email');
+            const role  = button.getAttribute('data-role');
+
+            // Set action form ke route update
+            editForm.action = '/pengguna/' + id;
+            document.getElementById('edit_id').value = id;
+
+            // Isi nilai form
+            document.getElementById('edit_name').value = name;
+            document.getElementById('edit_email').value = email;
+            document.getElementById('edit_role').value = role;
+            document.getElementById('edit_password').value = '';
+
+            // Hapus pesan error lama (jika ada)
+            document.querySelectorAll('#editForm .form-error').forEach(el => el.remove());
+
+            editModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEditModal() {
+            editModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ===== MODAL TAMBAH =====
+        function openCreateModal() {
+            // Reset form ke kondisi bersih
+            createForm.reset();
+
+            // Hapus pesan error lama (jika ada)
+            document.querySelectorAll('#createForm .form-error').forEach(el => el.remove());
+
+            createModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreateModal() {
+            createModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Tutup modal aktif dengan tombol ESC
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                if (editModal.classList.contains('active')) {
+                    closeEditModal();
+                }
+                if (createModal.classList.contains('active')) {
+                    closeCreateModal();
+                }
+            }
+        });
+
+        // Jika ada error validasi setelah submit, buka kembali modal yang sesuai
+        @if($errors->any())
+            @if(old('_form') === 'create')
+                createModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            @else
+                editForm.action = '/pengguna/' + document.getElementById('edit_id').value;
+                editModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            @endif
+        @endif
+    </script>
 
 </body>
 </html>

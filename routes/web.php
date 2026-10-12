@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\Api\AuthController;
+use App\Models\User;
+use App\Http\Controllers\PenggunaController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,14 +29,26 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/dashboard', function () {
-    $totalUsers = \App\Models\User::count();
+    $totalUsers = User::count();
     return view('dashboard', compact('totalUsers'));
 })->middleware('auth')->name('dashboard');
 
 Route::get('/pengguna', function () {
-    $users = \App\Models\User::all();
+    $users = User::all();
     return view('pengguna', compact('users'));
 })->middleware('auth')->name('pengguna');
+
+Route::post('/pengguna', [PenggunaController::class, 'store'])
+    ->middleware('auth')->name('pengguna.store');
+
+Route::put('/pengguna/{id}', [PenggunaController::class, 'update'])
+    ->middleware('auth')->name('pengguna.update');
+
+Route::delete('/pengguna/{id}', [PenggunaController::class, 'destroy'])
+    ->middleware('auth')->name('pengguna.destroy');
+
+
+
 
 Route::get('/proyek', function () {
     return view('proyek');
