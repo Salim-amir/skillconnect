@@ -30,5 +30,41 @@ class DatabaseSeeder extends Seeder
             'password' => \Illuminate\Support\Facades\Hash::make('password123'),
             'role' => 'member',
         ]);
+
+         User::create([
+            'name' => 'della',
+            'email' => 'della@skillconnect.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'member',
+        ]);
+
+        User::create([
+            'name' => 'mulmul',
+            'email' => 'mulia@skillconnect.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'member',
+        ]);
+
+        User::create([
+            'name' => 'vinda',
+            'email' => 'vinda@skillconnect.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'member',
+        ]);
+
+        User::create([
+            'name' => 'salim',
+            'email' => 'salim@skillconnect.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'member',
+        ]);
+
+        User::create([
+            'name' => 'farel',
+            'email' => 'farel@skillconnect.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'member',
+        ]);
+
     }
 }

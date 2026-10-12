@@ -23,7 +23,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $totalUsers = \App\Models\User::count();
+    return view('dashboard', compact('totalUsers'));
 })->middleware('auth')->name('dashboard');
 
 Route::get('/pengguna', function () {
