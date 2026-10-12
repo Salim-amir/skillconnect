@@ -400,8 +400,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         </nav>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
+  <main class="main-content">
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="user-profile">
@@ -433,7 +432,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             <div class="grid-stats grid-stats-4">
                 <div class="card">
                     <div class="card-title">Pengguna</div>
-                    <div class="stat-value">2.450</div>
+                    <div class="stat-value">{{ $totalUsers ?? 0 }}</div>
                 </div>
                 <div class="card">
                     <div class="card-title">Proyek</div>
@@ -604,6 +603,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         @endif
 
     </main>
+
 
 </body>
 </html>
