@@ -400,7 +400,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         </nav>
     </aside>
 
-  <main class="main-content">
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="user-profile">
@@ -603,6 +605,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         @endif
 
     </main>
+
+
+
 
 
 </body>
