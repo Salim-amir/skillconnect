@@ -1,12 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\Api\AuthController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
 
 Route::get('/login', function () {
     return view('login');
