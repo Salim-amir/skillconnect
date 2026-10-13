@@ -331,7 +331,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             <a class="brand" href="/" aria-label="SkillConnect">
                 <svg viewBox="0 0 64 32" fill="none">
                   <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#4d6bff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient></defs>
-                  <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C26 27 12 27 12 16Z" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
+                  <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C52 5 38 5 32 16C26 27 12 27 12 16Z" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
                 </svg>
                 <span>SKILL CONNECT</span>
             </a>
@@ -378,7 +378,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <div class="sidebar-footer">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" class="btn-logout">Keluar Akun</button>
+                <button type="submit" class="btn-logout">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Keluar Akun
+                </button>
             </form>
         </div>
     </aside>

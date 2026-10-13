@@ -536,7 +536,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="top-breadcrumb">
-                SkillConnect / <span>Eksplorasi & Gabung Proyek</span>
+                @if(auth()->check() && auth()->user()->role === 'admin')
+                    SkillConnect / <span>Kelola Proyek</span>
+                @else
+                    SkillConnect / <span>Eksplorasi & Gabung Proyek</span>
+                @endif
             </div>
             <div class="user-profile">
                 <div class="user-info">
@@ -554,7 +558,143 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <span>{{ session('success') }}</span>
             </div>
         @endif
+        @if(session('error'))
+            <div class="alert alert-danger">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
 
+        @if(auth()->check() && auth()->user()->role === 'admin')
+        {{-- ===================== ADMIN: TABEL MANAJEMEN PROYEK ===================== --}}
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Kelola Proyek</h1>
+                <p class="page-desc">Pantau, kelola, dan moderasi semua proyek yang ada di platform SkillConnect.</p>
+            </div>
+        </div>
+
+        <!-- FILTER PENCARIAN ADMIN -->
+        <div class="filter-card">
+            <form action="{{ route('proyek') }}" method="GET" class="filter-form">
+                <div>
+                    <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Cari judul proyek, creator, atau deskripsi...">
+                </div>
+                <div>
+                    <select name="kategori" class="form-control">
+                        <option value="Semua">Semua Kategori</option>
+                        <option value="Web Development" {{ request('kategori') == 'Web Development' ? 'selected' : '' }}>Web Development</option>
+                        <option value="Mobile App" {{ request('kategori') == 'Mobile App' ? 'selected' : '' }}>Mobile App</option>
+                        <option value="UI/UX Design" {{ request('kategori') == 'UI/UX Design' ? 'selected' : '' }}>UI/UX Design</option>
+                        <option value="Data Science & AI" {{ request('kategori') == 'Data Science & AI' ? 'selected' : '' }}>Data Science & AI</option>
+                        <option value="Digital Marketing" {{ request('kategori') == 'Digital Marketing' ? 'selected' : '' }}>Digital Marketing</option>
+                    </select>
+                </div>
+                <div>
+                    <select name="status" class="form-control">
+                        <option value="">Semua Status</option>
+                        <option value="Mencari Tim" {{ request('status') == 'Mencari Tim' ? 'selected' : '' }}>Mencari Tim</option>
+                        <option value="Berjalan" {{ request('status') == 'Berjalan' ? 'selected' : '' }}>Berjalan</option>
+                        <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="btn pri">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        Cari
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- STATISTIK RINGKAS -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px;">
+            <div style="background: #fff; border: 1.5px solid #e0e3fa; border-radius: 14px; padding: 18px 20px; text-align: center;">
+                <div style="font-size: 28px; font-weight: 800; color: #2b3a8f; font-family: 'Fredoka', sans-serif;">{{ $projects->total() }}</div>
+                <div style="font-size: 13px; color: #4b5686; font-weight: 600;">Total Proyek</div>
+            </div>
+            <div style="background: #fff; border: 1.5px solid #e0e3fa; border-radius: 14px; padding: 18px 20px; text-align: center;">
+                <div style="font-size: 28px; font-weight: 800; color: #0ea853; font-family: 'Fredoka', sans-serif;">{{ $projects->where('status_project', 'Mencari Tim')->count() }}</div>
+                <div style="font-size: 13px; color: #4b5686; font-weight: 600;">Mencari Tim</div>
+            </div>
+            <div style="background: #fff; border: 1.5px solid #e0e3fa; border-radius: 14px; padding: 18px 20px; text-align: center;">
+                <div style="font-size: 28px; font-weight: 800; color: #e88e0c; font-family: 'Fredoka', sans-serif;">{{ $projects->where('status_project', 'Berjalan')->count() }}</div>
+                <div style="font-size: 13px; color: #4b5686; font-weight: 600;">Berjalan</div>
+            </div>
+            <div style="background: #fff; border: 1.5px solid #e0e3fa; border-radius: 14px; padding: 18px 20px; text-align: center;">
+                <div style="font-size: 28px; font-weight: 800; color: #7b6cf6; font-family: 'Fredoka', sans-serif;">{{ $projects->where('status_project', 'Selesai')->count() }}</div>
+                <div style="font-size: 13px; color: #4b5686; font-weight: 600;">Selesai</div>
+            </div>
+        </div>
+
+        <!-- TABEL MANAJEMEN PROYEK -->
+        <div style="background: #fff; border: 1.5px solid #e0e3fa; border-radius: 16px; box-shadow: 0 6px 24px -12px rgba(80,70,200,.15); overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <thead>
+                    <tr>
+                        <th style="padding: 14px 18px; background: #f4f6ff; color: #4b5686; font-weight: 700; font-family: 'Fredoka', sans-serif; text-align: left;">No</th>
+                        <th style="padding: 14px 18px; background: #f4f6ff; color: #4b5686; font-weight: 700; font-family: 'Fredoka', sans-serif; text-align: left;">Judul Proyek</th>
+                        <th style="padding: 14px 18px; background: #f4f6ff; color: #4b5686; font-weight: 700; font-family: 'Fredoka', sans-serif; text-align: left;">Creator</th>
+                        <th style="padding: 14px 18px; background: #f4f6ff; color: #4b5686; font-weight: 700; font-family: 'Fredoka', sans-serif; text-align: left;">Kategori</th>
+                        <th style="padding: 14px 18px; background: #f4f6ff; color: #4b5686; font-weight: 700; font-family: 'Fredoka', sans-serif; text-align: left;">Budget</th>
+                        <th style="padding: 14px 18px; background: #f4f6ff; color: #4b5686; font-weight: 700; font-family: 'Fredoka', sans-serif; text-align: center;">Anggota</th>
+                        <th style="padding: 14px 18px; background: #f4f6ff; color: #4b5686; font-weight: 700; font-family: 'Fredoka', sans-serif; text-align: center;">Status</th>
+                        <th style="padding: 14px 18px; background: #f4f6ff; color: #4b5686; font-weight: 700; font-family: 'Fredoka', sans-serif; text-align: center;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($projects as $idx => $p)
+                    <tr style="border-bottom: 1px solid #edf0ff;">
+                        <td style="padding: 14px 18px; color: #4b5686; font-weight: 600;">{{ $projects->firstItem() + $idx }}</td>
+                        <td style="padding: 14px 18px;">
+                            <div style="font-weight: 700; color: #1c2766; margin-bottom: 2px;">{{ Str::limit($p->judul_project, 35) }}</div>
+                            <div style="font-size: 12px; color: #9aa2cc;">{{ $p->created_at->format('d M Y') }}</div>
+                        </td>
+                        <td style="padding: 14px 18px; color: #4b5686; font-weight: 600;">{{ $p->creator->name ?? '-' }}</td>
+                        <td style="padding: 14px 18px;">
+                            <span class="category-badge" style="font-size: 12px;">{{ $p->kategori }}</span>
+                        </td>
+                        <td style="padding: 14px 18px; font-weight: 700; color: #2b3a8f;">Rp {{ number_format($p->budget, 0, ',', '.') }}</td>
+                        <td style="padding: 14px 18px; text-align: center;">
+                            <span style="background: #eef0ff; color: #2b3a8f; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700;">{{ $p->members->count() }}</span>
+                        </td>
+                        <td style="padding: 14px 18px; text-align: center;">
+                            @php
+                                $statusColors = [
+                                    'Mencari Tim' => 'background: #e5ffe5; color: #008000;',
+                                    'Berjalan'    => 'background: #fff5e5; color: #cc7a00;',
+                                    'Selesai'     => 'background: #eef0ff; color: #2b3a8f;',
+                                ];
+                            @endphp
+                            <span style="{{ $statusColors[$p->status_project] ?? 'background: #f0f0f0; color: #666;' }} padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">
+                                {{ $p->status_project }}
+                            </span>
+                        </td>
+                        <td style="padding: 14px 18px; text-align: center;">
+                            <a href="{{ route('proyek.detail', $p->id) }}" style="padding: 6px 14px; background: linear-gradient(90deg, #2b3a8f, #7b6cf6); color: #fff; border-radius: 8px; font-size: 12.5px; font-weight: 700; text-decoration: none; display: inline-block;">
+                                Detail
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="8" style="padding: 60px 18px; text-align: center; color: #9aa2cc;">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom: 12px; opacity: .5;"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 16px; color: #4b5686;">Belum Ada Proyek</div>
+                            <div style="font-size: 13.5px; margin-top: 4px;">Belum ada proyek yang terdaftar di platform.</div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 32px;">
+            {{ $projects->links() }}
+        </div>
+
+        @else
+        {{-- ===================== USER: CARD GRID EKSPLORASI ===================== --}}
         <div class="page-header">
             <div>
                 <h1 class="page-title">Eksplorasi Daftar Proyek</h1>
@@ -566,7 +706,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             </a>
         </div>
 
-        <!-- FILTER & SEARCH (AD-03: Buka Halaman & Cari Project) -->
+        <!-- FILTER & SEARCH -->
         <div class="filter-card">
             <form action="{{ route('proyek') }}" method="GET" class="filter-form">
                 <div>
@@ -599,7 +739,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             </form>
         </div>
 
-        <!-- DAFTAR PROYEK YANG TERSEDIA (AD-03: Lihat Daftar Proyek yang Tersedia) -->
+        <!-- DAFTAR PROYEK CARD GRID -->
         <div class="project-grid">
             @forelse($projects as $p)
                 <div class="project-card">
@@ -617,7 +757,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
                         <p class="project-desc">{{ $p->deskripsi }}</p>
 
-                        <!-- Kebutuhan Skill Proyek -->
                         <div class="project-skills">
                             @forelse($p->skills as $sk)
                                 <span class="skill-pill">{{ $sk->nama_skill }}</span>
@@ -660,6 +799,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <div style="margin-top: 32px;">
             {{ $projects->links() }}
         </div>
+        @endif
 
     </main>
 

@@ -339,6 +339,53 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     border-bottom: none;
 }
 
+/* ===== Toast Notification ===== */
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, #7c8cf8, #a78bfa);
+    color: #fff;
+    padding: 16px 28px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    z-index: 9999;
+    box-shadow: 0 10px 40px -8px rgba(124, 140, 248, 0.45);
+    opacity: 0;
+    animation: toastSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+               toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) 3s forwards;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+@keyframes toastSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(100px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes toastSlideDown {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(100px);
+    }
+}
+
 </style>
 </head>
 <body>
@@ -431,9 +478,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         </header>
 
         @if(session('success'))
-            <div style="background: #e5ffe5; border-left: 4px solid #008000; padding: 16px 20px; border-radius: 8px; margin-bottom: 24px; color: #008000; font-weight: 600; display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.5s;">
-                {{ session('success') }}
-                <button onclick="this.parentElement.style.display='none'" style="background: transparent; border: none; color: #008000; font-size: 20px; cursor: pointer;">&times;</button>
+            <div class="toast-notification" id="toastNotif">
+                {{ session('success') }} 🎉
             </div>
         @endif
         @if(auth()->check() && auth()->user()->role === 'admin')
@@ -620,5 +666,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
 
 
+<script>
+    // Auto-remove toast dari DOM setelah animasi selesai
+    const toast = document.getElementById('toastNotif');
+    if (toast) {
+        setTimeout(() => {
+            toast.remove();
+        }, 3500);
+    }
+</script>
 </body>
 </html>

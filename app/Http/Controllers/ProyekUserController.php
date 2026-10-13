@@ -264,6 +264,11 @@ class ProyekUserController extends Controller
      */
     public function create()
     {
+        // Admin tidak boleh membuat proyek (UC-12: hanya kelola)
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('proyek')->with('error', 'Admin tidak memiliki akses untuk membuat proyek.');
+        }
+
         $allSkills = Skill::orderBy('nama_skill')->get();
         if ($allSkills->isEmpty()) {
             $defaultSkills = ['Laravel', 'Vue.js', 'React', 'Flutter', 'UI/UX Design', 'Node.js', 'Python'];
@@ -282,6 +287,12 @@ class ProyekUserController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+
+        // Admin tidak boleh membuat proyek
+        if ($user->role === 'admin') {
+            return redirect()->route('proyek')->with('error', 'Admin tidak memiliki akses untuk membuat proyek.');
+        }
+
 
         $validated = $request->validate([
             'judul_project'  => 'required|string|max:255',
