@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'role', 'google_id'])]
+#[Fillable(['name', 'email', 'password', 'role', 'google_id', 'pengalaman', 'portofolio'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -20,14 +20,33 @@ class User extends Authenticatable
 
     /**
      * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+      *
+      * @return array<string, string>
+      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'user_skill')
+                    ->withPivot('id', 'tingkat_keahlian')
+                    ->withTimestamps();
+    }
+
+    public function createdProjects()
+    {
+        return $this->hasMany(Project::class, 'creator_id');
+    }
+
+    public function joinedProjects()
+    {
+        return $this->belongsToMany(Project::class, 'project_member')
+                    ->withPivot('id', 'peran', 'nominal_fee', 'status_keanggotaan', 'nilai_evaluasi')
+                    ->withTimestamps();
     }
 }

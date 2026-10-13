@@ -35,18 +35,56 @@
             box-sizing: border-box;
         }
 
-        /* Notifikasi Inline */
+        /* Toast Notification dari Bawah */
         .alert-box {
             display: none;
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            font-weight: 500;
-            width: 100%;
-            max-width: 480px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            min-width: 320px;
+            max-width: 500px;
             box-sizing: border-box;
-            line-height: 1.4;
+            line-height: 1.5;
+            z-index: 9999;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            opacity: 0;
+            transition: none;
+        }
+
+        .alert-box.toast-show {
+            display: block;
+            animation: toastSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .alert-box.toast-hide {
+            animation: toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+        }
+
+        @keyframes toastSlideUp {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(100px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes toastSlideDown {
+            0% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(100px);
+            }
         }
 
         .alert-success {
@@ -137,15 +175,41 @@
     <script>
         let authToken = localStorage.getItem('token') || '';
 
+        let toastTimeout = null;
+
         function showAlert(message, type = 'danger') {
             const alertEl = document.getElementById('inlineAlert');
+
+            // Reset state
+            if (toastTimeout) clearTimeout(toastTimeout);
             alertEl.className = 'alert-box alert-' + type;
             alertEl.innerHTML = message;
             alertEl.style.display = 'block';
+
+            // Trigger slide-up
+            requestAnimationFrame(() => {
+                alertEl.classList.add('toast-show');
+            });
+
+            // Auto-hide setelah 3 detik
+            toastTimeout = setTimeout(() => {
+                alertEl.classList.remove('toast-show');
+                alertEl.classList.add('toast-hide');
+                setTimeout(() => {
+                    alertEl.style.display = 'none';
+                    alertEl.classList.remove('toast-hide');
+                }, 400);
+            }, 3000);
         }
 
         function hideAlert() {
-            document.getElementById('inlineAlert').style.display = 'none';
+            const alertEl = document.getElementById('inlineAlert');
+            alertEl.classList.remove('toast-show');
+            alertEl.classList.add('toast-hide');
+            setTimeout(() => {
+                alertEl.style.display = 'none';
+                alertEl.classList.remove('toast-hide');
+            }, 400);
         }
 
         function logOutput(data) {
@@ -224,7 +288,7 @@
                 logOutput(data);
 
                 if (res.ok) {
-                    showAlert('✅ Login Berhasil! Welcome ' + (data.user?.name || 'User'), 'success');
+                    showAlert('Login Berhasil! Welcome ' + (data.user?.name || 'User') + ' 🎉', 'success');
                     if (data.token) {
                         authToken = data.token;
                         localStorage.setItem('token', authToken);
