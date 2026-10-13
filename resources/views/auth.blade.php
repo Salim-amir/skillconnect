@@ -288,7 +288,7 @@
                 logOutput(data);
 
                 if (res.ok) {
-                    showAlert('🎉🎊 Login Berhasil! Welcome ' + (data.user?.name || 'User') + ' 🎉🎊', 'success');
+                    showAlert('Login Berhasil! Welcome ' + (data.user?.name || 'User') + ' 🎉', 'success');
                     if (data.token) {
                         authToken = data.token;
                         localStorage.setItem('token', authToken);
