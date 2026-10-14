@@ -593,9 +593,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     <div class="card">
                         <div class="candidate-header">
                             <div>
-                                <h2 class="candidate-title">Daftar Kandidat Pelamar</h2>
+                                <h2 class="candidate-title">Daftar Kandidat</h2>
                                 <p style="font-size: 13px; color: var(--mute); margin-top: 2px;">
-                                    Sebelum filter diklik, diurutkan berdasarkan pendaftar terbaru (*new*).
+                                    @if(!empty($selectedPosition) && $selectedPosition !== 'Semua')
+                                        Filter: <strong>{{ $selectedPosition }}</strong> &bull; Diurutkan berdasarkan skor kecocokan skill (Exact Match).
+                                    @else
+                                        Sebelum filter posisi diklik, kandidat diurutkan berdasarkan pendaftar terbaru (*new*).
+                                    @endif
                                 </p>
                             </div>
                             <span style="font-size: 13px; font-weight: 700; color: #7b6cf6; background: #f1edff; padding: 4px 10px; border-radius: 8px;">
@@ -603,7 +607,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             </span>
                         </div>
 
-                        <!-- FILTER BERDASARKAN POSISI (SESUAI CATATAN REVISI TEMAN) -->
+                        <!-- FILTER BERDASARKAN POSISI (SESUAI CATATAN REVISI & PROPOSAL) -->
                         <div class="filter-posisi-bar">
                             <a href="{{ route('proyek.detail', $project->id) }}" class="pos-filter-chip {{ empty($selectedPosition) || $selectedPosition === 'Semua' ? 'active' : '' }}">
                                 Semua Posisi (New Default)
@@ -621,7 +625,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 <div class="candidate-top">
                                     <div>
                                         <div class="cand-name">{{ $cand->candidate_name }}</div>
-                                        <span class="cand-role-pill">Melamar: {{ $cand->peran }}</span>
+                                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+                                            <span class="cand-role-pill">Melamar: {{ $cand->peran }}</span>
+                                            <span style="font-size: 12px; font-weight: 700; color: #4338ca; background: #eef2ff; padding: 2px 8px; border-radius: 6px; border: 1px solid #dbe4ff;">
+                                                {{ $cand->match_summary ?? 'Cocok 0 Skill' }}
+                                            </span>
+                                        </div>
                                     </div>
                                     <div class="score-badge {{ $cand->match_score >= 70 ? 'score-high' : ($cand->match_score >= 40 ? 'score-mid' : 'score-low') }}">
                                         {{ $cand->match_score }}% Cocok
@@ -633,14 +642,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                     <strong>Mendaftar:</strong> {{ \Carbon\Carbon::parse($cand->applied_at)->diffForHumans() }}
                                 </div>
 
-                                <!-- Skill yang Cocok dengan Proyek -->
+                                <!-- Skill yang Cocok dengan Proyek (Exact Match) -->
                                 <div class="cand-skills-row">
+                                    <span style="font-size: 12px; color: var(--mute); font-weight: 600; align-self: center; margin-right: 4px;">Skill Cocok:</span>
                                     @forelse($cand->matching_skills as $ms)
                                         <span class="matched-skill-tag">{{ $ms }}</span>
                                     @empty
-                                        <span style="font-size: 12px; color: #9aa2cc; font-style: italic;">Skill belum cocok spesifik</span>
+                                        <span style="font-size: 12px; color: #9aa2cc; font-style: italic;">Belum ada skill yang cocok dengan kriteria proyek</span>
                                     @endforelse
                                 </div>
+
+                                @if(!empty($cand->missing_skills) && count($cand->missing_skills) > 0 && $cand->matching_count > 0)
+                                    <div style="margin-bottom: 12px; font-size: 12px; color: #8892b0;">
+                                        <span style="font-weight: 600;">Skill Belum Ada:</span> {{ implode(', ', $cand->missing_skills) }}
+                                    </div>
+                                @endif
 
                                 <!-- Tautan Bukti Portofolio Pelamar -->
                                 @if($cand->candidate_portofolio)
