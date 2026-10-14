@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Models\Project;
 use App\Models\Skill;
 use App\Models\User;
+use App\Services\ExactSkillMatchingService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,13 @@ use Illuminate\Support\Facades\DB;
 
 class ProyekController extends Controller
 {
+    protected ExactSkillMatchingService $matchingService;
+
+    public function __construct(ExactSkillMatchingService $matchingService)
+    {
+        $this->matchingService = $matchingService;
+    }
+
     /**
      * AD-03: Menampilkan daftar proyek yang tersedia & pencarian
      */
@@ -71,6 +79,7 @@ class ProyekController extends Controller
 
     /**
      * AD-03, AD-06, AD-07: Detail Proyek, Daftar Kandidat (Pelamar), & Kelola Tim
+     * Menggunakan ExactSkillMatchingService [MVP 2]
      */
     public function show(Request $request, $id)
     {
@@ -84,84 +93,13 @@ class ProyekController extends Controller
                 ->first();
         }
 
-        // Ambil posisi-posisi unik dari pelamar proyek ini
-        $availablePositions = DB::table('project_member')
-            ->where('project_id', $project->id)
-            ->where('peran', '!=', 'Project Creator / Leader')
-            ->distinct()
-            ->pluck('peran')
-            ->toArray();
-
-        // REVISI AD-06: Daftar Kandidat (Pelamar)
-        // 1. Sebelum difilter: diurutkan berdasarkan yang mendaftar duluan (new / latest submission)
-        // 2. Jika filter posisi dipilih: difilter berdasarkan posisi tersebut
-        $candidateQuery = DB::table('project_member')
-            ->join('users', 'project_member.user_id', '=', 'users.id')
-            ->where('project_member.project_id', $project->id)
-            ->where('project_member.peran', '!=', 'Project Creator / Leader')
-            ->select(
-                'project_member.id as application_id',
-                'project_member.peran',
-                'project_member.nominal_fee',
-                'project_member.status_keanggotaan',
-                'project_member.created_at as applied_at',
-                'users.id as user_id',
-                'users.name as candidate_name',
-                'users.email as candidate_email',
-                'users.portofolio as candidate_portofolio',
-                'users.pengalaman as candidate_pengalaman'
-            );
-
         $selectedPosition = $request->query('posisi');
-        if (!empty($selectedPosition) && $selectedPosition !== 'Semua') {
-            $candidateQuery->where('project_member.peran', $selectedPosition);
-        }
 
-        // Default sort: Yang mendaftar duluan / terbaru (new)
-        $rawCandidates = $candidateQuery->orderBy('project_member.created_at', 'desc')->get();
+        // AD-06 Revisi: Daftar posisi unik pelamar
+        $availablePositions = $this->matchingService->getAvailablePositions($project->id);
 
-        // Hitung algoritma kesesuaian skill proyek (AD-05) untuk setiap kandidat
-        $projectSkillIds = $project->skills->pluck('id')->toArray();
-        $totalProjectSkills = count($projectSkillIds);
-
-        $levelWeights = [
-            'Beginner'     => 1,
-            'Intermediate' => 2,
-            'Advanced'     => 3,
-        ];
-
-        $candidates = $rawCandidates->map(function ($c) use ($projectSkillIds, $totalProjectSkills, $levelWeights) {
-            // Ambil skill kandidat
-            $userSkills = DB::table('user_skill')
-                ->join('skills', 'user_skill.skill_id', '=', 'skills.id')
-                ->where('user_skill.user_id', $c->user_id)
-                ->select('skills.nama_skill', 'user_skill.skill_id', 'user_skill.tingkat_keahlian')
-                ->get();
-
-            $matchingCount = 0;
-            $skillWeightTotal = 0;
-            $matchingSkillNames = [];
-
-            foreach ($userSkills as $us) {
-                if (in_array($us->skill_id, $projectSkillIds)) {
-                    $matchingCount++;
-                    $matchingSkillNames[] = $us->nama_skill . ' (' . $us->tingkat_keahlian . ')';
-                    $skillWeightTotal += $levelWeights[$us->tingkat_keahlian] ?? 1;
-                }
-            }
-
-            // Skor kecocokan persentase (AD-05)
-            $matchScore = $totalProjectSkills > 0 
-                ? round(($matchingCount / $totalProjectSkills) * 100) 
-                : 100;
-
-            $c->match_score = $matchScore;
-            $c->skill_weight_total = $skillWeightTotal;
-            $c->matching_skills = $matchingSkillNames;
-            $c->all_skills = $userSkills;
-
-            return $c;
-        });
+        // MVP 2: Exact Skill Matching Query & Urutan Kandidat Sesuai Filter Posisi
+        $candidates = $this->matchingService->getCandidatesForProject($project, $selectedPosition);
 
         // Ambil daftar anggota tim yang sudah resmi diterima (Accepted)
         $acceptedMembers = DB::table('project_member')
