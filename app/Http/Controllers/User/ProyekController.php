@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
 use App\Models\Project;
 use App\Models\Skill;
 use App\Models\User;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class ProyekUserController extends Controller
+class ProyekController extends Controller
 {
     /**
      * AD-03: Menampilkan daftar proyek yang tersedia & pencarian
@@ -65,7 +66,7 @@ class ProyekUserController extends Controller
             $allSkills = Skill::orderBy('nama_skill')->get();
         }
 
-        return view('proyek', compact('projects', 'allSkills', 'userAppliedProjectIds'));
+        return view('user.proyek', compact('projects', 'allSkills', 'userAppliedProjectIds'));
     }
 
     /**
@@ -170,7 +171,7 @@ class ProyekUserController extends Controller
             ->select('project_member.*', 'users.name', 'users.email', 'users.portofolio')
             ->get();
 
-        return view('proyek-detail', compact(
+        return view('user.proyek-detail', compact(
             'project', 
             'myApplication', 
             'candidates', 
@@ -278,7 +279,7 @@ class ProyekUserController extends Controller
             $allSkills = Skill::orderBy('nama_skill')->get();
         }
 
-        return view('proyek-create', compact('allSkills'));
+        return view('user.proyek-create', compact('allSkills'));
     }
 
     /**
@@ -398,7 +399,7 @@ class ProyekUserController extends Controller
         $totalActiveProjects = $joinedProjects->where('status_project', '!=', 'Selesai')->count() 
             + $createdProjects->where('status_project', '!=', 'Selesai')->count();
 
-        return view('riwayat-proyek', compact(
+        return view('user.riwayat-proyek', compact(
             'user',
             'createdProjects',
             'joinedProjects',
