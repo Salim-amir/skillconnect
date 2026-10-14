@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
 use App\Models\User;
 use App\Models\Skill;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +36,7 @@ class ProfileSkillController extends Controller
             $masterSkills = Skill::orderBy('nama_skill', 'asc')->get();
         }
 
-        return view('profile-skill', compact('user', 'userSkills', 'masterSkills'));
+        return view('user.profile-skill', compact('user', 'userSkills', 'masterSkills'));
     }
 
     /**

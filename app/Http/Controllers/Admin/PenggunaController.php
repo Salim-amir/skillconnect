@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -37,7 +38,7 @@ class PenggunaController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('pengguna')->with('success', 'Pengguna baru berhasil ditambahkan.');
+        return redirect()->route('admin.pengguna')->with('success', 'Pengguna baru berhasil ditambahkan.');
     }
 
     /**
@@ -74,7 +75,7 @@ class PenggunaController extends Controller
 
         $user->save();
 
-        return redirect()->route('pengguna')->with('success', 'Data pengguna berhasil diperbarui.');
+        return redirect()->route('admin.pengguna')->with('success', 'Data pengguna berhasil diperbarui.');
     }
 
     /**
@@ -86,11 +87,11 @@ class PenggunaController extends Controller
 
         // Cegah admin menghapus akunnya sendiri
         if (auth()->check() && auth()->id() === $user->id) {
-            return redirect()->route('pengguna')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+            return redirect()->route('admin.pengguna')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
         $user->delete();
 
-        return redirect()->route('pengguna')->with('success', 'Pengguna berhasil dihapus.');
+        return redirect()->route('admin.pengguna')->with('success', 'Pengguna berhasil dihapus.');
     }
 }
