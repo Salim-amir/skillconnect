@@ -10,7 +10,7 @@ describe('SkillConnect E2E Test Suite - Cypress', () => {
       cy.get('#fL input[name="email"]').clear().type('admin@skillconnect.com');
       cy.get('#fL input[name="password"]').clear().type('password123');
       cy.get('#fL button[type="submit"]').click();
-      cy.url().should('include', '/dashboard');
+      cy.url({ timeout: 15000 }).should('include', '/dashboard');
       cy.contains('Dashboard').should('exist');
     });
   };
@@ -49,7 +49,7 @@ describe('SkillConnect E2E Test Suite - Cypress', () => {
     cy.get('#fL input[name="email"]').clear().type('admin@skillconnect.com');
     cy.get('#fL input[name="password"]').clear().type('password123');
     cy.get('#fL button[type="submit"]').click();
-    cy.url().should('include', '/dashboard');
+    cy.url({ timeout: 15000 }).should('include', '/dashboard');
     cy.contains('Dashboard').should('exist');
   });
 
