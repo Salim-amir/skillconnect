@@ -510,7 +510,6 @@ footer .l b{color:var(--ink)}footer p{font-size:14px;margin-top:12px;max-width:2
   function bad(f,t){var e=f.querySelector('.msg');e.className='msg';e.textContent=t;card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake')}
   function ok(f,t){var e=f.querySelector('.msg');e.className='msg ok';e.textContent=t;fx.success()}
   var re=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    var re=/^[^s@]+@[^s@]+.[^s@]+$/;
   fL.onsubmit=function(e){var v=fL.elements;
     if(!re.test(v.email.value)){e.preventDefault(); return bad(fL,'Masukkan alamat email yang valid.');}
     if(!v.password.value){e.preventDefault(); return bad(fL,'Kata sandi wajib diisi.');}
