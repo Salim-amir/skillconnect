@@ -30,3 +30,6 @@ Thumbs.db
 selenium-report.html
 .pytest_cache/
 __pycache__/
+/cypress/screenshots/
+/cypress/videos/
+
