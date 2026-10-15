@@ -127,9 +127,9 @@ class ProyekController extends Controller
     {
         $project = Project::findOrFail($projectId);
 
-        // Hanya creator proyek yang boleh menerima/menolak
-        if (Auth::id() !== $project->creator_id) {
-            return redirect()->back()->with('error', 'Hanya Creator proyek yang memiliki wewenang mengelola tim.');
+        // Hanya creator proyek atau admin yang boleh menerima/menolak
+        if (Auth::id() !== $project->creator_id && Auth::user()->role !== 'admin') {
+            return redirect()->back()->with('error', 'Hanya Creator proyek atau Admin yang memiliki wewenang mengelola tim.');
         }
 
         $request->validate([

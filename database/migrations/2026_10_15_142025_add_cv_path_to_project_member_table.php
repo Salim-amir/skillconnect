@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('project_member', function (Blueprint $table) {
             // CV pelamar — wajib, hanya format PDF, maks 2MB
-            $table->string('cv_path')->nullable()->after('pesan');
+            $table->string('cv_path')->nullable();
         });
     }
 

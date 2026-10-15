@@ -47,7 +47,7 @@ class TaskController extends Controller
             'Selesai'           => $project->tasks->where('status_task', 'Selesai'),
         ];
 
-        $isCreator = Auth::id() === $project->creator_id;
+        $isCreator = Auth::id() === $project->creator_id || Auth::user()?->role === 'admin';
 
         // Evaluasi milik user yang sedang login (untuk tampilan anggota)
         $myEvaluation = $acceptedMembers->firstWhere('id', Auth::id());
@@ -68,8 +68,8 @@ class TaskController extends Controller
     {
         $project = Project::findOrFail($projectId);
 
-        // Hanya creator yang boleh menambah task
-        if (Auth::id() !== $project->creator_id) {
+        // Hanya creator atau admin yang boleh menambah task
+        if (Auth::id() !== $project->creator_id && Auth::user()?->role !== 'admin') {
             return redirect()->back()->with('error', 'Hanya creator proyek yang dapat menambahkan task.');
         }
 
@@ -228,8 +228,8 @@ class TaskController extends Controller
     {
         $project = Project::findOrFail($projectId);
 
-        // Hanya creator yang boleh mengevaluasi
-        if (Auth::id() !== $project->creator_id) {
+        // Hanya creator atau admin yang boleh mengevaluasi
+        if (Auth::id() !== $project->creator_id && Auth::user()?->role !== 'admin') {
             return redirect()->back()->with('error', 'Hanya creator proyek yang dapat memberikan evaluasi.');
         }
 
@@ -271,8 +271,8 @@ class TaskController extends Controller
      */
     private function authorizeProjectMember(Project $project)
     {
-        // Creator proyek otomatis diizinkan tanpa perlu record di project_member
-        if (Auth::id() === $project->creator_id) {
+        // Creator proyek atau Admin otomatis diizinkan tanpa perlu record di project_member
+        if (Auth::id() === $project->creator_id || Auth::user()?->role === 'admin') {
             return;
         }
 
