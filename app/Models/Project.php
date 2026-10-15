@@ -35,4 +35,9 @@ class Project extends Model
                     ->withPivot('id', 'peran', 'nominal_fee', 'status_keanggotaan', 'nilai_evaluasi')
                     ->withTimestamps();
     }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 }
