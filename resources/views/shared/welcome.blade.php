@@ -224,7 +224,6 @@ footer .l b{color:var(--ink)}footer p{font-size:14px;margin-top:12px;max-width:2
       <p class="sw">Sudah punya akun? <button type="button" data-to="l">Masuk</button></p>
     </form>
   </div>
-  <div class="hint">Arahkan kursor ke logo</div>
 </div>
 
 <section id="masalah">
