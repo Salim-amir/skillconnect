@@ -18,7 +18,7 @@ class LaporanController extends Controller
     public function index()
     {
         // Semua pengguna beserta skill yang dimiliki (dengan tingkat keahlian)
-        $users = User::with('skills')->orderBy('name')->get();
+        $users = User::with('skills')->orderBy('name')->paginate(5)->withQueryString();
 
         // Proyek aktif (status_project != 'Selesai') beserta relasinya
         $activeProjects = Project::with(['creator', 'skills', 'members'])
@@ -27,9 +27,9 @@ class LaporanController extends Controller
             ->get();
 
         // Ringkasan angka laporan
-        $totalUsers          = $users->count();
-        $totalAdmins         = $users->where('role', 'admin')->count();
-        $totalMembers        = $users->where('role', '!=', 'admin')->count();
+        $totalUsers          = User::count();
+        $totalAdmins         = User::where('role', 'admin')->count();
+        $totalMembers        = User::where('role', '!=', 'admin')->count();
         $totalUserSkills     = DB::table('user_skill')->count();
         $totalProjects       = Project::count();
         $totalActiveProjects = $activeProjects->count();
