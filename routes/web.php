@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\Project;
 use App\Http\Controllers\Admin\LaporanController;
 
+use App\Http\Controllers\User\TaskController;
+
 // ===================== PUBLIC ROUTES =====================
 
 Route::get('/', function () {
@@ -120,5 +122,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/proyek/{id}',                              [ProyekController::class, 'show'])->name('proyek.detail');
     Route::post('/proyek/{id}/apply',                       [ProyekController::class, 'apply'])->name('proyek.apply');
     Route::post('/proyek/{id}/kandidat/{applicationId}',    [ProyekController::class, 'updateCandidateStatus'])->name('proyek.kandidat.status');
+
+    // MOD-08: Task Board & Upload Bukti Kerja
+    Route::get('/proyek/{id}/tasks',                        [TaskController::class, 'index'])->name('proyek.tasks');
+    Route::post('/proyek/{id}/tasks',                       [TaskController::class, 'store'])->name('proyek.tasks.store');
+    Route::put('/proyek/{id}/tasks/{taskId}/status',        [TaskController::class, 'updateStatus'])->name('proyek.tasks.status');
+    Route::post('/proyek/{id}/tasks/{taskId}/bukti',        [TaskController::class, 'uploadBukti'])->name('proyek.tasks.bukti');
+    Route::post('/proyek/{id}/tasks/{taskId}/revisi',       [TaskController::class, 'addRevision'])->name('proyek.tasks.revisi');
+
+    // MOD-09: Evaluasi Anggota Tim oleh Creator
+    Route::post('/proyek/{id}/evaluasi/{memberId}',         [TaskController::class, 'evaluateMember'])->name('proyek.evaluasi');
 
 });
