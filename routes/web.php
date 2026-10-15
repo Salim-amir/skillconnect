@@ -5,6 +5,7 @@ use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\Api\AuthController;
 use App\Models\User;
 use App\Models\Project;
+use App\Http\Controllers\Admin\LaporanController;
 
 // ===================== PUBLIC ROUTES =====================
 
@@ -77,9 +78,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         return view('admin.transaksi');
     })->name('transaksi');
 
-    Route::get('/laporan', function () {
-        return view('admin.laporan');
-    })->name('laporan');
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+
 
 });
 
@@ -93,7 +93,7 @@ Route::middleware('auth')->post('/pengguna', [PenggunaController::class, 'store'
 Route::middleware('auth')->put('/pengguna/{id}', [PenggunaController::class, 'update'])->name('pengguna.update');
 Route::middleware('auth')->delete('/pengguna/{id}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
 Route::middleware('auth')->get('/transaksi', function () { return view('admin.transaksi'); })->name('transaksi');
-Route::middleware('auth')->get('/laporan', function () { return view('admin.laporan'); })->name('laporan');
+Route::middleware('auth')->get('/laporan', [LaporanController::class, 'index'])->name('laporan');
 
 // ===================== USER ROUTES =====================
 
