@@ -21,13 +21,13 @@ Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCa
 
 // Auth Manual
 Route::get('/login', function () {
-    return view('shared.login');
+    return view('shared.welcome');
 })->name('login');
 
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/register', function () {
-    return view('shared.register');
+    return view('shared.welcome');
 })->name('register');
 
 Route::post('/register', [AuthController::class, 'register']);
