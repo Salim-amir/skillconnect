@@ -27,3 +27,6 @@ Homestead.yaml
 Thumbs.db
 /test-results/
 /playwright-report/
+selenium-report.html
+.pytest_cache/
+__pycache__/
