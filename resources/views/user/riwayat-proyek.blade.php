@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Riwayat Proyek & Dompet - SkillConnect</title>
+<title>Portofolio & Fee - SkillConnect</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -359,7 +359,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             </a>
             <a href="{{ route('proyek.riwayat') }}" class="nav-item active">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Riwayat Proyek
+                Portofolio & Fee
             </a>
         </nav>
         <div class="sidebar-footer">
@@ -378,7 +378,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="top-breadcrumb">
-                SkillConnect / <span>Riwayat Proyek & Dompet Fee</span>
+                SkillConnect / <span>Portofolio & Fee</span>
             </div>
             <div class="user-profile">
                 <div class="user-info">
@@ -390,8 +390,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         </header>
 
         <div class="page-header">
-            <h1 class="page-title">Riwayat Proyek & Fee</h1>
-            <p class="page-desc">Rekam jejak kontribusi proyek Anda. Informasi pendapatan (fee) ditempatkan khusus pada kotak dompet terpisah.</p>
+            <h1 class="page-title">Portofolio & Fee</h1>
+            <p class="page-desc">Rekam jejak kontribusi & portofolio proyek Anda, lengkap dengan grafik pemasukan bulanan.</p>
         </div>
 
         <!-- 3 KOTAK FEE TERPISAH (SESUAI CATATAN REVISI) -->

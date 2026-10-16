@@ -676,7 +676,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 </a>
                 <a href="{{ route('proyek.riwayat') }}" class="nav-item">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Riwayat Proyek
+                    Portofolio & Fee
                 </a>
             @endif
         </nav>
