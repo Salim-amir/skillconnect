@@ -391,7 +391,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
         <div class="page-header">
             <h1 class="page-title">Portofolio & Fee</h1>
-            <p class="page-desc">Rekam jejak kontribusi & portofolio proyek Anda, lengkap dengan grafik pemasukan bulanan.</p>
+            <p class="page-desc">Rekam jejak kontribusi & portofolio pengerjaan proyek Anda.</p>
         </div>
 
         <!-- 3 KOTAK FEE TERPISAH (SESUAI CATATAN REVISI) -->
