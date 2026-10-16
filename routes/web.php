@@ -8,6 +8,7 @@ use App\Http\Controllers\User\ProfileSkillController;
 use App\Http\Controllers\User\ProyekController;
 use App\Models\User;
 use App\Models\Project;
+use App\Models\Transaction;
 use App\Http\Controllers\Admin\LaporanController;
 
 use App\Http\Controllers\User\TaskController;
@@ -56,11 +57,13 @@ Route::middleware('auth')->group(function () {
 
         // Jika Admin -> Tampilkan Admin Dashboard
         if ($currentUser->role === 'admin') {
-            $totalUsers     = User::count();
-            $totalProjects  = Project::count();
-            $totalCompleted = Project::where('status_project', 'Selesai')->count();
-            $latestUsers    = User::latest()->take(5)->get();
-            return view('admin.dashboard', compact('totalUsers', 'totalProjects', 'totalCompleted', 'latestUsers'));
+            $totalUsers      = User::count();
+            $totalProjects   = Project::count();
+            $totalCompleted  = Project::where('status_project', 'Selesai')->count();
+            $latestUsers     = User::latest()->take(5)->get();
+            $totalFee        = Transaction::where('status_pembayaran', 'lunas')->sum('jumlah_fee');
+            $totalTransaksi  = Transaction::count();
+            return view('admin.dashboard', compact('totalUsers', 'totalProjects', 'totalCompleted', 'latestUsers', 'totalFee', 'totalTransaksi'));
         }
 
         // Jika User Biasa -> Tampilkan User Dashboard (user/dashboard.blade.php)
@@ -82,6 +85,15 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('/pengguna',            [PenggunaController::class, 'store'])->name('pengguna.store');
     Route::put('/pengguna/{id}',        [PenggunaController::class, 'update'])->name('pengguna.update');
     Route::delete('/pengguna/{id}',     [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
+
+    Route::get('/proyek', function () {
+        $projects = Project::with('creator')->latest()->get();
+        $totalProjects   = $projects->count();
+        $mencariTim      = $projects->where('status_project', 'Mencari Tim')->count();
+        $berjalan        = $projects->where('status_project', 'Berjalan')->count();
+        $selesai         = $projects->where('status_project', 'Selesai')->count();
+        return view('admin.proyek', compact('projects', 'totalProjects', 'mencariTim', 'berjalan', 'selesai'));
+    })->name('proyek');
 
     Route::get('/transaksi', function () {
         return view('admin.transaksi');
