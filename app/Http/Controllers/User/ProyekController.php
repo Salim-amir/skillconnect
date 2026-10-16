@@ -348,6 +348,17 @@ class ProyekController extends Controller
         $totalActiveProjects = $joinedProjects->where('status_project', '!=', 'Selesai')->count() 
             + $createdProjects->where('status_project', '!=', 'Selesai')->count();
 
+        // 4. GRAFIK PEMASUKAN BULANAN (Portofolio & Keuangan - UC-11)
+        $monthlyFeeData = DB::table('project_member')
+            ->where('user_id', $user->id)
+            ->where('status_keanggotaan', 'Diterima')
+            ->where('peran', '!=', 'Project Creator / Leader')
+            ->whereRaw("strftime('%Y', updated_at) = ?", [now()->year])
+            ->selectRaw("CAST(strftime('%m', updated_at) AS INTEGER) as bulan, SUM(nominal_fee) as total")
+            ->groupByRaw("strftime('%m', updated_at)")
+            ->orderBy('bulan')
+            ->get();
+
         return view('user.riwayat-proyek', compact(
             'user',
             'createdProjects',
@@ -355,7 +366,8 @@ class ProyekController extends Controller
             'totalEarnedFee',
             'pendingFee',
             'totalCompletedProjects',
-            'totalActiveProjects'
+            'totalActiveProjects',
+            'monthlyFeeData'
         ));
     }
 }
