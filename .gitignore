@@ -25,3 +25,11 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/test-results/
+/playwright-report/
+selenium-report.html
+.pytest_cache/
+__pycache__/
+/cypress/screenshots/
+/cypress/videos/
+

@@ -334,7 +334,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 Pengguna
             </a>
-            <a href="/proyek" class="nav-item">
+            <a href="/admin/proyek" class="nav-item">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
                 Proyek
             </a>
@@ -397,17 +397,57 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <div class="stat-value">{{ $totalCompleted ?? 0 }}</div>
             </div>
             <div class="card">
-                <div class="card-title">Transaksi</div>
-                <div class="stat-value currency">Rp 12.5M</div>
+                <div class="card-title">Transaksi (Lunas)</div>
+                <div class="stat-value currency">Rp {{ number_format($totalFee ?? 0, 0, ',', '.') }}</div>
+                <div style="font-size:12px;color:#8b95b5;margin-top:4px;">{{ $totalTransaksi ?? 0 }} total transaksi</div>
             </div>
         </div>
 
-        <!-- 2 MIDDLE CARDS (CHART & NEW USERS TABLE) -->
+        <!-- 2 MIDDLE CARDS (RINGKASAN PROYEK & NEW USERS TABLE) -->
         <div class="grid-content">
-            <div class="card">
-                <div class="card-title">Grafik Analitik</div>
-                <div class="chart-placeholder">
-                    [ Area Chart Analitik ]
+            <div class="card" style="padding: 24px;">
+                <div class="card-title" style="margin-bottom: 20px;">Ringkasan Status Proyek</div>
+                @php
+                    $mencariTim  = \App\Models\Project::where('status_project', 'Mencari Tim')->count();
+                    $berjalan    = \App\Models\Project::where('status_project', 'Berjalan')->count();
+                    $selesai     = \App\Models\Project::where('status_project', 'Selesai')->count();
+                    $total       = $totalProjects ?? 1;
+                @endphp
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    <!-- Mencari Tim -->
+                    <div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                            <span style="font-weight:700;font-size:14px;color:#6d28d9;">Mencari Tim</span>
+                            <span style="font-weight:700;font-size:14px;color:#6d28d9;">{{ $mencariTim }}</span>
+                        </div>
+                        <div style="background:#ede9fe;border-radius:999px;height:10px;overflow:hidden;">
+                            <div style="height:100%;width:{{ $total > 0 ? round($mencariTim/$total*100) : 0 }}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:999px;transition:.4s;"></div>
+                        </div>
+                    </div>
+                    <!-- Berjalan -->
+                    <div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                            <span style="font-weight:700;font-size:14px;color:#b45309;">Berjalan</span>
+                            <span style="font-weight:700;font-size:14px;color:#b45309;">{{ $berjalan }}</span>
+                        </div>
+                        <div style="background:#fef3c7;border-radius:999px;height:10px;overflow:hidden;">
+                            <div style="height:100%;width:{{ $total > 0 ? round($berjalan/$total*100) : 0 }}%;background:linear-gradient(90deg,#f59e0b,#fcd34d);border-radius:999px;transition:.4s;"></div>
+                        </div>
+                    </div>
+                    <!-- Selesai -->
+                    <div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                            <span style="font-weight:700;font-size:14px;color:#065f46;">Selesai</span>
+                            <span style="font-weight:700;font-size:14px;color:#065f46;">{{ $selesai }}</span>
+                        </div>
+                        <div style="background:#d1fae5;border-radius:999px;height:10px;overflow:hidden;">
+                            <div style="height:100%;width:{{ $total > 0 ? round($selesai/$total*100) : 0 }}%;background:linear-gradient(90deg,#059669,#6ee7b7);border-radius:999px;transition:.4s;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:20px;padding-top:16px;border-top:1px solid #edf0ff;display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:13px;color:#8b95b5;">Total Proyek Terdaftar</span>
+                    <span style="font-weight:800;color:#1c2766;font-size:18px;font-family:'Fredoka',sans-serif;">{{ $totalProjects ?? 0 }}</span>
                 </div>
             </div>
             

@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProyekController extends Controller
 {
@@ -126,9 +127,9 @@ class ProyekController extends Controller
     {
         $project = Project::findOrFail($projectId);
 
-        // Hanya creator proyek yang boleh menerima/menolak
-        if (Auth::id() !== $project->creator_id) {
-            return redirect()->back()->with('error', 'Hanya Creator proyek yang memiliki wewenang mengelola tim.');
+        // Hanya creator proyek atau admin yang boleh menerima/menolak
+        if (Auth::id() !== $project->creator_id && Auth::user()->role !== 'admin') {
+            return redirect()->back()->with('error', 'Hanya Creator proyek atau Admin yang memiliki wewenang mengelola tim.');
         }
 
         $request->validate([
@@ -177,11 +178,20 @@ class ProyekController extends Controller
             'peran'       => 'required|string|max:100',
             'nominal_fee' => 'required|numeric|min:0',
             'pesan'       => 'nullable|string|max:1000',
+            'cv_file'     => 'required|file|mimes:pdf|max:2048',
         ], [
             'peran.required'       => 'Posisi/peran yang dilamar wajib dipilih atau diisi.',
             'nominal_fee.required' => 'Nominal ekspektasi fee wajib diisi.',
             'nominal_fee.numeric'  => 'Nominal fee harus berupa angka.',
+            'cv_file.required'     => 'CV wajib diunggah.',
+            'cv_file.mimes'        => 'CV harus berformat PDF.',
+            'cv_file.max'          => 'Ukuran CV maksimal 2MB.',
         ]);
+
+        // Upload CV ke storage/app/public/cv-lamaran/
+        $cvFile = $request->file('cv_file');
+        $cvFilename = 'cv_' . $user->id . '_' . $project->id . '_' . time() . '.pdf';
+        $cvPath = $cvFile->storeAs('cv-lamaran', $cvFilename, 'public');
 
         DB::table('project_member')->insert([
             'user_id'            => $user->id,
@@ -190,6 +200,7 @@ class ProyekController extends Controller
             'nominal_fee'        => $validated['nominal_fee'],
             'status_keanggotaan' => 'Pending',
             'nilai_evaluasi'     => null,
+            'cv_path'            => $cvPath,
             'created_at'         => now(),
             'updated_at'         => now(),
         ]);
@@ -337,6 +348,17 @@ class ProyekController extends Controller
         $totalActiveProjects = $joinedProjects->where('status_project', '!=', 'Selesai')->count() 
             + $createdProjects->where('status_project', '!=', 'Selesai')->count();
 
+        // 4. GRAFIK PEMASUKAN BULANAN (Portofolio & Keuangan - UC-11)
+        $monthlyFeeData = DB::table('project_member')
+            ->where('user_id', $user->id)
+            ->where('status_keanggotaan', 'Diterima')
+            ->where('peran', '!=', 'Project Creator / Leader')
+            ->whereRaw("strftime('%Y', updated_at) = ?", [now()->year])
+            ->selectRaw("CAST(strftime('%m', updated_at) AS INTEGER) as bulan, SUM(nominal_fee) as total")
+            ->groupByRaw("strftime('%m', updated_at)")
+            ->orderBy('bulan')
+            ->get();
+
         return view('user.riwayat-proyek', compact(
             'user',
             'createdProjects',
@@ -344,7 +366,8 @@ class ProyekController extends Controller
             'totalEarnedFee',
             'pendingFee',
             'totalCompletedProjects',
-            'totalActiveProjects'
+            'totalActiveProjects',
+            'monthlyFeeData'
         ));
     }
 }

@@ -484,7 +484,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 </a>
                 <a href="{{ route('proyek.riwayat') }}" class="nav-item">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Riwayat Proyek
+                    Portofolio & Fee
                 </a>
             @endif
         </nav>
@@ -584,11 +584,28 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         <p style="color: #9aa2cc; font-size: 13.5px; font-style: italic;">Belum ada anggota yang diterima.</p>
                     @endforelse
                 </div>
+
+                {{-- Link ke Task Board (MOD-08) --}}
+                @if(auth()->check())
+                    @php
+                        $isTeamMember = $acceptedMembers->contains(function ($m) {
+                            return $m->user_id == auth()->id();
+                        });
+                    @endphp
+                    @if($isTeamMember || auth()->id() === $project->creator_id || (auth()->user() && auth()->user()->role === 'admin'))
+                        <div style="margin-top: 20px;">
+                            <a href="{{ route('proyek.tasks', $project->id) }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; background: linear-gradient(90deg, #2b3a8f, #7b6cf6); color: #fff; box-shadow: 0 6px 18px -4px rgba(123,108,246,.5); transition: all .2s;">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                Buka Task Board
+                            </a>
+                        </div>
+                    @endif
+                @endif
             </div>
 
             <!-- KOLOM KANAN: DAFTAR KANDIDAT / FORM LAMARAN -->
             <div>
-                @if(auth()->check() && auth()->id() === $project->creator_id)
+                @if(auth()->check() && (auth()->id() === $project->creator_id || auth()->user()->role === 'admin'))
                     <!-- TAMPILAN KHUSUS CREATOR: DAFTAR KANDIDAT (REVISI AD-06 & AD-07) -->
                     <div class="card">
                         <div class="candidate-header">
@@ -668,6 +685,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                     </div>
                                 @endif
 
+                                {{-- Tombol Download CV Pelamar --}}
+                                @if(!empty($cand->cv_path))
+                                    <div style="margin-bottom: 14px;">
+                                        <a href="{{ asset('storage/' . $cand->cv_path) }}" target="_blank" rel="noopener noreferrer" style="font-size: 13px; font-weight: 700; color: #e0244d; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">
+                                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            Unduh CV Pelamar (PDF)
+                                        </a>
+                                    </div>
+                                @endif
+
                                 <!-- AKSI AD-07: TERIMA ATAU TOLAK PELAMAR -->
                                 <div class="action-decision-bar">
                                     <div>
@@ -726,7 +753,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 Tentukan posisi yang ingin Anda isi dan ajukan ekspektasi fee Anda.
                             </p>
 
-                            <form action="{{ route('proyek.apply', $project->id) }}" method="POST">
+                            <form action="{{ route('proyek.apply', $project->id) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div style="margin-bottom: 16px;">
                                     <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Posisi / Peran <span style="color: #e0244d;">*</span></label>
@@ -736,6 +763,23 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 <div style="margin-bottom: 16px;">
                                     <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Ekspektasi Fee (Rp) <span style="color: #e0244d;">*</span></label>
                                     <input type="number" name="nominal_fee" required min="0" value="{{ $project->budget }}" style="width: 100%; padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 12px; outline: none;">
+                                </div>
+
+                                <div style="margin-bottom: 16px;">
+                                    <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Upload CV <span style="color: #e0244d;">*</span></label>
+                                    <div style="position: relative; border: 2px dashed #c8ccee; border-radius: 12px; padding: 16px 20px; background: #f8f9ff; cursor: pointer; transition: border-color .2s;" onclick="document.getElementById('cv_file_input').click()">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <svg width="32" height="32" fill="none" stroke="#7b6cf6" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            <div>
+                                                <p id="cv_file_label" style="font-size: 14px; font-weight: 600; color: #2b3a8f; margin: 0;">Klik untuk pilih file CV</p>
+                                                <p style="font-size: 12px; color: #9aa2cc; margin: 2px 0 0;">Format: PDF saja &bull; Maks. 2MB</p>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="cv_file_input" name="cv_file" accept=".pdf" required style="display: none;" onchange="document.getElementById('cv_file_label').textContent = this.files[0] ? this.files[0].name : 'Klik untuk pilih file CV'">
+                                    </div>
+                                    @error('cv_file')
+                                        <p style="color: #e0244d; font-size: 12px; margin-top: 6px;">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 <div style="margin-bottom: 20px;">
