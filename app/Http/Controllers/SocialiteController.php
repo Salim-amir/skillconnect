@@ -11,23 +11,29 @@ use Illuminate\Support\Str;
 
 class SocialiteController extends Controller
 {
+    /**
+     * Redirect pengguna ke halaman autentikasi Google
+     */
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();
     }
 
-    public function handleGoogleCallback() //
+    /**
+     * Tangani callback dari Google SSO
+     */
+    public function handleGoogleCallback(Request $request)
     {
         try {
             /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
             $driver = Socialite::driver('google');
 
-            // Set SSL verify false tanpa trigering warning di VS Code
+            // Bypass SSL verify (khusus lingkungan lokal/dev)
             $driver->setHttpClient(new \GuzzleHttp\Client(['verify' => false]));
 
             $googleUser = $driver->user();
 
-            // Cari berdasarkan google_id atau email
+            // Cari pengguna berdasarkan google_id atau email
             $user = User::where('google_id', $googleUser->getId())
                         ->orWhere('email', $googleUser->getEmail())
                         ->first();
@@ -46,19 +52,21 @@ class SocialiteController extends Controller
                     'password'  => Hash::make(Str::random(16)),
                 ]);
             } else {
-                // Tautkan google_id jika user mendaftar lewat manual sebelumnya
+                // Tautkan google_id jika sebelumnya daftar manual via email
                 if (!$user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
             }
 
+            // Login-kan user & perbarui session
             Auth::login($user);
+            $request->session()->regenerate();
 
-            // Redirect ke route 'dashboard'
-            return redirect()->route('dashboard');
+            // Direct ke rute dashboard
+            return redirect()->intended(route('dashboard'))->with('success', 'Berhasil masuk menggunakan Google!');
 
         } catch (\Exception $e) {
-        return redirect()->route('login')->withErrors(['email' => 'Gagal masuk menggunakan Google. Silakan coba lagi.']);        
+            return redirect()->route('login')->with('error', 'Gagal masuk menggunakan Google.');
         }
     }
 }
