@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Masuk ke Akun - SkillConnect</title>
 <meta name="description" content="Masuk ke akun SkillConnect Anda dan lanjutkan kolaborasi proyek.">
-<link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
-<link href="[https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap](https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap)" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -307,6 +307,10 @@ a { color: inherit; text-decoration: none; }
   color: #15803d;
   border: 1px solid #bbf7d0;
 }
+.alert-list {
+  margin-left: 18px;
+  padding-left: 0;
+}
 
 /* Responsive */
 @media (max-width: 960px) {
@@ -358,7 +362,7 @@ a { color: inherit; text-decoration: none; }
         </div>
       @endif
 
-      {{-- Flash Message Error Manual --}}
+      {{-- Flash Message Single Error --}}
       @if (session('error'))
         <div class="alert alert-danger">
           {{ session('error') }}
@@ -368,7 +372,7 @@ a { color: inherit; text-decoration: none; }
       {{-- Validation Errors --}}
       @if ($errors->any())
         <div class="alert alert-danger">
-          <ul style="margin-left: 16px; padding-left: 0;">
+          <ul class="alert-list">
             @foreach ($errors->all() as $error)
               <li>{{ $error }}</li>
             @endforeach
@@ -381,14 +385,14 @@ a { color: inherit; text-decoration: none; }
         <div class="form-group">
           <label class="form-label" for="email">Email</label>
           <div class="input-wrap">
-            <input type="email" id="email" name="email" class="form-input" placeholder="nama@email.com" value="{{ old('email') }}" required autofocus>
+            <input type="email" id="email" name="email" class="form-input" placeholder="nama@email.com" value="{{ old('email') }}" required autofocus autocomplete="username">
           </div>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="password">Kata sandi</label>
           <div class="input-wrap">
-            <input type="password" id="password" name="password" class="form-input" placeholder="Masukkan kata sandi" required>
+            <input type="password" id="password" name="password" class="form-input" placeholder="Masukkan kata sandi" required autocomplete="current-password">
             <button type="button" class="btn-toggle-pw" id="togglePassword">Tampilkan</button>
           </div>
         </div>
@@ -456,6 +460,7 @@ togglePw('togglePassword', 'password');
     const targets = [];
     const cx = 230, cy = 250;
 
+    // 1. Head circle: center (cx, cy - 40), radius 55
     const headRadius = 55;
     for (let i = 0; i < 300; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -467,6 +472,7 @@ togglePw('togglePassword', 'password');
       });
     }
 
+    // 2. Shoulders / Chest curve
     for (let i = 0; i < 550; i++) {
       const u = Math.random();
       const angle = Math.PI * 0.12 + u * Math.PI * 0.76;
@@ -481,6 +487,7 @@ togglePw('togglePassword', 'password');
       });
     }
 
+    // Inner shoulder fill dots
     for (let i = 0; i < 180; i++) {
       const angle = Math.PI * 0.2 + Math.random() * Math.PI * 0.6;
       const r = 40 + Math.random() * 45;
@@ -491,6 +498,7 @@ togglePw('togglePassword', 'password');
       });
     }
 
+    // 3. Plus badge: center (cx + 65, cy - 85), radius 24
     const bx = cx + 72, by = cy - 90, br = 26;
     for (let i = 0; i < 160; i++) {
       const angle = Math.random() * Math.PI * 2;
