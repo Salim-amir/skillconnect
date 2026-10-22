@@ -27,6 +27,7 @@ class User extends Authenticatable
         'google_id',
         'pengalaman',
         'portofolio',
+        'cv_path',
     ];
 
     /**

@@ -2,56 +2,57 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SocialiteController;
-use App\Http\Controllers\Auth\LoginController; // Gunakan Controller Web (Bukan API)
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Admin\PenggunaController;
-use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\User\ProfileSkillController;
 use App\Http\Controllers\User\ProyekController;
-use App\Http\Controllers\User\TaskController;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Transaction;
+use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\User\TaskController;
 
 // ===================== PUBLIC / GUEST ROUTES =====================
 
 Route::get('/', function () {
     return view('shared.welcome');
-})->name('home');
+})->name('welcome');
 
-// Batasi akses login/register khusus untuk pengguna yang BELUM login (guest)
-Route::middleware('guest')->group(function () {
+// Halaman Form Login Khusus (Mencegah Loop ke Welcome)
+Route::get('/login', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return view('shared.login');
+})->name('login');
 
-    // OAuth Google SSO
-    Route::get('/auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('google.login');
-    Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
+Route::post('/login', [AuthController::class, 'login']);
 
-    // Auth Manual
-    Route::get('/login', function () {
-        return view('auth.login'); // Pastikan menggunakan view form login yang spesifik
-    })->name('login');
+Route::get('/register', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return view('shared.welcome');
+})->name('register');
 
-    Route::post('/login', [LoginController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
-    Route::get('/register', function () {
-        return view('auth.register'); // Pastikan menggunakan view form register
-    })->name('register');
+// OAuth Google SSO
+Route::get('/auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
 
-    Route::post('/register', [LoginController::class, 'register']);
-});
-
-// Logout hanya untuk pengguna yang sudah login
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
-// ===================== AUTHENTICATED ROUTES =====================
+// ===================== SHARED AUTH ROUTES =====================
 
 Route::middleware('auth')->group(function () {
 
-    // Dashboard Sentral (Admin / User)
+    // Dashboard Sentral: Otomatis membagi tampilan Admin / User
     Route::get('/dashboard', function () {
         $currentUser = auth()->user();
 
-        // Otomatisasi role admin jika nama/email mengandung 'admin'
+        // Pengecekan otomatis role admin
         if (strtolower($currentUser->name) === 'admin' || str_contains(strtolower($currentUser->email), 'admin')) {
             if ($currentUser->role !== 'admin') {
                 User::where('id', $currentUser->id)->update(['role' => 'admin']);
@@ -59,7 +60,7 @@ Route::middleware('auth')->group(function () {
             }
         }
 
-        // Tampilan Dashboard Admin
+        // Jika Admin -> Tampilkan Admin Dashboard
         if ($currentUser->role === 'admin') {
             $totalUsers      = User::count();
             $totalProjects   = Project::count();
@@ -70,43 +71,49 @@ Route::middleware('auth')->group(function () {
             return view('admin.dashboard', compact('totalUsers', 'totalProjects', 'totalCompleted', 'latestUsers', 'totalFee', 'totalTransaksi'));
         }
 
-        // Tampilan Dashboard User
+        // Jika User Biasa -> Tampilkan User Dashboard
         return view('user.dashboard');
     })->name('dashboard');
 
-
-    // ===================== ADMIN ROUTES =====================
-    Route::prefix('admin')->name('admin.')->group(function () {
-
-        Route::get('/pengguna', function () {
-            $users = User::all();
-            return view('admin.pengguna', compact('users'));
-        })->name('pengguna');
-
-        Route::post('/pengguna',            [PenggunaController::class, 'store'])->name('pengguna.store');
-        Route::put('/pengguna/{id}',        [PenggunaController::class, 'update'])->name('pengguna.update');
-        Route::delete('/pengguna/{id}',     [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
-
-        Route::get('/proyek', function () {
-            $projects = Project::with('creator')->latest()->get();
-            $totalProjects   = $projects->count();
-            $mencariTim      = $projects->where('status_project', 'Mencari Tim')->count();
-            $berjalan        = $projects->where('status_project', 'Berjalan')->count();
-            $selesai         = $projects->where('status_project', 'Selesai')->count();
-            return view('admin.proyek', compact('projects', 'totalProjects', 'mencariTim', 'berjalan', 'selesai'));
-        })->name('proyek');
-
-        Route::get('/transaksi', function () {
-            return view('admin.transaksi');
-        })->name('transaksi');
-
-        Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
-    });
+});
 
 
-    // ===================== USER ROUTES =====================
+// ===================== ADMIN ROUTES =====================
 
-    // Profile & Skill
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/pengguna', function () {
+        $users = User::all();
+        return view('admin.pengguna', compact('users'));
+    })->name('pengguna');
+
+    Route::post('/pengguna',            [PenggunaController::class, 'store'])->name('pengguna.store');
+    Route::put('/pengguna/{id}',        [PenggunaController::class, 'update'])->name('pengguna.update');
+    Route::delete('/pengguna/{id}',     [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
+
+    Route::get('/proyek', function () {
+        $projects = Project::with('creator')->latest()->get();
+        $totalProjects   = $projects->count();
+        $mencariTim      = $projects->where('status_project', 'Mencari Tim')->count();
+        $berjalan        = $projects->where('status_project', 'Berjalan')->count();
+        $selesai         = $projects->where('status_project', 'Selesai')->count();
+        return view('admin.proyek', compact('projects', 'totalProjects', 'mencariTim', 'berjalan', 'selesai'));
+    })->name('proyek');
+
+    Route::get('/transaksi', function () {
+        return view('admin.transaksi');
+    })->name('transaksi');
+
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+
+});
+
+
+// ===================== USER ROUTES =====================
+
+Route::middleware('auth')->group(function () {
+
+    // Kelola Profile & Skill
     Route::get('/profile-skill',                            [ProfileSkillController::class, 'index'])->name('profile.skill');
     Route::post('/profile-skill',                           [ProfileSkillController::class, 'update'])->name('profile.skill.update');
     Route::post('/profile-skill/add-skill',                 [ProfileSkillController::class, 'addSkill'])->name('profile.skill.add');
@@ -121,13 +128,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/proyek/{id}/apply',                       [ProyekController::class, 'apply'])->name('proyek.apply');
     Route::post('/proyek/{id}/kandidat/{applicationId}',    [ProyekController::class, 'updateCandidateStatus'])->name('proyek.kandidat.status');
 
-    // Task Board & Upload Bukti Kerja
+    // MOD-08: Task Board & Upload Bukti Kerja
     Route::get('/proyek/{id}/tasks',                        [TaskController::class, 'index'])->name('proyek.tasks');
     Route::post('/proyek/{id}/tasks',                       [TaskController::class, 'store'])->name('proyek.tasks.store');
     Route::put('/proyek/{id}/tasks/{taskId}/status',        [TaskController::class, 'updateStatus'])->name('proyek.tasks.status');
     Route::post('/proyek/{id}/tasks/{taskId}/bukti',        [TaskController::class, 'uploadBukti'])->name('proyek.tasks.bukti');
     Route::post('/proyek/{id}/tasks/{taskId}/revisi',       [TaskController::class, 'addRevision'])->name('proyek.tasks.revisi');
 
-    // Evaluasi Anggota Tim
+    // MOD-09: Evaluasi Anggota Tim oleh Creator
     Route::post('/proyek/{id}/evaluasi/{memberId}',         [TaskController::class, 'evaluateMember'])->name('proyek.evaluasi');
+
 });

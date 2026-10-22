@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Proses Registrasi Pengguna Baru
-     */
     public function register(Request $request)
     {
         $request->validate([
@@ -33,20 +30,17 @@ class AuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'user', // Default role untuk registrasi biasa
+            'role'     => 'member', // Default role untuk registrasi biasa
         ]);
 
-        // Autentikasi otomatis setelah registrasi
+        // Auto-login setelah registrasi
         Auth::login($user);
         $request->session()->regenerate();
 
-        // Alihkan langsung ke dashboard, BUKAN ke halaman utama '/' agar tidak looping
-        return redirect()->route('dashboard')->with('success', 'Selamat! Akun Anda berhasil dibuat.');
+        // Redirect langsung ke dashboard
+        return redirect()->intended('/dashboard')->with('success', 'Registrasi berhasil! Selamat datang di SkillConnect.');
     }
 
-    /**
-     * Proses Autentikasi Login
-     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -60,20 +54,15 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
-            // Direct ke dashboard atau URL yang dituju sebelumnya
-            return redirect()->intended('/dashboard')->with('success', 'Login berhasil!');
+            return redirect()->intended('/dashboard')->with('success', 'Login berhasil! Selamat datang kembali.');
         }
 
-        // Kembali ke form login jika gagal + tampilkan alert error di Blade
+        // Kembalikan error validasi serta flash session error
         return back()->withErrors([
             'email' => 'Email atau password yang Anda masukkan salah.',
-        ])->onlyInput('email');
+        ])->with('error', 'Email atau password salah. Silakan coba lagi.')->onlyInput('email');
     }
 
-    /**
-     * Proses Logout
-     */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -81,7 +70,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Redirect ke halaman login dengan pesan sukses
-        return redirect()->route('login')->with('success', 'Anda telah berhasil keluar.');
+        return redirect('/login')->with('success', 'Anda telah berhasil keluar.');
     }
 }
