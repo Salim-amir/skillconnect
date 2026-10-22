@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileSkillController extends Controller
 {
@@ -49,7 +50,7 @@ class ProfileSkillController extends Controller
         // Validasi input, format tautan, dan kelengkapan data sesuai diagram
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
-            'pengalaman'  => 'nullable|string|max:1000',
+            'cv_file'     => 'required_without:cv_exists|nullable|file|mimes:pdf,doc,docx|max:2048',
             'portofolio'  => 'nullable|url|max:255',
             'skill_id'    => 'nullable|array',
             'skill_id.*'  => 'nullable|exists:skills,id',
@@ -58,17 +59,32 @@ class ProfileSkillController extends Controller
             'custom_skill'=> 'nullable|string|max:50',
             'custom_level'=> 'nullable|in:Beginner,Intermediate,Advanced',
         ], [
-            'name.required'     => 'Nama lengkap wajib diisi.',
-            'portofolio.url'    => 'Tautan bukti portofolio harus berupa URL yang valid (misal: https://github.com/username).',
-            'level.*.in'        => 'Tingkat keahlian harus Beginner, Intermediate, atau Advanced.',
+            'name.required'        => 'Nama lengkap wajib diisi.',
+            'cv_file.required_without' => 'File CV wajib diunggah.',
+            'cv_file.mimes'        => 'File CV harus berformat PDF, DOC, atau DOCX.',
+            'cv_file.max'          => 'Ukuran file CV maksimal 2 MB.',
+            'portofolio.url'       => 'Tautan bukti portofolio harus berupa URL yang valid (misal: https://github.com/username).',
+            'level.*.in'           => 'Tingkat keahlian harus Beginner, Intermediate, atau Advanced.',
         ]);
 
         DB::beginTransaction();
         try {
-            // 1. Perbarui data pada tabel users (name, pengalaman, portofolio)
+            $cvPath = $user->cv_path; // Pertahankan file lama jika tidak ada file baru
+
+            // Proses upload file CV baru jika ada
+            if ($request->hasFile('cv_file') && $request->file('cv_file')->isValid()) {
+                // Hapus file CV lama jika ada
+                if ($cvPath && Storage::disk('public')->exists($cvPath)) {
+                    Storage::disk('public')->delete($cvPath);
+                }
+                // Simpan file baru ke storage/app/public/cv
+                $cvPath = $request->file('cv_file')->store('cv', 'public');
+            }
+
+            // 1. Perbarui data pada tabel users (name, cv_path, portofolio)
             $user->update([
                 'name'       => $validated['name'],
-                'pengalaman' => $validated['pengalaman'] ?? null,
+                'cv_path'    => $cvPath,
                 'portofolio' => $validated['portofolio'] ?? null,
             ]);
 
