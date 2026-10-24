@@ -69,6 +69,7 @@ class ExactSkillMatchingService
                 'users.name as candidate_name',
                 'users.email as candidate_email',
                 'users.portofolio as candidate_portofolio',
+                'users.cv_path as candidate_cv_path',
                 'users.pengalaman as candidate_pengalaman'
             );
 
