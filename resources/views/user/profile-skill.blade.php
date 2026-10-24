@@ -433,48 +433,58 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     margin-top: 4px;
 }
 
-/* CV Upload Styles */
-.cv-upload-area {
-    border: 2px dashed #c4c9f0;
-    border-radius: 14px;
+/* CV Link Styles */
+.cv-link-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     background: #f8f9ff;
-    padding: 28px 20px;
-    text-align: center;
-    cursor: pointer;
+    border: 2px solid #c4c9f0;
+    border-radius: 14px;
+    padding: 14px 18px;
     transition: border-color .2s, background .2s;
-    position: relative;
 }
-.cv-upload-area:hover, .cv-upload-area.drag-over {
+.cv-link-input-wrap:focus-within {
     border-color: #7b6cf6;
     background: #f0f1ff;
 }
-.cv-upload-area input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-}
-.cv-upload-icon {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 12px;
+.cv-link-icon {
+    width: 40px;
+    height: 40px;
     background: linear-gradient(135deg, #e8e9ff, #d9d6ff);
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
-.cv-upload-area h5 {
-    font-weight: 700;
+.cv-link-input-wrap input[type="url"] {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex: 1;
+    font-size: 14px;
     color: var(--ink);
-    font-size: 15px;
-    margin-bottom: 4px;
+    min-width: 0;
 }
-.cv-upload-area p {
+.cv-link-input-wrap input[type="url"]::placeholder {
+    color: #9aa2cc;
+}
+.cv-link-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #fff8e1;
+    border: 1.5px solid #ffe082;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 10px;
     font-size: 13px;
-    color: var(--mute);
+    color: #795400;
+}
+.cv-link-notice svg {
+    flex-shrink: 0;
+    margin-top: 1px;
 }
 .cv-file-selected {
     display: none;
@@ -820,30 +830,15 @@ textarea.form-control {
                 </div>
 
                 <div class="info-row">
-                    <label>File CV</label>
+                    <label>Tautan CV</label>
                     @if($user->cv_path)
-                        <div class="cv-preview-card">
-                            <div class="cv-icon">
-                                <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            </div>
-                            <div class="cv-meta">
-                                <div class="cv-label">File CV</div>
-                                <div class="cv-name" title="{{ basename($user->cv_path) }}">{{ basename($user->cv_path) }}</div>
-                            </div>
-                            <div class="cv-actions">
-                                <a href="{{ Storage::url($user->cv_path) }}" target="_blank" rel="noopener noreferrer" class="btn-cv-view">
-                                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    Lihat
-                                </a>
-                                <a href="#cv-upload-section" class="btn-cv-change" onclick="document.getElementById('cv_file').click(); return false;">
-                                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                    Ganti
-                                </a>
-                            </div>
-                        </div>
+                        <a href="{{ $user->cv_path }}" target="_blank" rel="noopener noreferrer" class="link-portfolio">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                            {{ $user->cv_path }}
+                        </a>
                     @else
                         <div class="val" style="color: #9aa2cc; font-style: italic; font-size: 14px;">
-                            Belum ada file CV. Unggah CV di formulir sebelah kanan.
+                            Belum ada tautan CV.
                         </div>
                     @endif
                 </div>
@@ -925,7 +920,7 @@ textarea.form-control {
                 </div>
 
                 <!-- FORM UTAMA EDIT PROFIL & PORTOFOLIO -->
-                <form action="{{ route('profile.skill.update') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('profile.skill.update') }}" method="POST">
                     @csrf
 
                     <div class="form-group">
@@ -933,66 +928,39 @@ textarea.form-control {
                         <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $user->name) }}" required placeholder="Contoh: Budi Pratama">
                     </div>
 
-                    {{-- CV Upload Section --}}
+                    {{-- CV Link Section --}}
                     <div class="form-group" id="cv-upload-section">
-                        <label for="cv_file">
-                            Unggah File CV <span class="req">*</span>
+                        <label for="cv_link">
+                            Tautan CV (Google Drive) <span class="req">*</span>
                         </label>
 
-                        @if($user->cv_path)
-                            {{-- File sudah ada: tampilkan info file lama & opsi ganti --}}
-                            <div class="cv-preview-card" style="margin-bottom: 12px;" id="cv-existing-preview">
-                                <div class="cv-icon">
-                                    <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                </div>
-                                <div class="cv-meta">
-                                    <div class="cv-label">File CV Tersimpan</div>
-                                    <div class="cv-name" title="{{ basename($user->cv_path) }}">{{ basename($user->cv_path) }}</div>
-                                </div>
-                                <div class="cv-actions">
-                                    <a href="{{ Storage::url($user->cv_path) }}" target="_blank" rel="noopener noreferrer" class="btn-cv-view">
-                                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                        Lihat
-                                    </a>
-                                </div>
+                        {{-- Input link Google Drive --}}
+                        <div class="cv-link-input-wrap">
+                            <div class="cv-link-icon">
+                                <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                             </div>
-                            <div class="cv-upload-area" id="cv-drop-area">
-                                <input type="file" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx">
-                                <div class="cv-upload-icon">
-                                    <svg width="24" height="24" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                                </div>
-                                <h5>Ganti File CV</h5>
-                                <p>Klik atau seret file baru ke sini untuk mengganti CV</p>
-                                <p style="margin-top: 6px; font-size: 12px; color: #9aa2cc;">PDF, DOC, DOCX — Maks. 2 MB</p>
-                            </div>
-                        @else
-                            {{-- Belum ada CV: wajib upload --}}
-                            <div class="cv-upload-area" id="cv-drop-area">
-                                <input type="file" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx" required>
-                                <div class="cv-upload-icon">
-                                    <svg width="24" height="24" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                                </div>
-                                <h5>Unggah File CV</h5>
-                                <p>Klik di sini atau seret & lepas file CV Anda</p>
-                                <p style="margin-top: 6px; font-size: 12px; color: #9aa2cc;">PDF, DOC, DOCX — Maks. 2 MB</p>
-                            </div>
-                        @endif
-
-                        {{-- Pratinjau file yang baru dipilih (sebelum disimpan) --}}
-                        <div class="cv-file-selected" id="cv-selected-preview">
-                            <div class="file-icon">
-                                <svg width="18" height="18" fill="none" stroke="#0d6e36" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            </div>
-                            <div style="flex: 1; overflow: hidden;">
-                                <div class="file-name" id="cv-selected-name">nama-file.pdf</div>
-                                <div class="file-size" id="cv-selected-size">0 KB</div>
-                            </div>
-                            <button type="button" class="btn-remove-cv" id="btn-remove-cv" title="Batal pilih file">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </button>
+                            <input type="url" id="cv_link" name="cv_link"
+                                class="form-control"
+                                style="border:none; outline:none; background:transparent; flex:1; padding:0;"
+                                value="{{ old('cv_link', $user->cv_path) }}"
+                                placeholder="https://drive.google.com/file/d/..."
+                                required>
                         </div>
-                        <div class="hint">
-                            File CV ini akan ditampilkan di profil Anda dan dapat dilihat oleh Project Creator.
+
+                        {{-- Peringatan akses publik --}}
+                        <div class="cv-link-notice" style="margin-top: 10px;">
+                            <svg width="16" height="16" fill="none" stroke="#b45309" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                            </svg>
+                            <span>
+                                <strong>Penting:</strong> Pastikan Tautan Google Drive Anda sudah diatur agar
+                                <strong>dapat diakses oleh semua orang</strong> (Anyone with the link → Viewer),
+                                sehingga Project Creator dapat membuka CV Anda.
+                            </span>
+                        </div>
+
+                        <div class="hint" style="margin-top: 8px;">
+                            Tautan CV ini akan ditampilkan di profil Anda dan dapat dilihat oleh Project Creator.
                         </div>
                     </div>
 
@@ -1029,88 +997,7 @@ textarea.form-control {
 
     </main>
 
-<script>
-(function () {
-    const fileInput   = document.getElementById('cv_file');
-    const dropArea    = document.getElementById('cv-drop-area');
-    const selectedBox = document.getElementById('cv-selected-preview');
-    const selectedName = document.getElementById('cv-selected-name');
-    const selectedSize = document.getElementById('cv-selected-size');
-    const removeBtn   = document.getElementById('btn-remove-cv');
 
-    if (!fileInput) return;
-
-    const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
-
-    function formatBytes(bytes) {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-    }
-
-    function showSelected(file) {
-        selectedName.textContent = file.name;
-        selectedSize.textContent = formatBytes(file.size);
-        selectedBox.classList.add('show');
-    }
-
-    function clearSelected() {
-        fileInput.value = '';
-        selectedBox.classList.remove('show');
-        dropArea.classList.remove('drag-over');
-    }
-
-    fileInput.addEventListener('change', function () {
-        if (!this.files.length) return clearSelected();
-        const file = this.files[0];
-        if (file.size > MAX_SIZE) {
-            alert('Ukuran file melebihi 2 MB. Silakan pilih file yang lebih kecil.');
-            return clearSelected();
-        }
-        showSelected(file);
-    });
-
-    if (removeBtn) {
-        removeBtn.addEventListener('click', clearSelected);
-    }
-
-    // Drag & drop events
-    ['dragenter', 'dragover'].forEach(evt => {
-        dropArea.addEventListener(evt, e => {
-            e.preventDefault();
-            dropArea.classList.add('drag-over');
-        });
-    });
-    ['dragleave', 'drop'].forEach(evt => {
-        dropArea.addEventListener(evt, e => {
-            e.preventDefault();
-            dropArea.classList.remove('drag-over');
-        });
-    });
-    dropArea.addEventListener('drop', function (e) {
-        const dt = e.dataTransfer;
-        if (dt && dt.files.length) {
-            const file = dt.files[0];
-            const allowed = ['application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-            if (!allowed.includes(file.type)) {
-                alert('Format file tidak didukung. Gunakan PDF, DOC, atau DOCX.');
-                return;
-            }
-            if (file.size > MAX_SIZE) {
-                alert('Ukuran file melebihi 2 MB. Silakan pilih file yang lebih kecil.');
-                return;
-            }
-            // Assign ke file input
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            fileInput.files = dataTransfer.files;
-            showSelected(file);
-        }
-    });
-})();
-</script>
 
 </body>
 </html>

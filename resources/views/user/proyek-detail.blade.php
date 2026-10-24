@@ -685,12 +685,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                     </div>
                                 @endif
 
-                                {{-- Tombol Download CV Pelamar --}}
-                                @if(!empty($cand->cv_path))
+                                {{-- Tombol Lihat CV Pelamar: prioritaskan cv_path dari lamaran, fallback ke cv profil user --}}
+                                @php $cvUrl = !empty($cand->cv_path) ? $cand->cv_path : ($cand->candidate_cv_path ?? null); @endphp
+                                @if($cvUrl)
                                     <div style="margin-bottom: 14px;">
-                                        <a href="{{ asset('storage/' . $cand->cv_path) }}" target="_blank" rel="noopener noreferrer" style="font-size: 13px; font-weight: 700; color: #e0244d; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">
-                                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                            Unduh CV Pelamar (PDF)
+                                        <a href="{{ $cvUrl }}" target="_blank" rel="noopener noreferrer" style="font-size: 13px; font-weight: 700; color: #e0244d; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">
+                                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                                            Lihat CV Pelamar (Google Drive)
                                         </a>
                                     </div>
                                 @endif
@@ -753,7 +754,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 Tentukan posisi yang ingin Anda isi dan ajukan ekspektasi fee Anda.
                             </p>
 
-                            <form action="{{ route('proyek.apply', $project->id) }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('proyek.apply', $project->id) }}" method="POST">
                                 @csrf
                                 <div style="margin-bottom: 16px;">
                                     <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Posisi / Peran <span style="color: #e0244d;">*</span></label>
@@ -766,18 +767,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 </div>
 
                                 <div style="margin-bottom: 16px;">
-                                    <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Upload CV <span style="color: #e0244d;">*</span></label>
-                                    <div style="position: relative; border: 2px dashed #c8ccee; border-radius: 12px; padding: 16px 20px; background: #f8f9ff; cursor: pointer; transition: border-color .2s;" onclick="document.getElementById('cv_file_input').click()">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <svg width="32" height="32" fill="none" stroke="#7b6cf6" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                            <div>
-                                                <p id="cv_file_label" style="font-size: 14px; font-weight: 600; color: #2b3a8f; margin: 0;">Klik untuk pilih file CV</p>
-                                                <p style="font-size: 12px; color: #9aa2cc; margin: 2px 0 0;">Format: PDF saja &bull; Maks. 2MB</p>
-                                            </div>
-                                        </div>
-                                        <input type="file" id="cv_file_input" name="cv_file" accept=".pdf" required style="display: none;" onchange="document.getElementById('cv_file_label').textContent = this.files[0] ? this.files[0].name : 'Klik untuk pilih file CV'">
+                                    <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Tautan CV (Google Drive) <span style="color: #e0244d;">*</span></label>
+                                    <div style="display: flex; align-items: center; gap: 10px; background: #f8f9ff; border: 2px solid #c4c9f0; border-radius: 14px; padding: 14px 18px; transition: border-color .2s; focus-within:border-color:#7b6cf6;">
+                                        <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                        <input type="url" name="cv_link" required
+                                            style="border: none; outline: none; background: transparent; flex: 1; font-size: 14px; color: #1c2766;"
+                                            placeholder="https://drive.google.com/file/d/..."
+                                            value="{{ old('cv_link', auth()->user()->cv_path) }}">
                                     </div>
-                                    @error('cv_file')
+                                    <div style="display: flex; align-items: flex-start; gap: 8px; background: #fff8e1; border: 1.5px solid #ffe082; border-radius: 10px; padding: 10px 14px; margin-top: 10px; font-size: 13px; color: #795400;">
+                                        <svg width="16" height="16" fill="none" stroke="#b45309" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                                        </svg>
+                                        <span><strong>Penting:</strong> Pastikan tautan Google Drive sudah diatur agar <strong>dapat diakses oleh semua orang</strong> (Anyone with the link → Viewer).</span>
+                                    </div>
+                                    @error('cv_link')
                                         <p style="color: #e0244d; font-size: 12px; margin-top: 6px;">{{ $message }}</p>
                                     @enderror
                                 </div>
