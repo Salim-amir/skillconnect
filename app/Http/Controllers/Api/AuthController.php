@@ -15,30 +15,29 @@ class AuthController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
         ], [
-            'name.required'     => 'Nama wajib diisi.',
-            'name.max'          => 'Nama maksimal 255 karakter.',
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid.',
-            'email.unique'      => 'Email ini sudah terdaftar.',
-            'password.required' => 'Password wajib diisi.',
-            'password.min'      => 'Password minimal harus 8 karakter.',
+            'name.required'      => 'Nama wajib diisi.',
+            'name.max'           => 'Nama maksimal 255 karakter.',
+            'email.required'     => 'Email wajib diisi.',
+            'email.email'        => 'Format email tidak valid.',
+            'email.unique'       => 'Email ini sudah terdaftar.',
+            'password.required'  => 'Password wajib diisi.',
+            'password.min'       => 'Password minimal harus 8 karakter.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         ]);
 
-        $user = User::create([
+        User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'member', // Default role untuk registrasi biasa
+            'role'     => 'user', // Role default diselaraskan ke 'user'
         ]);
 
-        // Auto-login setelah registrasi
-        Auth::login($user);
-        $request->session()->regenerate();
+        // Hapus memori intended URL agar murni mengarah ke halaman login
+        $request->session()->forget('url.intended');
 
-        // Redirect langsung ke dashboard
-        return redirect()->intended('/dashboard')->with('success', 'Registrasi berhasil! Selamat datang di SkillConnect.');
+        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan masuk dengan akun Anda.');
     }
 
     public function login(Request $request)
@@ -57,10 +56,14 @@ class AuthController extends Controller
             return redirect()->intended('/dashboard')->with('success', 'Login berhasil! Selamat datang kembali.');
         }
 
-        // Kembalikan error validasi serta flash session error
-        return back()->withErrors([
-            'email' => 'Email atau password yang Anda masukkan salah.',
-        ])->with('error', 'Email atau password salah. Silakan coba lagi.')->onlyInput('email');
+        // Hapus intended URL agar tidak terjebak loop saat login gagal
+        $request->session()->forget('url.intended');
+
+        // Gunakan redirect()->route('login') alih-alih back()
+        return redirect()->route('login')
+            ->withErrors(['email' => 'Email atau kata sandi yang Anda masukkan salah.'])
+            ->with('error', 'Email atau kata sandi salah. Silakan coba lagi.')
+            ->withInput($request->only('email'));
     }
 
     public function logout(Request $request)
@@ -70,6 +73,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login')->with('success', 'Anda telah berhasil keluar.');
+        return redirect()->route('login')->with('success', 'Anda telah berhasil keluar.');
     }
 }

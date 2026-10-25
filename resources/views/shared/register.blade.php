@@ -362,34 +362,43 @@ a { color: inherit; text-decoration: none; }
       <h1 class="card-title">Buat akun SkillConnect</h1>
       <p class="card-subtitle">Mulai cari anggota tim atau bergabung ke proyek.</p>
 
-      @if ($errors->any())
+      {{-- Flash Message Single Error --}}
+      @if (session('error'))
         <div class="alert alert-danger">
-          @foreach ($errors->all() as $error)
-            <div>• {{ $error }}</div>
-          @endforeach
+          {{ session('error') }}
         </div>
       @endif
 
       <form action="{{ route('register') }}" method="POST">
         @csrf
+
+        <!-- Nama Lengkap -->
         <div class="form-group">
           <label class="form-label" for="name">Nama lengkap</label>
           <div class="input-wrap">
-            <input type="text" id="name" name="name" class="form-input" placeholder="Nama lengkap" value="{{ old('name') }}" required autofocus>
+            <input type="text" id="name" name="name" class="form-input @error('name') is-invalid @enderror" placeholder="Nama lengkap" value="{{ old('name') }}" required autofocus>
           </div>
+          @error('name')
+            <span class="error-message" style="color: #dc3545; font-size: 0.85rem; margin-top: 4px; display: block;">{{ $message }}</span>
+          @enderror
         </div>
 
+        <!-- Email -->
         <div class="form-group">
           <label class="form-label" for="email">Email</label>
           <div class="input-wrap">
-            <input type="email" id="email" name="email" class="form-input" placeholder="nama@email.com" value="{{ old('email') }}" required>
+            <input type="email" id="email" name="email" class="form-input @error('email') is-invalid @enderror" placeholder="nama@email.com" value="{{ old('email') }}" required>
           </div>
+          @error('email')
+            <span class="error-message" style="color: #dc3545; font-size: 0.85rem; margin-top: 4px; display: block;">{{ $message }}</span>
+          @enderror
         </div>
 
+        <!-- Kata Sandi -->
         <div class="form-group">
           <label class="form-label" for="password">Kata sandi</label>
           <div class="input-wrap">
-            <input type="password" id="password" name="password" class="form-input" placeholder="Minimal 8 karakter" required>
+            <input type="password" id="password" name="password" class="form-input @error('password') is-invalid @enderror" placeholder="Minimal 8 karakter" required>
             <button type="button" class="btn-toggle-pw" id="togglePassword">Tampilkan</button>
           </div>
           <!-- 4-segment strength bar -->
@@ -399,12 +408,16 @@ a { color: inherit; text-decoration: none; }
             <span class="strength-bar" id="bar3"></span>
             <span class="strength-bar" id="bar4"></span>
           </div>
+          @error('password')
+            <span class="error-message" style="color: #dc3545; font-size: 0.85rem; margin-top: 4px; display: block;">{{ $message }}</span>
+          @enderror
         </div>
 
+        <!-- Konfirmasi Kata Sandi -->
         <div class="form-group">
           <label class="form-label" for="password_confirmation">Konfirmasi kata sandi</label>
           <div class="input-wrap">
-            <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" placeholder="Ulangi kata sandi">
+            <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" placeholder="Ulangi kata sandi" required autocomplete="new-password">
             <button type="button" class="btn-toggle-pw" id="toggleConfirm">Tampilkan</button>
           </div>
         </div>
