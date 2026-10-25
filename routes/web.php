@@ -18,23 +18,28 @@ Route::get('/', function () {
     return view('shared.welcome');
 })->name('welcome');
 
-// Halaman Form Login Khusus (Mencegah Loop ke Welcome)
+// Halaman Form Login Khusus
 Route::get('/login', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
+    // Hapus memori intended URL agar tidak looping saat login gagal
+    session()->forget('url.intended');
     return view('shared.login');
 })->name('login');
 
 Route::post('/login', [AuthController::class, 'login']);
 
+// Halaman Register
 Route::get('/register', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
+    session()->forget('url.intended');
     return view('shared.welcome');
 })->name('register');
 
+// Proses POST register diarahkan ke AuthController::register
 Route::post('/register', [AuthController::class, 'register']);
 
 // OAuth Google SSO

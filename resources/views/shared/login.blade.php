@@ -355,24 +355,22 @@ a { color: inherit; text-decoration: none; }
       <h1 class="card-title">Masuk ke SkillConnect</h1>
       <p class="card-subtitle">Selamat datang kembali! Lanjutkan proyek kolaborasi Anda.</p>
 
-      {{-- Flash Message Success --}}
+      {{-- Flash Message Success (Notifikasi Registrasi Berhasil) --}}
       @if (session('success'))
         <div class="alert alert-success">
           {{ session('success') }}
         </div>
       @endif
 
-      {{-- Flash Message Single Error --}}
+      {{-- Flash Message Single Error (Pesan Salah Password / Autentikasi Gagal) --}}
       @if (session('error'))
         <div class="alert alert-danger">
           {{ session('error') }}
         </div>
-      @endif
-
-      {{-- Validation Errors --}}
-      @if ($errors->any())
+      @elseif ($errors->any())
+        {{-- Tampilkan error validasi jika session('error') tidak ada --}}
         <div class="alert alert-danger">
-          <ul class="alert-list">
+          <ul class="alert-list" style="margin: 0; padding-left: 20px;">
             @foreach ($errors->all() as $error)
               <li>{{ $error }}</li>
             @endforeach
@@ -385,14 +383,14 @@ a { color: inherit; text-decoration: none; }
         <div class="form-group">
           <label class="form-label" for="email">Email</label>
           <div class="input-wrap">
-            <input type="email" id="email" name="email" class="form-input" placeholder="nama@email.com" value="{{ old('email') }}" required autofocus autocomplete="username">
+            <input type="email" id="email" name="email" class="form-input @error('email') is-invalid @enderror" placeholder="nama@email.com" value="{{ old('email') }}" required autofocus autocomplete="username">
           </div>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="password">Kata sandi</label>
           <div class="input-wrap">
-            <input type="password" id="password" name="password" class="form-input" placeholder="Masukkan kata sandi" required autocomplete="current-password">
+            <input type="password" id="password" name="password" class="form-input @error('password') is-invalid @enderror" placeholder="Masukkan kata sandi" required autocomplete="current-password">
             <button type="button" class="btn-toggle-pw" id="togglePassword">Tampilkan</button>
           </div>
         </div>
