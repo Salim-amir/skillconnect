@@ -36,13 +36,13 @@ Route::get('/register', function () {
         return redirect()->route('dashboard');
     }
     session()->forget('url.intended');
-    return view('shared.welcome');
+    return view('shared.register');
 })->name('register');
 
 // Proses POST register diarahkan ke AuthController::register
 Route::post('/register', [AuthController::class, 'register']);
 
-// OAuth Google SSO
+// OAuth Google SSO (Mendukung query parameter ?role=member atau ?role=creator)
 Route::get('/auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
 
@@ -53,7 +53,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
 
-    // Dashboard Sentral: Otomatis membagi tampilan Admin / User
+    // Dashboard Sentral: Otomatis membagi tampilan Admin / Creator / Member
     Route::get('/dashboard', function () {
         $currentUser = auth()->user();
 
@@ -65,7 +65,7 @@ Route::middleware('auth')->group(function () {
             }
         }
 
-        // Jika Admin -> Tampilkan Admin Dashboard
+        // 1. Tampilan Admin Dashboard
         if ($currentUser->role === 'admin') {
             $totalUsers      = User::count();
             $totalProjects   = Project::count();
@@ -76,8 +76,13 @@ Route::middleware('auth')->group(function () {
             return view('admin.dashboard', compact('totalUsers', 'totalProjects', 'totalCompleted', 'latestUsers', 'totalFee', 'totalTransaksi'));
         }
 
-        // Jika User Biasa -> Tampilkan User Dashboard
-        return view('user.dashboard');
+        // 2. Tampilan Dashboard Creator
+        if ($currentUser->role === 'creator') {
+            return view('user.dashboard', ['role' => 'creator']);
+        }
+
+        // 3. Tampilan Dashboard Member (Default untuk role 'member' atau 'user')
+        return view('user.dashboard', ['role' => 'member']);
     })->name('dashboard');
 
 });

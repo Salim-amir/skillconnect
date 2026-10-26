@@ -11,8 +11,12 @@ use Illuminate\Support\Str;
 
 class SocialiteController extends Controller
 {
-    public function redirectToGoogle()
+    public function redirectToGoogle(Request $request)
     {
+        // Tangkap parameter 'role' dari URL (?role=member atau ?role=creator) dan simpan di session
+        $requestedRole = $request->query('role', 'member');
+        session(['google_login_role' => $requestedRole]);
+
         return Socialite::driver('google')->redirect();
     }
 
@@ -27,16 +31,20 @@ class SocialiteController extends Controller
 
             $googleUser = $driver->user();
 
+            // Ambil role yang disimpan saat redirect tadi (default: member)
+            $targetRole = session('google_login_role', 'member');
+            session()->forget('google_login_role');
+
             // Cari berdasarkan google_id atau email
             $user = User::where('google_id', $googleUser->getId())
                         ->orWhere('email', $googleUser->getEmail())
                         ->first();
 
             if (!$user) {
-                // Tentukan role default (member)
+                // Tentukan role: prioritaskan admin jika email/nama mengandung 'admin', jika tidak gunakan targetRole pilihan user
                 $role = (strtolower($googleUser->getName()) === 'admin' || str_contains(strtolower($googleUser->getEmail()), 'admin')) 
                     ? 'admin' 
-                    : 'member';
+                    : $targetRole;
 
                 $user = User::create([
                     'name'      => $googleUser->getName(),
@@ -49,6 +57,13 @@ class SocialiteController extends Controller
                 // Tautkan google_id jika user mendaftar lewat manual sebelumnya
                 if (!$user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
+                }
+
+                // Validasi role pengguna lama: cegah jika mencoba masuk memilih role yang berbeda (kecuali Admin)
+                if ($user->role !== 'admin' && $user->role !== $targetRole) {
+                    return redirect()->route('login')
+                        ->withErrors(['email' => 'Akun Google ini terdaftar sebagai ' . ucfirst($user->role) . '. Silakan pilih jenis akun yang sesuai.'])
+                        ->with('error', 'Pilihan jenis akun tidak sesuai dengan peran Anda.');
                 }
             }
 
