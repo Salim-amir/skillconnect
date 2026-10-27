@@ -25,7 +25,9 @@ Route::get('/login', function () {
     }
     // Hapus memori intended URL agar tidak looping saat login gagal
     session()->forget('url.intended');
-    return view('shared.login');
+    session()->reflash();
+    $role = request('role');
+    return redirect('/' . ($role ? '?role=' . $role : '') . '#masuk');
 })->name('login');
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -36,7 +38,9 @@ Route::get('/register', function () {
         return redirect()->route('dashboard');
     }
     session()->forget('url.intended');
-    return view('shared.register');
+    session()->reflash();
+    $role = request('role');
+    return redirect('/' . ($role ? '?role=' . $role : '') . '#daftar');
 })->name('register');
 
 // Proses POST register diarahkan ke AuthController::register
@@ -48,6 +52,27 @@ Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCa
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// ===================== PASSWORD RESET ROUTES =====================
+Route::get('/forgot-password', function () {
+    return redirect('/#lupa-sandi');
+})->name('password.request');
+
+Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
+
+Route::get('/reset-password', function (\Illuminate\Http\Request $request) {
+    if ($request->filled('token')) {
+        return redirect()->route('password.reset', [
+            'token' => $request->token,
+            'email' => $request->email,
+        ]);
+    }
+    return redirect()->route('password.request');
+});
+
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
+
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+
 
 // ===================== SHARED AUTH ROUTES =====================
 
@@ -55,6 +80,7 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard Sentral: Otomatis membagi tampilan Admin / Creator / Member
     Route::get('/dashboard', function () {
+        /** @var User $currentUser */
         $currentUser = auth()->user();
 
         // Pengecekan otomatis role admin
@@ -90,7 +116,7 @@ Route::middleware('auth')->group(function () {
 
 // ===================== ADMIN ROUTES =====================
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/pengguna', function () {
         $users = User::all();

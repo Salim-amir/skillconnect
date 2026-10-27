@@ -136,6 +136,140 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* Role Tabs Switcher */
+.role-tabs-wrapper {
+  margin-bottom: 22px;
+}
+.role-tabs-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 9px;
+}
+.role-tabs-label .role-badge-tag {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(123, 108, 246, 0.12);
+  color: var(--violet);
+  letter-spacing: 0.05em;
+  transition: all 0.25s ease;
+}
+.role-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 600px) {
+  .role-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+.role-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1.5px solid var(--line);
+  background: #fcfdff;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  position: relative;
+  outline: none;
+  width: 100%;
+}
+.role-tab-btn:hover {
+  background: #ffffff;
+  border-color: #b9c2f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(100, 90, 210, 0.08);
+}
+.role-tab-btn .role-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #eef2ff;
+  color: #4338ca;
+  transition: all 0.25s ease;
+}
+.role-tab-btn .role-icon-box svg {
+  width: 20px;
+  height: 20px;
+}
+.role-tab-btn .role-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.role-tab-btn .role-name {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.role-tab-btn .role-tagline {
+  font-size: 11px;
+  color: var(--mute);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.role-tab-btn .role-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.role-tab-btn .role-check svg {
+  width: 11px;
+  height: 11px;
+  color: #ffffff;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.2s ease;
+}
+
+/* Unified Active Role State */
+.role-tab-btn.active {
+  border-color: #4f46e5;
+  background: #ffffff;
+  box-shadow: 0 8px 24px -6px rgba(79, 70, 229, 0.22);
+}
+.role-tab-btn.active .role-icon-box {
+  background: linear-gradient(135deg, #2b3a8f, #4f46e5 80%);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
+}
+.role-tab-btn.active .role-name {
+  color: #312e81;
+}
+.role-tab-btn.active .role-check {
+  background: #4f46e5;
+}
+.role-tab-btn.active .role-check svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
 /* Card Header */
 .card-title {
   font-family: 'Fredoka', sans-serif;
@@ -345,15 +479,23 @@ a { color: inherit; text-decoration: none; }
 
   <!-- Right Form Card -->
   <div class="card-panel">
+    @php
+      $activeRole = old('login_role', request('role', 'member'));
+      if (!in_array($activeRole, ['member', 'creator', 'admin'])) {
+        $activeRole = 'member';
+      }
+    @endphp
     <div class="auth-card">
       <!-- Tabs: Masuk / Daftar -->
       <div class="tab-switch">
-        <a href="{{ route('login') }}" class="tab-btn active">Masuk</a>
-        <a href="{{ route('register') }}" class="tab-btn">Daftar</a>
+        <a href="{{ route('login', ['role' => $activeRole]) }}" class="tab-btn active" id="tab-link-login">Masuk</a>
+        <a href="{{ route('register', ['role' => $activeRole]) }}" class="tab-btn" id="tab-link-register">Daftar</a>
       </div>
 
       <h1 class="card-title">Masuk ke SkillConnect</h1>
-      <p class="card-subtitle">Selamat datang kembali! Lanjutkan proyek kolaborasi Anda.</p>
+      <p class="card-subtitle" id="card-subtitle">
+        {{ $activeRole === 'creator' ? 'Selamat datang kembali! Kelola proyek dan rekrut talenta terbaik Anda.' : 'Selamat datang kembali! Lanjutkan pencarian proyek dan bangun portofolio Anda.' }}
+      </p>
 
       {{-- Flash Message Success --}}
       @if (session('success'))
@@ -363,41 +505,119 @@ a { color: inherit; text-decoration: none; }
       @endif
 
       {{-- Flash Message Single Error / Validation Errors --}}
-      @if (session('error'))
+      @if (session('error') || (isset($errors) && $errors->any()))
         <div class="alert alert-danger">
-          {{ session('error') }}
-        </div>
-      @elseif ($errors->any())
-        <div class="alert alert-danger">
-          <ul class="alert-list" style="margin: 0; padding-left: 20px;">
-            @foreach ($errors->all() as $error)
-              <li>{{ $error }}</li>
-            @endforeach
-          </ul>
+          @if (session('error'))
+            <div>{{ session('error') }}</div>
+          @endif
+          @if (isset($errors) && $errors->any())
+            @php
+              $cleanErrors = array_filter($errors->all(), function($e) {
+                return $e !== session('error');
+              });
+            @endphp
+            @if (count($cleanErrors) === 1 && !session('error'))
+              <div>{{ reset($cleanErrors) }}</div>
+            @elseif (count($cleanErrors) > 0)
+              <ul class="alert-list" style="margin: {{ session('error') ? '6px 0 0' : '0' }}; padding-left: 20px;">
+                @foreach ($cleanErrors as $error)
+                  <li>{{ $error }}</li>
+                @endforeach
+              </ul>
+            @endif
+          @endif
         </div>
       @endif
 
       <form action="{{ route('login') }}" method="POST">
         @csrf
 
-        <!-- Pilihan Peran (Role Selector) -->
-        <div class="form-group">
-          <label class="form-label">Masuk Sebagai</label>
-          <div class="role-selector" style="display: flex; gap: 12px; margin-bottom: 15px;">
-            <label class="role-card" style="flex: 1; border: 2px solid #3b82f6; padding: 12px; border-radius: 8px; cursor: pointer; text-align: center;">
-              <input type="radio" name="login_role" value="member" {{ old('login_role', 'member') === 'member' ? 'checked' : '' }} onchange="updateLoginRole('member')">
-              <div style="font-weight: bold; margin-top: 4px;">Member</div>
-              <small style="color: #666; font-size: 0.75rem;">Cari & Garap Proyek</small>
-            </label>
-
-            <label class="role-card" style="flex: 1; border: 2px solid #e5e7eb; padding: 12px; border-radius: 8px; cursor: pointer; text-align: center;">
-              <input type="radio" name="login_role" value="creator" {{ old('login_role') === 'creator' ? 'checked' : '' }} onchange="updateLoginRole('creator')">
-              <div style="font-weight: bold; margin-top: 4px;">Creator</div>
-              <small style="color: #666; font-size: 0.75rem;">Buat & Kelola Proyek</small>
-            </label>
+        <!-- Tab Pemilihan Peran (Member vs Creator) -->
+        <div class="role-tabs-wrapper">
+          <div class="role-tabs-label">
+            <span>Pilih Jenis Akun</span>
+            <span class="role-badge-tag {{ $activeRole === 'creator' ? 'tag-creator' : '' }}" id="role-badge-tag">{{ strtoupper($activeRole) }}</span>
           </div>
+
+          <div class="role-tabs" role="tablist" aria-label="Pilih peran akun">
+            <button type="button" 
+              class="role-tab-btn role-member {{ $activeRole === 'member' ? 'active' : '' }}" 
+              id="tab-btn-member" 
+              onclick="switchRole('member')" 
+              role="tab" 
+              aria-selected="{{ $activeRole === 'member' ? 'true' : 'false' }}">
+              <div class="role-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              <div class="role-info">
+                <span class="role-name">Member</span>
+                <span class="role-tagline">Cari & Garap Proyek</span>
+              </div>
+              <div class="role-check">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="2.5 6 4.8 8.5 9.5 3.5"/>
+                </svg>
+              </div>
+            </button>
+
+            <button type="button" 
+              class="role-tab-btn role-creator {{ $activeRole === 'creator' ? 'active' : '' }}" 
+              id="tab-btn-creator" 
+              onclick="switchRole('creator')" 
+              role="tab" 
+              aria-selected="{{ $activeRole === 'creator' ? 'true' : 'false' }}">
+              <div class="role-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+                  <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+                  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+                  <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                </svg>
+              </div>
+              <div class="role-info">
+                <span class="role-name">Creator</span>
+                <span class="role-tagline">Buat & Kelola Proyek</span>
+              </div>
+              <div class="role-check">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="2.5 6 4.8 8.5 9.5 3.5"/>
+                </svg>
+              </div>
+            </button>
+
+            <button type="button" 
+              class="role-tab-btn role-admin {{ $activeRole === 'admin' ? 'active' : '' }}" 
+              id="tab-btn-admin" 
+              onclick="switchRole('admin')" 
+              role="tab" 
+              aria-selected="{{ $activeRole === 'admin' ? 'true' : 'false' }}">
+              <div class="role-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </div>
+              <div class="role-info">
+                <span class="role-name">Admin</span>
+                <span class="role-tagline">Kelola Platform</span>
+              </div>
+              <div class="role-check">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="2.5 6 4.8 8.5 9.5 3.5"/>
+                </svg>
+              </div>
+            </button>
+          </div>
+
+          <!-- Hidden Form Radios for Payload -->
+          <input type="radio" name="login_role" value="member" id="radio-member" {{ $activeRole === 'member' ? 'checked' : '' }} style="display: none;">
+          <input type="radio" name="login_role" value="creator" id="radio-creator" {{ $activeRole === 'creator' ? 'checked' : '' }} style="display: none;">
+          <input type="radio" name="login_role" value="admin" id="radio-admin" {{ $activeRole === 'admin' ? 'checked' : '' }} style="display: none;">
+
           @error('login_role')
-            <span class="error-message" style="color: #dc3545; font-size: 0.85rem; margin-top: 4px; display: block;">{{ $message }}</span>
+            <span class="error-message" style="color: #dc3545; font-size: 0.85rem; margin-top: 6px; display: block;">{{ $message }}</span>
           @enderror
         </div>
 
@@ -414,7 +634,10 @@ a { color: inherit; text-decoration: none; }
 
         <!-- Kata Sandi -->
         <div class="form-group">
-          <label class="form-label" for="password">Kata sandi</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" for="password" style="margin-bottom: 0;">Kata sandi</label>
+            <a href="/#lupa-sandi" style="font-size: 12.5px; color: var(--blue); font-weight: 700; text-decoration: underline;">Lupa kata sandi?</a>
+          </div>
           <div class="input-wrap">
             <input type="password" id="password" name="password" class="form-input @error('password') is-invalid @enderror" placeholder="Masukkan kata sandi" required autocomplete="current-password">
             <button type="button" class="btn-toggle-pw" id="togglePassword">Tampilkan</button>
@@ -424,36 +647,110 @@ a { color: inherit; text-decoration: none; }
           @enderror
         </div>
 
-        <button type="submit" class="btn-submit" id="btn-submit-masuk">Masuk</button>
+        <button type="submit" class="btn-submit" id="btn-submit-masuk">
+          Masuk sebagai {{ $activeRole === 'creator' ? 'Creator' : 'Member' }}
+        </button>
       </form>
 
-      <div class="divider">atau</div>
+      <div class="divider" id="divider-sso" style="{{ $activeRole === 'admin' ? 'display:none;' : '' }}">atau</div>
 
-      <a href="{{ route('google.login', ['role' => 'member']) }}" class="btn-google" id="btn-google-sso">
+      <a href="{{ route('google.login', ['role' => $activeRole]) }}" class="btn-google" id="btn-google-sso" style="{{ $activeRole === 'admin' ? 'display:none;' : '' }}">
         <svg width="18" height="18" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
         </svg>
-        <span id="label-google-sso">Masuk sebagai Member dengan Google</span>
+        <span id="label-google-sso">Masuk sebagai {{ $activeRole === 'creator' ? 'Creator' : 'Member' }} dengan Google</span>
       </a>
-
-      <div class="card-footer">
-        Belum punya akun? <a href="{{ route('register') }}">Daftar</a>
-      </div>
     </div>
   </div>
 </main>
 
 <script>
-function updateLoginRole(role) {
-    const googleBtn = document.getElementById('btn-google-sso');
-    const googleLabel = document.getElementById('label-google-sso');
-    
-    // Perbarui tautan Google SSO sesuai peran yang dipilih
+function switchRole(role) {
+  const radioMember = document.getElementById('radio-member');
+  const radioCreator = document.getElementById('radio-creator');
+  const radioAdmin = document.getElementById('radio-admin');
+  const tabMember = document.getElementById('tab-btn-member');
+  const tabCreator = document.getElementById('tab-btn-creator');
+  const tabAdmin = document.getElementById('tab-btn-admin');
+  const submitBtn = document.getElementById('btn-submit-masuk');
+  const subTitle = document.getElementById('card-subtitle');
+  const badgeTag = document.getElementById('role-badge-tag');
+  const googleBtn = document.getElementById('btn-google-sso');
+  const googleLabel = document.getElementById('label-google-sso');
+  const googleDivider = document.getElementById('divider-sso');
+  const tabRegister = document.getElementById('tab-link-register');
+
+  const isCreator = role === 'creator';
+  const isAdmin = role === 'admin';
+  const roleName = isAdmin ? 'Admin' : (isCreator ? 'Creator' : 'Member');
+
+  if (tabMember) {
+    tabMember.classList.toggle('active', !isCreator && !isAdmin);
+    tabMember.setAttribute('aria-selected', (!isCreator && !isAdmin).toString());
+  }
+  if (tabCreator) {
+    tabCreator.classList.toggle('active', isCreator);
+    tabCreator.setAttribute('aria-selected', isCreator.toString());
+  }
+  if (tabAdmin) {
+    tabAdmin.classList.toggle('active', isAdmin);
+    tabAdmin.setAttribute('aria-selected', isAdmin.toString());
+  }
+
+  if (radioMember) radioMember.checked = (!isCreator && !isAdmin);
+  if (radioCreator) radioCreator.checked = isCreator;
+  if (radioAdmin) radioAdmin.checked = isAdmin;
+
+  if (badgeTag) {
+    badgeTag.textContent = roleName.toUpperCase();
+  }
+
+  if (subTitle) {
+    if (isAdmin) {
+      subTitle.textContent = 'Selamat datang kembali! Masuk untuk mengelola sistem dan verifikasi data platform.';
+    } else if (isCreator) {
+      subTitle.textContent = 'Selamat datang kembali! Kelola proyek dan rekrut talenta terbaik Anda.';
+    } else {
+      subTitle.textContent = 'Selamat datang kembali! Lanjutkan pencarian proyek dan bangun portofolio Anda.';
+    }
+  }
+
+  if (submitBtn) {
+    submitBtn.textContent = 'Masuk sebagai ' + roleName;
+  }
+
+  if (googleDivider) googleDivider.style.display = isAdmin ? 'none' : 'block';
+  if (googleBtn) {
+    googleBtn.style.display = isAdmin ? 'none' : 'flex';
     googleBtn.href = "{{ url('/auth/google') }}?role=" + role;
-    googleLabel.textContent = "Masuk sebagai " + (role === 'creator' ? 'Creator' : 'Member') + " dengan Google";
+  }
+  if (googleLabel) googleLabel.textContent = 'Masuk sebagai ' + roleName + ' dengan Google';
+
+  if (tabRegister) {
+    if (isAdmin) {
+      tabRegister.style.opacity = '0.4';
+      tabRegister.title = 'Pendaftaran Admin dilakukan secara internal';
+      tabRegister.href = "{{ route('register') }}?role=member";
+    } else {
+      tabRegister.style.opacity = '1';
+      tabRegister.title = '';
+      tabRegister.href = "{{ route('register') }}?role=" + role;
+    }
+  }
+
+  // Update query string in browser without reload
+  try {
+    const url = new URL(window.location);
+    url.searchParams.set('role', role);
+    window.history.replaceState({}, '', url);
+  } catch(e) {}
+}
+
+function updateLoginRole(role) {
+  switchRole(role);
 }
 </script>
 
