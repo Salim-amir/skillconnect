@@ -106,9 +106,10 @@ footer .l b{color:var(--ink)}footer p{font-size:14px;margin-top:12px;max-width:2
 @media(max-width:560px){.fg{grid-template-columns:1fr}.cand{flex-wrap:wrap}}
 [hidden]{display:none!important}
 .copy{transition:opacity .45s,transform .6s cubic-bezier(.2,.8,.2,1)}.hint{transition:opacity .3s}
-.acard{position:absolute;z-index:4;right:6vw;top:50%;width:min(460px,90%);opacity:0;visibility:hidden;pointer-events:none;transform:translate(60px,-50%);background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border:1px solid #fff;border-radius:28px;padding:20px 26px 16px;box-shadow:0 40px 80px -34px rgba(80,70,200,.6),16px 16px 0 -2px rgba(194,107,240,.18),-12px -12px 0 -2px rgba(111,177,255,.24);transition:opacity .45s,transform .6s cubic-bezier(.2,.8,.2,1),visibility 0s .6s;height:560px;max-height:calc(100vh - 40px);display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden}
+.acard{position:absolute;z-index:4;right:6vw;top:50%;width:min(460px,90%);opacity:0;visibility:hidden;pointer-events:none;transform:translate(60px,-50%);background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border:1px solid #fff;border-radius:28px;padding:20px 26px 16px;box-shadow:0 40px 80px -34px rgba(80,70,200,.6),16px 16px 0 -2px rgba(194,107,240,.18),-12px -12px 0 -2px rgba(111,177,255,.24);transition:opacity .45s,transform .6s cubic-bezier(.2,.8,.2,1),visibility 0s .6s;height:595px;max-height:calc(100vh - 30px);display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden}
 .acard-body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-#fL{overflow:hidden}
+#fL, #fF{overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;padding-right:4px;scrollbar-width:none}
+#fL::-webkit-scrollbar, #fF::-webkit-scrollbar{display:none}
 #fR{overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;padding-right:6px;margin-right:-6px;scrollbar-width:thin;scrollbar-color:#c3c9f5 transparent}
 #fR::-webkit-scrollbar{width:5px}
 #fR::-webkit-scrollbar-track{background:rgba(220,225,250,.3);border-radius:10px}
@@ -121,13 +122,18 @@ footer .l b{color:var(--ink)}footer p{font-size:14px;margin-top:12px;max-width:2
 .auth nav .lk,.auth nav [data-open]{display:none}
 @media(min-width:901px){.auth,.auth body{overflow:hidden}}
 .auth body>section,.auth body>.band,.auth body>footer{display:none}
-.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;background:#eef0ff;border-radius:14px;padding:4px;margin-bottom:10px;flex-shrink:0}
+.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;background:#eef0ff;border-radius:14px;padding:4px;margin-bottom:8px;flex-shrink:0}
 .tabs button{position:relative;z-index:1;border:0;background:none;padding:8px;font:600 13.5px 'Nunito',sans-serif;color:var(--mute);cursor:pointer;border-radius:10px}
 .tabs button.on{color:var(--ink)}
 .thumb{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:#fff;border-radius:10px;box-shadow:0 4px 12px -4px rgba(43,58,143,.4);transition:transform .3s cubic-bezier(.3,.8,.3,1)}
 .tabs.r .thumb{transform:translateX(100%)}
-.at{font-family:'Fredoka',sans-serif;font-weight:800;font-size:23px;line-height:1.15}
-.lead{color:var(--mute);margin:2px 0 10px;font-size:13.5px}
+.role-switch{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;background:#f0f2ff;border:1px solid #d8dcfa;border-radius:12px;padding:3px;margin-bottom:10px;flex-shrink:0}
+.role-switch button{display:flex;align-items:center;justify-content:center;gap:5px;border:0;background:none;padding:7px 4px;font:700 12px 'Nunito',sans-serif;color:var(--mute);cursor:pointer;border-radius:9px;transition:all .2s ease}
+.role-switch button svg{width:13px;height:13px;flex-shrink:0}
+.role-switch button small{font-size:9.5px;font-weight:600;opacity:.8}
+.role-switch button.on{background:#fff;color:#2b3a8f;box-shadow:0 2px 8px rgba(43,58,143,.2)}
+.at{font-family:'Fredoka',sans-serif;font-weight:800;font-size:22px;line-height:1.15}
+.lead{color:var(--mute);margin:2px 0 8px;font-size:13px}
 .f{display:block;margin-bottom:8px}.f>span{display:block;font-size:12.5px;font-weight:600;margin-bottom:3px}
 .f input{width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:14px;font:14px 'Nunito',sans-serif;color:var(--ink);background:#fbfbff;transition:border-color .2s,box-shadow .2s}
 .f input:focus{outline:0;border-color:var(--violet);box-shadow:0 0 0 4px rgba(123,108,246,.18);background:#fff}
@@ -138,11 +144,19 @@ footer .l b{color:var(--ink)}footer p{font-size:14px;margin-top:12px;max-width:2
 .meter i{height:4px;border-radius:5px;background:#e3e5fa;transition:background .25s}.meter i.on{background:var(--c)}
 .mt{font-size:12px;color:var(--mute);margin-top:3px;min-height:16px}
 .go{width:100%;margin-top:2px;padding:11px;border:0;border-radius:14px;color:#fff;font:700 14.5px 'Nunito',sans-serif;cursor:pointer;background:linear-gradient(90deg,#2b3a8f,#7b6cf6 70%,#c26bf0);box-shadow:0 14px 26px -12px rgba(123,108,246,.9);transition:transform .2s}
-.go:hover{transform:translateY(-2px)}
+.alert-box{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-radius:12px;font-size:12.5px;font-weight:600;line-height:1.4;margin-bottom:10px}
+.alert-box.alert-danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.alert-box.alert-success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.alert-box svg{width:16px;height:16px;flex-shrink:0;margin-top:1px}
+.alert-close{border:0;background:none;color:inherit;font-size:16px;cursor:pointer;padding:0 2px;line-height:1;margin-left:auto;opacity:.7}
+.alert-close:hover{opacity:1}
+.js-msg{min-height:16px;font-size:12.5px;margin:6px 0 0;text-align:center;font-weight:600;color:transparent;transition:color .2s}
+.js-msg.bad{color:#dc2626}
+.js-msg.ok{color:#16a34a}
 .msg{min-height:18px;font-size:13px;margin:6px 0 0;color:#c0392b}.msg.ok{color:#177a54}
 .sw{margin-top:6px;font-size:13.5px;color:var(--mute);text-align:center;padding-bottom:2px}
 .sw button{border:0;background:none;color:var(--navy);font:700 14px 'Nunito',sans-serif;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-@media(max-width:900px){.auth .hero{height:auto;min-height:100svh;overflow:visible}.auth .copy{position:absolute}.acard{right:auto;top:auto;left:50%;transform:translate(-50%,40px);padding:26px 22px}.auth .acard{position:relative;left:auto;margin:290px auto 30px;transform:none;width:min(520px,90%);height:585px;max-height:calc(100vh - 100px)}}
+@media(max-width:900px){.auth .hero{height:auto;min-height:100svh;overflow:visible}.auth .copy{position:absolute}.acard{right:auto;top:auto;left:50%;transform:translate(-50%,40px);padding:26px 22px}.auth .acard{position:relative;left:auto;margin:290px auto 30px;transform:none;width:min(520px,90%);height:630px;max-height:calc(100vh - 80px)}}
 @media(prefers-reduced-motion:reduce){.acard,.copy{transition:none}.acard.shake{animation:none}}
 @media(max-width:820px){nav .lk{display:none}nav{gap:10px}.copy{max-width:none;justify-content:flex-end;padding-bottom:11vh}.hint{display:none}.about{grid-template-columns:1fr;gap:28px}.copy p{font-size:16px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card{transition:none}}
@@ -178,55 +192,192 @@ footer .l b{color:var(--ink)}footer p{font-size:14px;margin-top:12px;max-width:2
       <button type="button" id="tR" role="tab">Daftar</button>
       <i class="thumb"></i>
     </div>
+
+    <!-- Pilihan Peran: Member vs Creator vs Admin -->
+    <div class="role-switch" id="roleSwitch" role="tablist" aria-label="Pilih peran">
+      <button type="button" id="rtMember" class="on" onclick="setRole('member')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Member</span>
+      </button>
+      <button type="button" id="rtCreator" class="creator" onclick="setRole('creator')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+        </svg>
+        <span>Creator</span>
+      </button>
+      <button type="button" id="rtAdmin" class="admin" onclick="setRole('admin')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Admin</span>
+      </button>
+    </div>
+
     <div class="acard-body" id="acardBody">
     <form id="fL" action="{{ route('login') }}" method="POST">
       @csrf
-      @if ($errors->any())
-        <div class="msg" role="alert" style="color:#c0392b;margin-bottom:12px;font-weight:600">
-          @foreach ($errors->all() as $error)
-            <div>• {{ $error }}</div>
-          @endforeach
+      <input type="hidden" name="login_role" id="fL_role" value="member">
+
+      @if (session('success'))
+        <div class="alert-box alert-success" role="alert">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <div style="flex:1;">{{ session('success') }}</div>
+          <button type="button" class="alert-close" onclick="var p=this.parentElement;p.style.opacity='0';p.style.transition='opacity .2s';setTimeout(function(){p.remove()},200)">&times;</button>
         </div>
       @endif
+
+      @if (!old('is_register') && (session('error') || (isset($errors) && $errors->any())))
+        <div class="alert-box alert-danger" role="alert">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <div style="flex:1;">
+            @if (session('error'))
+              <div>{{ session('error') }}</div>
+            @endif
+            @if (isset($errors) && $errors->any())
+              @php
+                $cleanErrors = array_filter($errors->all(), function($e) {
+                  return $e !== session('error');
+                });
+              @endphp
+              @if (count($cleanErrors) === 1 && !session('error'))
+                <div>{{ reset($cleanErrors) }}</div>
+              @elseif (count($cleanErrors) > 0)
+                <ul style="margin:{{ session('error') ? '4px 0 0' : '0' }};padding-left:14px;">
+                  @foreach ($cleanErrors as $error)
+                    <li>{{ $error }}</li>
+                  @endforeach
+                </ul>
+              @endif
+            @endif
+          </div>
+          <button type="button" class="alert-close" onclick="var p=this.parentElement;p.style.opacity='0';p.style.transition='opacity .2s';setTimeout(function(){p.remove()},200)">&times;</button>
+        </div>
+      @endif
+
       <h3 class="at">Selamat datang kembali</h3>
-      <p class="lead">Masuk untuk melanjutkan ke dashboard-mu.</p>
-      <label class="f"><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="nama@email.com"></label>
-      <label class="f"><span>Kata sandi</span><div class="pw"><input name="password" type="password" data-pw autocomplete="current-password" placeholder="Masukkan kata sandi"><button type="button" class="tg">Tampilkan</button></div></label>
-      <button class="go" type="submit">Masuk</button>
-      <p class="msg" role="alert"></p>
+      <p class="lead" id="loginLead">Masuk sebagai <b>Member</b> untuk melanjutkan ke dashboard.</p>
+      <label class="f"><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="nama@email.com" value="{{ old('email') }}" required></label>
+      <label class="f">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span>Kata sandi</span>
+          <button type="button" data-to="f" style="border:0;background:none;padding:0;font-size:12px;color:var(--navy);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px">Lupa kata sandi?</button>
+        </div>
+        <div class="pw"><input name="password" type="password" data-pw autocomplete="current-password" placeholder="Masukkan kata sandi" required><button type="button" class="tg">Tampilkan</button></div>
+      </label>
+      <button class="go" type="submit" id="loginBtnSubmit">Masuk sebagai Member</button>
+      <p class="js-msg" role="alert"></p>
       
-      <div style="display:flex;align-items:center;gap:10px;margin:10px 0 8px;color:var(--mute);font-size:12px;font-weight:600;text-transform:uppercase"><span style="flex:1;height:1px;background:var(--line)"></span>atau<span style="flex:1;height:1px;background:var(--line)"></span></div>
-      <a href="{{ route('google.login') }}" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:9px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font:700 14px 'Nunito',sans-serif;transition:background .2s;text-decoration:none">
+      <div id="loginOrDivider" style="display:flex;align-items:center;gap:10px;margin:8px 0 6px;color:var(--mute);font-size:12px;font-weight:600;text-transform:uppercase"><span style="flex:1;height:1px;background:var(--line)"></span>atau<span style="flex:1;height:1px;background:var(--line)"></span></div>
+      <a href="{{ route('google.login') }}?role=member" id="loginGoogleLink" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:9px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font:700 13.5px 'Nunito',sans-serif;transition:background .2s;text-decoration:none">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-        <span>Lanjutkan dengan Google</span>
+        <span id="loginGoogleText">Masuk sebagai Member dengan Google</span>
       </a>
-      <p class="sw">Belum punya akun? <button type="button" data-to="r">Daftar</button></p>
     </form>
     <form id="fR" action="{{ route('register') }}" method="POST" hidden>
       @csrf
-      @if ($errors->any())
-        <div class="msg" role="alert" style="color:#c0392b;margin-bottom:12px;font-weight:600">
-          @foreach ($errors->all() as $error)
-            <div>• {{ $error }}</div>
-          @endforeach
+      <input type="hidden" name="is_register" value="1">
+      <input type="hidden" name="role" id="fR_role" value="member">
+
+      @if (old('is_register') && (session('error') || (isset($errors) && $errors->any())))
+        <div class="alert-box alert-danger" role="alert">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <div style="flex:1;">
+            @if (session('error'))
+              <div>{{ session('error') }}</div>
+            @endif
+            @if (isset($errors) && $errors->any())
+              @php
+                $cleanErrors = array_filter($errors->all(), function($e) {
+                  return $e !== session('error');
+                });
+              @endphp
+              @if (count($cleanErrors) === 1 && !session('error'))
+                <div>{{ reset($cleanErrors) }}</div>
+              @elseif (count($cleanErrors) > 0)
+                <ul style="margin:{{ session('error') ? '4px 0 0' : '0' }};padding-left:14px;">
+                  @foreach ($cleanErrors as $error)
+                    <li>{{ $error }}</li>
+                  @endforeach
+                </ul>
+              @endif
+            @endif
+          </div>
+          <button type="button" class="alert-close" onclick="var p=this.parentElement;p.style.opacity='0';p.style.transition='opacity .2s';setTimeout(function(){p.remove()},200)">&times;</button>
         </div>
       @endif
+
       <h3 class="at">Buat akun SkillConnect</h3>
-      <p class="lead">Mulai cari anggota tim atau bergabung ke proyek.</p>
-      <label class="f"><span>Nama lengkap</span><input name="name" type="text" autocomplete="name" placeholder="Nama lengkap"></label>
-      <label class="f"><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="nama@email.com"></label>
-      <label class="f"><span>Kata sandi</span><div class="pw"><input name="password" id="np" type="password" data-pw autocomplete="new-password" placeholder="Minimal 8 karakter"><button type="button" class="tg">Tampilkan</button></div>
+      <p class="lead" id="registerLead">Daftar sebagai <b>Member</b> untuk bergabung ke proyek.</p>
+      <label class="f"><span>Nama lengkap</span><input name="name" type="text" autocomplete="name" placeholder="Nama lengkap" value="{{ old('name') }}" required></label>
+      <label class="f"><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="nama@email.com" value="{{ old('email') }}" required></label>
+      <label class="f"><span>Kata sandi</span><div class="pw"><input name="password" id="np" type="password" data-pw autocomplete="new-password" placeholder="Minimal 8 karakter" required><button type="button" class="tg">Tampilkan</button></div>
         <div class="meter" id="meter"><i></i><i></i><i></i><i></i></div><div class="mt" id="mt"></div></label>
-      <label class="f"><span>Konfirmasi kata sandi</span><div class="pw"><input name="password_confirmation" type="password" data-pw autocomplete="new-password" placeholder="Ulangi kata sandi"><button type="button" class="tg">Tampilkan</button></div></label>
-      <button class="go" type="submit">Daftar</button>
-      <p class="msg" role="alert"></p>
+      <label class="f"><span>Konfirmasi kata sandi</span><div class="pw"><input name="password_confirmation" type="password" data-pw autocomplete="new-password" placeholder="Ulangi kata sandi" required><button type="button" class="tg">Tampilkan</button></div></label>
+      <button class="go" type="submit" id="registerBtnSubmit">Daftar sebagai Member</button>
+      <p class="js-msg" role="alert"></p>
       
-      <div style="display:flex;align-items:center;gap:10px;margin:10px 0 8px;color:var(--mute);font-size:12px;font-weight:600;text-transform:uppercase"><span style="flex:1;height:1px;background:var(--line)"></span>atau<span style="flex:1;height:1px;background:var(--line)"></span></div>
-      <a href="{{ route('google.login') }}" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:9px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font:700 14px 'Nunito',sans-serif;transition:background .2s;text-decoration:none">
+      <div style="display:flex;align-items:center;gap:10px;margin:8px 0 6px;color:var(--mute);font-size:12px;font-weight:600;text-transform:uppercase"><span style="flex:1;height:1px;background:var(--line)"></span>atau<span style="flex:1;height:1px;background:var(--line)"></span></div>
+      <a href="{{ route('google.login') }}?role=member" id="registerGoogleLink" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:9px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font:700 13.5px 'Nunito',sans-serif;transition:background .2s;text-decoration:none">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-        <span>Lanjutkan dengan Google</span>
+        <span id="registerGoogleText">Daftar sebagai Member dengan Google</span>
       </a>
-      <p class="sw">Sudah punya akun? <button type="button" data-to="l">Masuk</button></p>
+    </form>
+
+    <!-- Form Pemulihan Kata Sandi (Lupa Sandi) -->
+    <form id="fF" action="{{ route('password.email') }}" method="POST" hidden>
+      @csrf
+      <input type="hidden" name="is_forgot" value="1">
+
+      @if (session('status'))
+        <div class="alert-box alert-success" role="alert">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <div style="flex:1;">
+            <div>{{ session('status') }}</div>
+            @if (config('mail.default') === 'log' && session('reset_url'))
+              <div style="margin-top:6px;font-size:12px;">
+                <a href="{{ session('reset_url') }}" style="color:#166534;font-weight:700;text-decoration:underline;">[Mode Dev/Lokal] Klik di sini untuk langsung atur kata sandi baru &rarr;</a>
+              </div>
+            @endif
+          </div>
+          <button type="button" class="alert-close" onclick="var p=this.parentElement;p.style.opacity='0';p.style.transition='opacity .2s';setTimeout(function(){p.remove()},200)">&times;</button>
+        </div>
+      @endif
+
+      @if (old('is_forgot') && (session('error') || (isset($errors) && $errors->any())))
+        <div class="alert-box alert-danger" role="alert">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <div style="flex:1;">
+            {{ session('error') ?: ($errors->first('email') ?: $errors->first()) }}
+          </div>
+          <button type="button" class="alert-close" onclick="var p=this.parentElement;p.style.opacity='0';p.style.transition='opacity .2s';setTimeout(function(){p.remove()},200)">&times;</button>
+        </div>
+      @endif
+
+      <h3 class="at">Pemulihan Kata Sandi</h3>
+      <p class="lead">Masukkan email akun Anda. Kami akan membuat tautan untuk mengatur ulang kata sandi.</p>
+      <label class="f"><span>Email Akun</span><input name="email" type="email" autocomplete="email" placeholder="nama@email.com" value="{{ old('email') }}" required></label>
+      <button class="go" type="submit" id="forgotBtnSubmit">Kirim Tautan Reset</button>
+      <p class="js-msg" role="alert"></p>
+
+      <div style="margin-top:16px;text-align:center;">
+        <button type="button" data-to="l" style="border:0;background:none;color:var(--navy);font:700 13px 'Nunito',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Kembali ke halaman Masuk
+        </button>
+      </div>
     </form>
     </div>
   </div>
@@ -455,17 +606,37 @@ footer .l b{color:var(--ink)}footer p{font-size:14px;margin-top:12px;max-width:2
 <script>(function(){var m=document.querySelector('.match');if(!m||!('IntersectionObserver' in window))return;m.classList.add('pre');new IntersectionObserver(function(e,o){if(e[0].isIntersecting){m.classList.remove('pre');o.disconnect()}},{threshold:.3}).observe(m)})();</script>
 <script>
 (function(){
-  var root=document.documentElement,card=document.getElementById('acard'),fL=document.getElementById('fL'),fR=document.getElementById('fR'),tabs=document.getElementById('tabs'),tL=document.getElementById('tL'),tR=document.getElementById('tR'),fx=window.__fx;
+  var root=document.documentElement,card=document.getElementById('acard'),fL=document.getElementById('fL'),fR=document.getElementById('fR'),fF=document.getElementById('fF'),tabs=document.getElementById('tabs'),tL=document.getElementById('tL'),tR=document.getElementById('tR'),fx=window.__fx;
   function sync(){var a=document.activeElement;fx.lock(!!(a&&a.hasAttribute&&a.hasAttribute('data-pw')&&a.type==='password'))}
   document.addEventListener('focusin',sync);document.addEventListener('focusout',function(){setTimeout(sync,0)});
   [].forEach.call(document.querySelectorAll('.tg'),function(b){
     b.addEventListener('mousedown',function(e){e.preventDefault()});
     b.addEventListener('click',function(){var i=b.parentNode.querySelector('input'),s=i.type==='password';i.type=s?'text':'password';b.textContent=s?'Sembunyikan':'Tampilkan';i.focus();sync()})});
-  function show(w){var r=w==='r';fL.hidden=r;fR.hidden=!r;tabs.classList.toggle('r',r);tL.classList.toggle('on',!r);tR.classList.toggle('on',r);
-    if(fR)fR.scrollTop=0;
-    [].forEach.call(card.querySelectorAll('.msg'),function(e){e.textContent='';e.className='msg'});fx.shape(r?'person':'lockO');sync()}
+  function show(w){
+    var isR = w === 'r';
+    var isF = w === 'f';
+    fL.hidden = isR || isF;
+    fR.hidden = !isR;
+    if (fF) fF.hidden = !isF;
+    tabs.style.display = isF ? 'none' : 'grid';
+    var roleSwitch = document.getElementById('roleSwitch');
+    if (roleSwitch) roleSwitch.style.display = isF ? 'none' : 'grid';
+    tabs.classList.toggle('r', isR);
+    tL.classList.toggle('on', !isR && !isF);
+    tR.classList.toggle('on', isR);
+    if(fR && isR) fR.scrollTop = 0;
+    if(fF && isF) fF.scrollTop = 0;
+    [].forEach.call(card.querySelectorAll('.js-msg'), function(e){ e.textContent=''; e.className='js-msg'; });
+    fx.shape(isR ? 'person' : 'lockO');
+    sync();
+  }
   tL.onclick=function(){show('l')};tR.onclick=function(){show('r')};
-  [].forEach.call(card.querySelectorAll('[data-to]'),function(b){b.onclick=function(){show(b.dataset.to)}});
+  [].forEach.call(card.querySelectorAll('[data-to]'),function(b){
+    b.onclick=function(){
+      show(b.dataset.to);
+      push(b.dataset.to === 'f' ? 'lupa-sandi' : (b.dataset.to === 'r' ? 'daftar' : 'masuk'));
+    };
+  });
   // kekuatan kata sandi
   var mt=document.getElementById('mt'),bars=document.querySelectorAll('#meter i'),L=['','Lemah','Cukup','Baik','Kuat'],C=['','#e5534b','#f0a030','#5b9bf0','#2fb58a'];
   document.getElementById('np').addEventListener('input',function(e){var p=e.target.value,s=0;
@@ -482,15 +653,135 @@ footer .l b{color:var(--ink)}footer p{font-size:14px;margin-top:12px;max-width:2
   [].forEach.call(document.querySelectorAll('[data-open]'),function(a){a.addEventListener('click',function(e){e.preventDefault();var w=a.getAttribute('data-open');open(w);push(w==='r'?'daftar':'masuk')})});
   document.querySelector('.brand').addEventListener('click',function(e){if(isAuth()){e.preventDefault();close();push('')}});
   addEventListener('keydown',function(e){if(e.key==='Escape'&&isAuth()){close();push('')}});
-  function fromUrl(inst){var p=location.pathname+location.hash;if(/register|daftar/i.test(p))open('r',inst);else if(/login|masuk/i.test(p))open('l',inst);else close()}
+  var currentRole = 'member';
+  function setRole(role) {
+    if (role === 'admin') currentRole = 'admin';
+    else if (role === 'creator') currentRole = 'creator';
+    else currentRole = 'member';
+
+    var isA = currentRole === 'admin';
+    var isC = currentRole === 'creator';
+    var rName = isA ? 'Admin' : (isC ? 'Creator' : 'Member');
+
+    var btnM = document.getElementById('rtMember');
+    var btnC = document.getElementById('rtCreator');
+    var btnA = document.getElementById('rtAdmin');
+    if (btnM) btnM.classList.toggle('on', currentRole === 'member');
+    if (btnC) btnC.classList.toggle('on', currentRole === 'creator');
+    if (btnA) btnA.classList.toggle('on', currentRole === 'admin');
+
+    var inL = document.getElementById('fL_role');
+    var inR = document.getElementById('fR_role');
+    if (inL) inL.value = currentRole;
+    if (inR) inR.value = currentRole;
+
+    var lL = document.getElementById('loginLead');
+    if (lL) {
+      if (isA) lL.innerHTML = 'Masuk sebagai <b>Admin</b> untuk mengelola sistem & data platform.';
+      else if (isC) lL.innerHTML = 'Masuk sebagai <b>Creator</b> untuk mengelola proyek.';
+      else lL.innerHTML = 'Masuk sebagai <b>Member</b> untuk melanjutkan ke dashboard.';
+    }
+
+    var lB = document.getElementById('loginBtnSubmit');
+    if (lB) {
+      lB.textContent = 'Masuk sebagai ' + rName;
+    }
+
+    var lOr = document.getElementById('loginOrDivider');
+    var lG = document.getElementById('loginGoogleLink');
+    if (lOr) lOr.style.display = isA ? 'none' : 'flex';
+    if (lG) {
+      lG.style.display = isA ? 'none' : 'flex';
+      lG.href = "{{ route('google.login') }}?role=" + currentRole;
+    }
+    var lGT = document.getElementById('loginGoogleText');
+    if (lGT) lGT.textContent = 'Masuk sebagai ' + rName + ' dengan Google';
+
+    // Jika memilih Admin saat tab pendaftaran sedang terbuka, alihkan ke formulir Masuk
+    var fR = document.getElementById('fR');
+    if (isA && fR && !fR.hidden) {
+      open('l', true);
+    }
+    var tR = document.getElementById('tR');
+    if (tR) {
+      if (isA) {
+        tR.style.opacity = '0.5';
+        tR.title = 'Pendaftaran Admin dilakukan secara internal';
+      } else {
+        tR.style.opacity = '1';
+        tR.title = '';
+      }
+    }
+
+    var rL = document.getElementById('registerLead');
+    if (rL) rL.innerHTML = isC ? 'Daftar sebagai <b>Creator</b> untuk buat tim & kelola proyek.' : 'Daftar sebagai <b>Member</b> untuk bergabung ke proyek.';
+    var rB = document.getElementById('registerBtnSubmit');
+    if (rB) rB.textContent = 'Daftar sebagai ' + (isA ? 'Member' : rName);
+    var rG = document.getElementById('registerGoogleLink');
+    if (rG) rG.href = "{{ route('google.login') }}?role=" + (isA ? 'member' : currentRole);
+    var rGT = document.getElementById('registerGoogleText');
+    if (rGT) rGT.textContent = 'Daftar sebagai ' + (isA ? 'Member' : rName) + ' dengan Google';
+  }
+  window.setRole = setRole;
+
+  // Klik tab Daftar otomatis keluar dari Admin jika sebelumnya Admin aktif
+  var btnTabRegister = document.getElementById('tR');
+  if (btnTabRegister) {
+    btnTabRegister.addEventListener('click', function() {
+      if (currentRole === 'admin') {
+        setRole('member');
+      }
+    });
+  }
+
+  function fromUrl(inst){
+    var p = location.pathname + location.hash;
+    if(/lupa|forgot/i.test(p)) open('f', inst);
+    else if(/register|daftar/i.test(p)) open('r', inst);
+    else if(/login|masuk/i.test(p)) open('l', inst);
+    else close();
+  }
   addEventListener('popstate',function(){fromUrl(false)});
-  if(/register|daftar|login|masuk/i.test(location.pathname+location.hash))fromUrl(true);
-  @if ($errors->any() || old('email'))
-    setTimeout(function(){ open('{{ old('name') ? 'r' : 'l' }}', true); }, 50);
+  if(/register|daftar|login|masuk|lupa|forgot/i.test(location.pathname+location.hash))fromUrl(true);
+  
+  @php
+    $welcomeInitRole = old('role', old('login_role', request('role', 'member')));
+    if (!in_array($welcomeInitRole, ['member', 'creator', 'admin'])) {
+      $welcomeInitRole = 'member';
+    }
+  @endphp
+  var searchParams = new URLSearchParams(window.location.search);
+  var roleFromQuery = searchParams.get('role');
+  var hashMatch = window.location.hash.match(/[?&]role=([^&]+)/);
+  var roleFromHash = hashMatch ? decodeURIComponent(hashMatch[1]) : null;
+  setRole("{{ $welcomeInitRole }}" || roleFromQuery || roleFromHash || 'member');
+
+  @if (old('is_forgot') || session('status') || session('reset_url'))
+    setTimeout(function(){ open('f', true); }, 60);
+  @elseif ((isset($errors) && $errors->any()) || session('error') || session('success') || old('is_register') || old('email'))
+    setTimeout(function(){ open('{{ old('is_register') ? 'r' : 'l' }}', true); }, 60);
   @endif
-  // validasi sederhana (demo)
-  function bad(f,t){var e=f.querySelector('.msg');e.className='msg';e.textContent=t;card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake')}
-  function ok(f,t){var e=f.querySelector('.msg');e.className='msg ok';e.textContent=t;fx.success()}
+  // validasi form interaktif
+  function bad(f,t){
+    var oldAlert = f.querySelector('.alert-box');
+    if(oldAlert) oldAlert.remove();
+    var e = f.querySelector('.js-msg');
+    if(e){ e.className = 'js-msg bad'; e.textContent = t; }
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+  }
+  function ok(f,t){
+    var e = f.querySelector('.js-msg');
+    if(e){ e.className = 'js-msg ok'; e.textContent = t; }
+    fx.success();
+  }
+  fL.addEventListener('input', function(){ var e = fL.querySelector('.js-msg'); if(e && e.textContent){ e.textContent = ''; e.className = 'js-msg'; } });
+  fR.addEventListener('input', function(){ var e = fR.querySelector('.js-msg'); if(e && e.textContent){ e.textContent = ''; e.className = 'js-msg'; } });
+  if (fF) {
+    fF.addEventListener('input', function(){ var e = fF.querySelector('.js-msg'); if(e && e.textContent){ e.textContent = ''; e.className = 'js-msg'; } });
+  }
+
   var re=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   fL.onsubmit=function(e){var v=fL.elements;
     if(!re.test(v.email.value)){e.preventDefault(); return bad(fL,'Masukkan alamat email yang valid.');}
@@ -502,6 +793,11 @@ footer .l b{color:var(--ink)}footer p{font-size:14px;margin-top:12px;max-width:2
     if(v.password.value.length<8){e.preventDefault(); return bad(fR,'Kata sandi minimal 8 karakter.');}
     if(v.password.value!==v.password_confirmation.value){e.preventDefault(); return bad(fR,'Konfirmasi kata sandi tidak sama.');}
   };
+  if (fF) {
+    fF.onsubmit=function(e){var v=fF.elements;
+      if(!re.test(v.email.value)){e.preventDefault(); return bad(fF,'Masukkan alamat email yang valid.');}
+    };
+  }
 })();
 </script>
 

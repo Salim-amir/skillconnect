@@ -15,6 +15,9 @@ class SocialiteController extends Controller
     {
         // Tangkap parameter 'role' dari URL (?role=member atau ?role=creator) dan simpan di session
         $requestedRole = $request->query('role', 'member');
+        if (!in_array($requestedRole, ['member', 'creator'])) {
+            $requestedRole = 'member';
+        }
         session(['google_login_role' => $requestedRole]);
 
         return Socialite::driver('google')->redirect();
@@ -33,6 +36,9 @@ class SocialiteController extends Controller
 
             // Ambil role yang disimpan saat redirect tadi (default: member)
             $targetRole = session('google_login_role', 'member');
+            if (!in_array($targetRole, ['member', 'creator'])) {
+                $targetRole = 'member';
+            }
             session()->forget('google_login_role');
 
             // Cari berdasarkan google_id atau email
@@ -61,7 +67,7 @@ class SocialiteController extends Controller
 
                 // Validasi role pengguna lama: cegah jika mencoba masuk memilih role yang berbeda (kecuali Admin)
                 if ($user->role !== 'admin' && $user->role !== $targetRole) {
-                    return redirect()->route('login')
+                    return redirect('/' . ($targetRole ? '?role=' . $targetRole : '') . '#masuk')
                         ->withErrors(['email' => 'Akun Google ini terdaftar sebagai ' . ucfirst($user->role) . '. Silakan pilih jenis akun yang sesuai.'])
                         ->with('error', 'Pilihan jenis akun tidak sesuai dengan peran Anda.');
                 }
@@ -74,7 +80,7 @@ class SocialiteController extends Controller
             return redirect()->route('dashboard')->with('success', 'Berhasil masuk dengan akun Google!');
 
         } catch (\Exception $e) {
-            return redirect()->route('login')
+            return redirect('/#masuk')
                 ->withErrors(['email' => 'Gagal masuk menggunakan Google. Silakan coba lagi.'])
                 ->with('error', 'Gagal masuk menggunakan Google. Silakan coba lagi.');
         }
