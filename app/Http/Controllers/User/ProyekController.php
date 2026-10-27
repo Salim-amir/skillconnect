@@ -210,9 +210,9 @@ class ProyekController extends Controller
      */
     public function create()
     {
-        // Admin tidak boleh membuat proyek (UC-12: hanya kelola)
-        if (Auth::user()->role === 'admin') {
-            return redirect()->route('proyek')->with('error', 'Admin tidak memiliki akses untuk membuat proyek.');
+        // Hanya Creator yang berhak membuat proyek baru
+        if (Auth::user()->role !== 'creator') {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Hanya pengguna dengan peran Creator yang dapat membuat proyek baru.');
         }
 
         $allSkills = Skill::orderBy('nama_skill')->get();
@@ -234,9 +234,9 @@ class ProyekController extends Controller
     {
         $user = Auth::user();
 
-        // Admin tidak boleh membuat proyek
-        if ($user->role === 'admin') {
-            return redirect()->route('proyek')->with('error', 'Admin tidak memiliki akses untuk membuat proyek.');
+        // Hanya Creator yang berhak membuat proyek baru
+        if ($user->role !== 'creator') {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak: Hanya pengguna dengan peran Creator yang dapat membuat proyek baru.');
         }
 
 

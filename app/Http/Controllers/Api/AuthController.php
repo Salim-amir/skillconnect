@@ -64,29 +64,30 @@ class AuthController extends Controller
             $user = Auth::user();
             $requestedRole = $request->input('login_role', 'member');
 
-            // Pengecekan kesesuaian role akun
-            if ($requestedRole === 'admin') {
-                if ($user->role !== 'admin') {
-                    Auth::logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
+            // Pengecekan kesesuaian role akun secara ketat (strict)
+            if ($user->role !== $requestedRole) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
 
-                    return redirect('/?role=admin#masuk')
-                        ->withErrors(['email' => 'Akun ini bukan akun Admin. Silakan pilih tab peran yang sesuai.'])
-                        ->with('error', 'Akses ditolak: Akun ini bukan akun Administrator.')
-                        ->withInput($request->only('email', 'login_role'));
-                }
-            } else {
-                if ($user->role !== 'admin' && $user->role !== $requestedRole) {
-                    Auth::logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
+                $roleLabels = [
+                    'admin'   => 'Administrator',
+                    'creator' => 'Creator',
+                    'member'  => 'Member',
+                ];
 
-                    return redirect('/?role=' . $requestedRole . '#masuk')
-                        ->withErrors(['email' => 'Akun ini terdaftar sebagai ' . ucfirst($user->role) . '. Pilih jenis akun yang sesuai.'])
-                        ->with('error', 'Pilihan jenis akun tidak sesuai dengan peran Anda.')
-                        ->withInput($request->only('email', 'login_role'));
+                $actualRoleLabel = $roleLabels[$user->role] ?? ucfirst($user->role);
+
+                if ($user->role === 'admin') {
+                    $errorMessage = 'Akun ini adalah Administrator. Silakan gunakan tab Admin untuk masuk.';
+                } else {
+                    $errorMessage = 'Akun ini terdaftar sebagai ' . $actualRoleLabel . '. Silakan gunakan tab ' . $actualRoleLabel . ' untuk masuk.';
                 }
+
+                return redirect('/?role=' . $requestedRole . '#masuk')
+                    ->withErrors(['email' => $errorMessage])
+                    ->with('error', $errorMessage)
+                    ->withInput($request->only('email', 'login_role'));
             }
 
             $request->session()->regenerate();
