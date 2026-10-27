@@ -11,6 +11,7 @@ use App\Models\Project;
 use App\Models\Transaction;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\User\TaskController;
+use App\Http\Controllers\DashboardController;
 
 // ===================== PUBLIC / GUEST ROUTES =====================
 
@@ -79,37 +80,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 Route::middleware('auth')->group(function () {
 
     // Dashboard Sentral: Otomatis membagi tampilan Admin / Creator / Member
-    Route::get('/dashboard', function () {
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
-
-        // Pengecekan otomatis role admin
-        if (strtolower($currentUser->name) === 'admin' || str_contains(strtolower($currentUser->email), 'admin')) {
-            if ($currentUser->role !== 'admin') {
-                User::where('id', $currentUser->id)->update(['role' => 'admin']);
-                $currentUser->role = 'admin';
-            }
-        }
-
-        // 1. Tampilan Admin Dashboard
-        if ($currentUser->role === 'admin') {
-            $totalUsers      = User::count();
-            $totalProjects   = Project::count();
-            $totalCompleted  = Project::where('status_project', 'Selesai')->count();
-            $latestUsers     = User::latest()->take(5)->get();
-            $totalFee        = Transaction::where('status_pembayaran', 'lunas')->sum('jumlah_fee');
-            $totalTransaksi  = Transaction::count();
-            return view('admin.dashboard', compact('totalUsers', 'totalProjects', 'totalCompleted', 'latestUsers', 'totalFee', 'totalTransaksi'));
-        }
-
-        // 2. Tampilan Dashboard Creator
-        if ($currentUser->role === 'creator') {
-            return view('user.dashboard', ['role' => 'creator']);
-        }
-
-        // 3. Tampilan Dashboard Member (Default untuk role 'member' atau 'user')
-        return view('user.dashboard', ['role' => 'member']);
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 });
 

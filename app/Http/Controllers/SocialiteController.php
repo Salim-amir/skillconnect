@@ -65,11 +65,12 @@ class SocialiteController extends Controller
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
 
-                // Validasi role pengguna lama: cegah jika mencoba masuk memilih role yang berbeda (kecuali Admin)
-                if ($user->role !== 'admin' && $user->role !== $targetRole) {
+                // Validasi role pengguna lama: cegah jika mencoba masuk memilih role yang berbeda
+                if ($user->role !== $targetRole) {
+                    $roleLabel = ($user->role === 'admin') ? 'Administrator' : ucfirst($user->role);
                     return redirect('/' . ($targetRole ? '?role=' . $targetRole : '') . '#masuk')
-                        ->withErrors(['email' => 'Akun Google ini terdaftar sebagai ' . ucfirst($user->role) . '. Silakan pilih jenis akun yang sesuai.'])
-                        ->with('error', 'Pilihan jenis akun tidak sesuai dengan peran Anda.');
+                        ->withErrors(['email' => 'Akun Google ini terdaftar sebagai ' . $roleLabel . '. Silakan gunakan tab ' . $roleLabel . ' untuk masuk.'])
+                        ->with('error', 'Akun Google ini terdaftar sebagai ' . $roleLabel . '. Silakan gunakan tab ' . $roleLabel . ' untuk masuk.');
                 }
             }
 
