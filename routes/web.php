@@ -146,3 +146,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/proyek/{id}/evaluasi/{memberId}',         [TaskController::class, 'evaluateMember'])->name('proyek.evaluasi');
 
 });
+
+// Fallback penyajian file bukti kerja (jika storage:link belum dibuat di sistem operasi Windows)
+Route::get('/storage/bukti-kerja/{filename}', function ($filename) {
+    $path = storage_path('app/public/bukti-kerja/' . $filename);
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+})->name('storage.bukti');

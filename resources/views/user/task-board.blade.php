@@ -129,6 +129,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     padding: 30px 40px;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    max-width: calc(100vw - 280px);
 }
 
 .top-bar {
@@ -136,6 +138,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     justify-content: space-between;
     align-items: center;
     margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
 .top-breadcrumb {
@@ -143,9 +147,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     color: var(--mute);
     font-weight: 600;
 }
+.top-breadcrumb a { color: var(--mute); transition: color .2s; }
+.top-breadcrumb a:hover { color: var(--secondary); }
 .top-breadcrumb span { color: var(--ink); font-weight: 700; }
 
 .user-profile { display: flex; align-items: center; gap: 12px; }
+.user-info { text-align: right; }
+.user-info .name { font-weight: 700; font-size: 14.5px; color: var(--ink); line-height: 1.2; }
+.user-info .role { font-size: 12px; color: var(--mute); font-weight: 600; }
 
 .avatar {
     width: 44px;
@@ -230,15 +239,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-    min-height: 400px;
+    align-items: start;
 }
 
 .kanban-column {
-    background: rgba(255,255,255,.6);
+    background: rgba(255,255,255,.75);
     border: 1.5px solid var(--line);
     border-radius: 18px;
     padding: 20px 16px;
-    min-height: 300px;
+    min-height: 350px;
+    min-width: 0;
+    box-shadow: 0 4px 16px -6px rgba(80,70,200,.06);
 }
 
 .kanban-column-header {
@@ -366,16 +377,58 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 11.5px;
     font-weight: 700;
     background: #e8f5e9;
     color: #2e7d32;
     border: 1px solid #a5d6a7;
-    margin-top: 6px;
+    margin-top: 8px;
+    text-decoration: none;
+    transition: background .15s;
 }
-.bukti-badge svg { width: 12px; height: 12px; }
+.bukti-badge:hover { background: #d7edd9; }
+.bukti-badge svg { width: 14px; height: 14px; }
+
+/* Bukti Foto Image Preview */
+.bukti-preview-img-wrap {
+    display: block;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+    border: 1.5px solid #d6d9fb;
+    background: #f8f9ff;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(80,70,200,.08);
+}
+.bukti-preview-img {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    display: block;
+    transition: transform .25s ease;
+}
+.bukti-preview-img-wrap:hover .bukti-preview-img {
+    transform: scale(1.05);
+}
+.bukti-preview-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, transparent, rgba(28,39,102,.85));
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.bukti-preview-overlay svg { width: 13px; height: 13px; }
 
 /* Revision Note */
 .revision-note {
@@ -728,10 +781,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                     <span class="task-assignee-avatar">{{ substr($task->user->name ?? 'U', 0, 1) }}</span>
                                     <span>{{ $task->user->name ?? 'Tidak ada' }}</span>
                                 </div>
-                                <div class="task-deadline {{ $task->deadline->isPast() ? 'deadline-overdue' : ($task->deadline->diffInDays(now()) <= 3 ? 'deadline-soon' : 'deadline-ok') }}">
+                                @php
+                                    $isOverdue = $task->deadline && $task->deadline->endOfDay()->isPast();
+                                    $isDueSoon = !$isOverdue && $task->deadline && $task->deadline->diffInDays(now()) <= 3;
+                                @endphp
+                                <div class="task-deadline {{ $isOverdue ? 'deadline-overdue' : ($isDueSoon ? 'deadline-soon' : 'deadline-ok') }}">
                                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    {{ $task->deadline->format('d M Y') }}
-                                    @if($task->deadline->isPast())
+                                    {{ $task->deadline ? $task->deadline->format('d M Y') : 'Tanpa batas' }}
+                                    @if($isOverdue)
                                         <span style="font-size: 11px;">(Terlambat!)</span>
                                     @endif
                                 </div>
@@ -739,10 +796,24 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
                             {{-- Bukti Kerja --}}
                             @if($task->bukti_kerja)
-                                <a href="{{ asset('storage/' . $task->bukti_kerja) }}" target="_blank" class="bukti-badge">
-                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                                    Lihat Bukti Kerja
-                                </a>
+                                @php
+                                    $ext = strtolower(pathinfo($task->bukti_kerja, PATHINFO_EXTENSION));
+                                    $isImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+                                @endphp
+                                @if($isImg)
+                                    <a href="{{ asset('storage/' . $task->bukti_kerja) }}" target="_blank" class="bukti-preview-img-wrap" title="Klik untuk memperbesar bukti kerja">
+                                        <img src="{{ asset('storage/' . $task->bukti_kerja) }}" alt="Bukti Kerja" class="bukti-preview-img">
+                                        <span class="bukti-preview-overlay">
+                                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                                            Lihat Foto Penuh
+                                        </span>
+                                    </a>
+                                @else
+                                    <a href="{{ asset('storage/' . $task->bukti_kerja) }}" target="_blank" class="bukti-badge">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                        Lihat Dokumen Bukti ({{ strtoupper($ext) }})
+                                    </a>
+                                @endif
                             @endif
 
                             {{-- Catatan Revisi --}}
@@ -789,10 +860,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 </div>
             @endforeach
         </div>
-    </main>
 
-    {{-- ===== MOD-09: SECTION EVALUASI ANGGOTA TIM ===== --}}
-    <main class="main-content" style="padding-top: 0;">
+        {{-- ===== MOD-09: SECTION EVALUASI ANGGOTA TIM ===== --}}
         <div class="eval-section">
 
             {{-- TAMPILAN CREATOR: Beri nilai ke semua anggota --}}
@@ -916,8 +985,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 @csrf
                 <div class="form-group">
                     <label>File Bukti Kerja <span class="req">*</span></label>
-                    <input type="file" name="bukti_kerja" class="form-input" required accept=".jpg,.jpeg,.png,.pdf,.zip,.doc,.docx">
-                    <p style="font-size: 12px; color: var(--mute); margin-top: 4px;">Format: JPG, PNG, PDF, ZIP, DOC, DOCX. Maks 10MB.</p>
+                    <input type="file" name="bukti_kerja" id="buktiFileInput" class="form-input" required accept=".jpg,.jpeg,.png,.webp,.pdf,.zip,.doc,.docx">
+                    <p style="font-size: 12px; color: var(--mute); margin-top: 4px;">Format didukung: Foto (JPG, PNG, WEBP), Dokumen (PDF, DOC, DOCX, ZIP). Maks 10MB.</p>
+                    
+                    {{-- Live Image Preview --}}
+                    <div id="imagePreviewContainer" style="display: none; margin-top: 12px; text-align: center;">
+                        <p style="font-size: 11px; font-weight: 700; color: var(--mute); margin-bottom: 6px; text-align: left;">Pratinjau Foto:</p>
+                        <img id="imagePreview" src="" alt="Pratinjau Bukti" style="max-height: 180px; max-width: 100%; border-radius: 10px; border: 1.5px solid var(--line); object-fit: contain;">
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-cancel" onclick="document.getElementById('modalUploadBukti').classList.remove('active')">Batal</button>
@@ -982,7 +1057,35 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         function openUploadModal(taskId) {
             const form = document.getElementById('formUploadBukti');
             form.action = '/proyek/{{ $project->id }}/tasks/' + taskId + '/bukti';
+            
+            // Reset input dan live preview
+            const fileInput = document.getElementById('buktiFileInput');
+            if (fileInput) fileInput.value = '';
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            if (previewContainer) previewContainer.style.display = 'none';
+
             document.getElementById('modalUploadBukti').classList.add('active');
+        }
+
+        // Live image preview listener
+        const fileInputEl = document.getElementById('buktiFileInput');
+        if (fileInputEl) {
+            fileInputEl.addEventListener('change', function() {
+                const previewContainer = document.getElementById('imagePreviewContainer');
+                const previewImg = document.getElementById('imagePreview');
+                const file = this.files[0];
+
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else if (previewContainer) {
+                    previewContainer.style.display = 'none';
+                }
+            });
         }
 
         function openRevisionModal(taskId) {
