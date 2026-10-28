@@ -737,6 +737,30 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             @endif
         </div>
 
+        <!-- PAYMENT STATUS ESCROW BANNER -->
+        @if($isPaid)
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 12px 18px; background: #e8f9ee; border: 1.5px solid #b6edc8; border-radius: 12px; margin-bottom: 24px; font-size: 13.5px; color: #0d8239; font-weight: 700;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <span>Dana Proyek Terjamin: Lunas di Rekening Bersama (Rp {{ number_format($project->budget, 0, ',', '.') }})</span>
+                </div>
+                <span style="font-size: 12px; font-weight: 600; background: #fff; padding: 3px 10px; border-radius: 99px; border: 1px solid #b6edc8;">Aman & Terverifikasi</span>
+            </div>
+        @else
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 14px 18px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; margin-bottom: 24px; font-size: 13.5px; color: #92400e;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span><strong>Perhatian:</strong> Dana proyek sebesar <strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong> belum disetorkan oleh Creator.</span>
+                </div>
+                @if($isCreator)
+                    <button id="btnBayarSekarangTask" onclick="bayarProyekTaskBoard()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 10px; font-weight: 700; font-size: 13.5px; border: none; background: linear-gradient(90deg, #10b981, #059669); color: #fff; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 4px 12px -2px rgba(16,185,129,.5);">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        Bayar Sekarang
+                    </button>
+                @endif
+            </div>
+        @endif
+
         <!-- STATS ROW -->
         @php
             $totalTasks = collect($tasksByStatus)->flatten()->count();
@@ -1053,6 +1077,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     </div>
     @endif
 
+    @php
+        $snapUrl = config('midtrans.is_production')
+            ? 'https://app.midtrans.com/snap/snap.js'
+            : 'https://app.sandbox.midtrans.com/snap/snap.js';
+    @endphp
+    <script src="{{ $snapUrl }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
     <script>
         function openUploadModal(taskId) {
             const form = document.getElementById('formUploadBukti');
@@ -1114,6 +1144,67 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             }
 
             document.getElementById('modalEvaluasi').classList.add('active');
+        }
+        @endif
+
+        @if($isCreator && !$isPaid)
+        function bayarProyekTaskBoard() {
+            const btn = document.getElementById('btnBayarSekarangTask');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = 'Memproses...';
+            }
+
+            fetch('{{ route("proyek.bayar", $project->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message || 'Gagal memulai pembayaran.');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = 'Bayar Sekarang';
+                    }
+                    return;
+                }
+
+                window.snap.pay(data.snap_token, {
+                    onSuccess: function(result) {
+                        alert('Pembayaran berhasil! Dana proyek telah aman tersimpan di Rekening Bersama.');
+                        window.location.reload();
+                    },
+                    onPending: function(result) {
+                        alert('Menunggu penyelesaian pembayaran.');
+                        window.location.reload();
+                    },
+                    onError: function(result) {
+                        alert('Pembayaran gagal atau dibatalkan.');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = 'Bayar Sekarang';
+                        }
+                    },
+                    onClose: function() {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = 'Bayar Sekarang';
+                        }
+                    }
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Terjadi kesalahan jaringan.');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Bayar Sekarang';
+                }
+            });
         }
         @endif
 

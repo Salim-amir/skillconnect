@@ -533,6 +533,41 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     @endforelse
                 </div>
 
+                {{-- KOTAK INFORMASI DANA & STATUS PEMBAYARAN PROYEK --}}
+                <div style="margin-top: 24px; padding: 18px 20px; background: #ffffff; border: 1.5px solid var(--line); border-radius: 14px; box-shadow: 0 4px 14px -6px rgba(80,70,200,.08);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                        <div>
+                            <div style="font-size: 11.5px; font-weight: 800; color: var(--mute); text-transform: uppercase; letter-spacing: .06em;">Budget / Dana Proyek</div>
+                            <div style="font-size: 24px; font-weight: 800; font-family: 'Fredoka', sans-serif; color: var(--ink);">
+                                Rp {{ number_format($project->budget, 0, ',', '.') }}
+                            </div>
+                            <div style="margin-top: 6px;">
+                                @if($isPaid)
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #0d8239; background: #e8f9ee; padding: 4px 12px; border-radius: 20px; border: 1px solid #b6edc8;">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                        Dana Terjamin (Lunas di Rekening Bersama)
+                                    </span>
+                                @else
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #b45309; background: #fef3c7; padding: 4px 12px; border-radius: 20px; border: 1px solid #fcd34d;">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Menunggu Pembayaran Creator
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Tombol Bayar Sekarang khusus Creator / Admin --}}
+                        @if(auth()->check() && ((auth()->user()->role === 'creator' && auth()->id() === $project->creator_id) || auth()->user()->role === 'admin'))
+                            @if(!$isPaid)
+                                <button id="btnBayarSekarang" onclick="bayarProyek()" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14.5px; border: none; background: linear-gradient(90deg, #10b981, #059669); color: #fff; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 6px 18px -4px rgba(16,185,129,.6); transition: all .2s;">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    Bayar Sekarang
+                                </button>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+
                 {{-- Link ke Task Board (MOD-08) --}}
                 @if(auth()->check())
                     @php
@@ -757,6 +792,78 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         </div>
 
     </main>
+
+    {{-- Midtrans Snap JS --}}
+    @php
+        $snapUrl = config('midtrans.is_production')
+            ? 'https://app.midtrans.com/snap/snap.js'
+            : 'https://app.sandbox.midtrans.com/snap/snap.js';
+    @endphp
+    <script src="{{ $snapUrl }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    <script>
+        function bayarProyek() {
+            const btn = document.getElementById('btnBayarSekarang');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Memproses...';
+            }
+
+            fetch('{{ route("proyek.bayar", $project->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message || 'Gagal memulai pembayaran.');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                    }
+                    return;
+                }
+
+                // Buka popup Midtrans Snap
+                window.snap.pay(data.snap_token, {
+                    onSuccess: function(result) {
+                        alert('Pembayaran berhasil! Dana proyek telah aman tersimpan di Rekening Bersama.');
+                        window.location.reload();
+                    },
+                    onPending: function(result) {
+                        alert('Menunggu penyelesaian pembayaran. Silakan selesaikan pembayaran sesuai instruksi.');
+                        window.location.reload();
+                    },
+                    onError: function(result) {
+                        alert('Pembayaran gagal atau terjadi kesalahan.');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                        }
+                    },
+                    onClose: function() {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                        }
+                    }
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Terjadi kesalahan jaringan.');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                }
+            });
+        }
+    </script>
+    <style>
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
 
 </body>
 </html>

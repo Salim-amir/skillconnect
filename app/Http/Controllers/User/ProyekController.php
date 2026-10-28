@@ -109,13 +109,21 @@ class ProyekController extends Controller
             ->select('project_member.*', 'users.name', 'users.email', 'users.portofolio')
             ->get();
 
+        // Cek status pembayaran proyek (Midtrans Escrow)
+        $latestPayment = \App\Models\Transaction::where('project_id', $project->id)
+            ->latest()
+            ->first();
+        $isPaid = $latestPayment && $latestPayment->status_pembayaran === 'lunas';
+
         return view('user.proyek-detail', compact(
             'project', 
             'myApplication', 
             'candidates', 
             'availablePositions', 
             'selectedPosition',
-            'acceptedMembers'
+            'acceptedMembers',
+            'isPaid',
+            'latestPayment'
         ));
     }
 

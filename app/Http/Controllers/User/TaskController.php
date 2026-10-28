@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatusHistory;
+use App\Models\Transaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +50,10 @@ class TaskController extends Controller
 
         $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
 
+        // Status Pembayaran Proyek
+        $latestPayment = Transaction::where('project_id', $project->id)->latest()->first();
+        $isPaid = $latestPayment && $latestPayment->status_pembayaran === 'lunas';
+
         // Evaluasi milik user yang sedang login (untuk tampilan anggota)
         $myEvaluation = $acceptedMembers->firstWhere('id', Auth::id());
 
@@ -57,7 +62,9 @@ class TaskController extends Controller
             'tasksByStatus',
             'acceptedMembers',
             'isCreator',
-            'myEvaluation'
+            'myEvaluation',
+            'isPaid',
+            'latestPayment'
         ));
     }
 
