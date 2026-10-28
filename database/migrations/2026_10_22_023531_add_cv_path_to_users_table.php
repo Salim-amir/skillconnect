@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('cv_path')->nullable()->after('pengalaman');
+            // Cek apakah kolom cv_path belum ada sebelum menambahkan
+            if (!Schema::hasColumn('users', 'cv_path')) {
+                $table->string('cv_path')->nullable()->after('pengalaman');
+            }
         });
     }
 
@@ -22,7 +25,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('cv_path');
+            // Cek apakah kolom cv_path ada sebelum menghapus
+            if (Schema::hasColumn('users', 'cv_path')) {
+                $table->dropColumn('cv_path');
+            }
         });
     }
 };

@@ -13,12 +13,15 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id(); // PK otomatis
-            $table->string('name'); // Ubah 'nama' menjadi 'name'
+            $table->string('name');
             $table->string('email')->unique();
-            $table->string('password');
-            $table->string('role');
+            $table->string('password')->nullable(); // Dibuat nullable untuk pendaftaran via Google SSO
+            $table->string('role')->default('member'); // Nilai default 'member', menerima 'creator' / 'admin'
+            $table->string('google_id')->nullable(); // Ditambahkan untuk menyimpan ID Google SSO
             $table->text('pengalaman')->nullable();
             $table->string('portofolio')->nullable();
+            $table->string('cv_path')->nullable(); // Sesuai dengan $fillable di User.php
+            $table->rememberToken(); // Diperlukan untuk sesi login Laravel
             $table->timestamps(); 
         });
 
