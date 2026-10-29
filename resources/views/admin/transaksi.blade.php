@@ -357,43 +357,31 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Data dummy interaktif untuk preview UI -->
-                        <tr>
-                            <td style="color: #8f9bd8; font-weight: 600;">#TRX-0921A</td>
-                            <td>Budi Santoso</td>
-                            <td>Agus Pratama</td>
-                            <td style="font-weight: 700; color: #1c2766;">Desain UI/UX E-Commerce</td>
-                            <td class="currency">Rp 2.500.000</td>
-                            <td><span class="badge success">Lunas</span></td>
-                            <td>12 Okt 2026</td>
-                        </tr>
-                        <tr>
-                            <td style="color: #8f9bd8; font-weight: 600;">#TRX-0922B</td>
-                            <td>Siti Aminah</td>
-                            <td>Rudi Hermawan</td>
-                            <td style="font-weight: 700; color: #1c2766;">Pengembangan API Payment</td>
-                            <td class="currency">Rp 5.000.000</td>
-                            <td><span class="badge warning">Tertunda (Escrow)</span></td>
-                            <td>10 Okt 2026</td>
-                        </tr>
-                        <tr>
-                            <td style="color: #8f9bd8; font-weight: 600;">#TRX-0923C</td>
-                            <td>Rina Melati</td>
-                            <td>Dewi Sartika</td>
-                            <td style="font-weight: 700; color: #1c2766;">Pembuatan Company Profile</td>
-                            <td class="currency">Rp 1.000.000</td>
-                            <td><span class="badge danger">Dibatalkan</span></td>
-                            <td>08 Okt 2026</td>
-                        </tr>
-                        <tr>
-                            <td style="color: #8f9bd8; font-weight: 600;">#TRX-0924D</td>
-                            <td>PT Teknologi Maju</td>
-                            <td>Ahmad Fauzi</td>
-                            <td style="font-weight: 700; color: #1c2766;">Sistem ERP Berbasis Web</td>
-                            <td class="currency">Rp 10.000.000</td>
-                            <td><span class="badge success">Lunas</span></td>
-                            <td>01 Okt 2026</td>
-                        </tr>
+                        @forelse($transactions as $trx)
+                            <tr>
+                                <td style="color: #7b6cf6; font-weight: 700; font-family: monospace;">{{ $trx->order_id ?? ('#TRX-' . $trx->id) }}</td>
+                                <td>{{ $trx->user->name ?? 'Creator' }}</td>
+                                <td>{{ $trx->project && $trx->project->members->isNotEmpty() ? $trx->project->members->first()->name : 'Tim Proyek' }}</td>
+                                <td style="font-weight: 700; color: #1c2766;">{{ $trx->project->judul_project ?? 'Proyek' }}</td>
+                                <td class="currency">Rp {{ number_format($trx->jumlah_fee, 0, ',', '.') }}</td>
+                                <td>
+                                    @if($trx->status_pembayaran === 'lunas')
+                                        <span class="badge success">Lunas (Escrow)</span>
+                                    @elseif($trx->status_pembayaran === 'pending')
+                                        <span class="badge warning">Tertunda (Pending)</span>
+                                    @else
+                                        <span class="badge danger">{{ ucfirst($trx->status_pembayaran) }}</span>
+                                    @endif
+                                </td>
+                                <td>{{ $trx->created_at ? $trx->created_at->format('d M Y H:i') : '-' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 30px; color: var(--mute); font-style: italic;">
+                                    Belum ada transaksi pembayaran yang tercatat di sistem.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

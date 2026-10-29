@@ -11,6 +11,7 @@ use App\Models\Project;
 use App\Models\Transaction;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\User\TaskController;
+use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\DashboardController;
 
 // ===================== PUBLIC / GUEST ROUTES =====================
@@ -108,7 +109,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     })->name('proyek');
 
     Route::get('/transaksi', function () {
-        return view('admin.transaksi');
+        $transactions = Transaction::with(['project', 'user'])->latest()->get();
+        return view('admin.transaksi', compact('transactions'));
     })->name('transaksi');
 
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
@@ -145,7 +147,14 @@ Route::middleware('auth')->group(function () {
     // MOD-09: Evaluasi Anggota Tim oleh Creator
     Route::post('/proyek/{id}/evaluasi/{memberId}',         [TaskController::class, 'evaluateMember'])->name('proyek.evaluasi');
 
+    // Integrasi Pembayaran Dana Proyek via Midtrans
+    Route::post('/proyek/{id}/bayar',                       [PaymentController::class, 'initiate'])->name('proyek.bayar');
+    Route::get('/proyek/{id}/bayar/status',                 [PaymentController::class, 'checkStatus'])->name('proyek.bayar.status');
+
 });
+
+// Webhook Midtrans (HTTP Notification dari server Midtrans)
+Route::post('/midtrans/callback', [PaymentController::class, 'webhook'])->name('midtrans.webhook');
 
 // ===================== ROOT ALIAS: /pengguna =====================
 // Halaman http://127.0.0.1:8000/pengguna menampilkan data seluruh pengguna
@@ -163,7 +172,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/pengguna/{id}',    [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
 
 });
-
 
 // Fallback penyajian file bukti kerja (jika storage:link belum dibuat di sistem operasi Windows)
 Route::get('/storage/bukti-kerja/{filename}', function ($filename) {
@@ -184,5 +192,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 // ===================== ROOT ALIAS: /transaksi =====================
 Route::middleware(['auth', 'admin'])->get('/transaksi', function () {
-    return view('admin.transaksi');
+    $transactions = Transaction::with(['project', 'user'])->latest()->get();
+    return view('admin.transaksi', compact('transactions'));
 })->name('transaksi');

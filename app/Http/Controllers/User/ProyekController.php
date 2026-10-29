@@ -27,6 +27,11 @@ class ProyekController extends Controller
     {
         $query = Project::with(['creator', 'skills', 'members']);
 
+        // Jika user adalah Creator, khusus tampilkan proyek miliknya sendiri untuk dikelola
+        if (Auth::check() && Auth::user()->role === 'creator') {
+            $query->where('creator_id', Auth::id());
+        }
+
         // Filter pencarian berdasarkan judul proyek atau deskripsi
         if ($request->filled('q')) {
             $keyword = $request->input('q');
@@ -109,13 +114,21 @@ class ProyekController extends Controller
             ->select('project_member.*', 'users.name', 'users.email', 'users.portofolio')
             ->get();
 
+        // Cek status pembayaran proyek (Midtrans Escrow)
+        $latestPayment = \App\Models\Transaction::where('project_id', $project->id)
+            ->latest()
+            ->first();
+        $isPaid = $latestPayment && $latestPayment->status_pembayaran === 'lunas';
+
         return view('user.proyek-detail', compact(
             'project', 
             'myApplication', 
             'candidates', 
             'availablePositions', 
             'selectedPosition',
-            'acceptedMembers'
+            'acceptedMembers',
+            'isPaid',
+            'latestPayment'
         ));
     }
 
@@ -159,6 +172,11 @@ class ProyekController extends Controller
     {
         $user = Auth::user();
         $project = Project::findOrFail($id);
+
+        // Hanya pengguna dengan role 'member' yang berhak melamar ke proyek
+        if ($user->role !== 'member') {
+            return redirect()->back()->with('error', 'Akses ditolak: Hanya pengguna dengan peran Member yang dapat melamar dan bergabung ke dalam proyek.');
+        }
 
         if ($project->creator_id === $user->id) {
             return redirect()->back()->with('error', 'Anda adalah pembuat proyek ini, tidak dapat melamar sebagai anggota.');
