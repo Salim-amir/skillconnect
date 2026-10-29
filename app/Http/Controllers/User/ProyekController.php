@@ -168,6 +168,11 @@ class ProyekController extends Controller
         $user = Auth::user();
         $project = Project::findOrFail($id);
 
+        // Hanya pengguna dengan role 'member' yang berhak melamar ke proyek
+        if ($user->role !== 'member') {
+            return redirect()->back()->with('error', 'Akses ditolak: Hanya pengguna dengan peran Member yang dapat melamar dan bergabung ke dalam proyek.');
+        }
+
         if ($project->creator_id === $user->id) {
             return redirect()->back()->with('error', 'Anda adalah pembuat proyek ini, tidak dapat melamar sebagai anggota.');
         }

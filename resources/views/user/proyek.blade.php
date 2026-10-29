@@ -477,10 +477,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="top-breadcrumb">
-                @if(auth()->check() && auth()->user()->role === 'admin')
+                @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'creator'))
                     SkillConnect / <span>Kelola Proyek</span>
                 @else
-                    SkillConnect / <span>Eksplorasi & Gabung Proyek</span>
+                    SkillConnect / <span>Eksplorasi Proyek</span>
                 @endif
             </div>
             <div class="user-profile">
@@ -638,8 +638,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         {{-- ===================== USER: CARD GRID EKSPLORASI ===================== --}}
         <div class="page-header">
             <div>
-                <h1 class="page-title">Eksplorasi Daftar Proyek</h1>
-                <p class="page-desc">Temukan proyek kolaborasi yang sesuai dengan keahlian Anda, kirim proposal, dan bergabung dengan tim.</p>
+                @if(auth()->check() && auth()->user()->role === 'creator')
+                    <h1 class="page-title">Kelola Proyek</h1>
+                    <p class="page-desc">Kelola proyek Anda, seleksi talenta anggota tim, dan pantau progres pengerjaan.</p>
+                @else
+                    <h1 class="page-title">Eksplorasi Daftar Proyek</h1>
+                    <p class="page-desc">Temukan proyek kolaborasi yang sesuai dengan keahlian Anda, kirim proposal, dan bergabung dengan tim.</p>
+                @endif
             </div>
             @if(auth()->check() && auth()->user()->role === 'creator')
                 <a href="{{ route('proyek.create') }}" class="btn pri">
@@ -716,7 +721,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         </div>
 
                         <div>
-                            @if(in_array($p->id, $userAppliedProjectIds))
+                            @if(auth()->check() && auth()->id() === $p->creator_id)
+                                <a href="{{ route('proyek.detail', $p->id) }}" class="btn pri" style="padding: 8px 16px; font-size: 13.5px;">
+                                    Kelola Proyek →
+                                </a>
+                            @elseif(auth()->check() && auth()->user()->role === 'creator')
+                                <a href="{{ route('proyek.detail', $p->id) }}" class="btn outline" style="padding: 8px 16px; font-size: 13.5px;">
+                                    Lihat Detail
+                                </a>
+                            @elseif(in_array($p->id, $userAppliedProjectIds))
                                 <span class="applied-badge">
                                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                                     Sudah Melamar

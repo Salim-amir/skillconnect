@@ -714,8 +714,32 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </div>
 
                 @else
-                    <!-- TAMPILAN KHUSUS MEMBER: FORM PENGAJUAN / STATUS LAMARAN -->
-                    @if($myApplication)
+                    {{-- TAMPILAN JIKA USER ADALAH CREATOR LAIN ATAU GUEST ATAU MEMBER --}}
+                    @if(auth()->check() && auth()->user()->role === 'creator')
+                        <div class="card" style="border: 1.5px solid var(--line); text-align: center; padding: 36px 24px;">
+                            <div style="width: 56px; height: 56px; border-radius: 50%; background: #eef0ff; color: #7b6cf6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            </div>
+                            <h3 style="font-family: 'Fredoka', sans-serif; font-size: 20px; color: var(--ink); margin-bottom: 6px;">
+                                Mode Creator
+                            </h3>
+                            <p style="font-size: 13.5px; color: var(--mute); line-height: 1.6; max-width: 380px; margin: 0 auto;">
+                                Anda masuk sebagai <strong>Creator</strong>. Pelamaran dan pengajuan diri untuk bergabung ke tim proyek hanya dikhususkan untuk akun dengan peran <strong>Member</strong>.
+                            </p>
+                        </div>
+                    @elseif(!auth()->check())
+                        <div class="card" style="border: 1.5px solid var(--line); text-align: center; padding: 36px 24px;">
+                            <h3 style="font-family: 'Fredoka', sans-serif; font-size: 20px; color: var(--ink); margin-bottom: 8px;">
+                                Ingin Bergabung ke Proyek Ini?
+                            </h3>
+                            <p style="font-size: 13.5px; color: var(--mute); margin-bottom: 20px;">
+                                Silakan masuk sebagai <strong>Member</strong> untuk mengajukan proposal dan lamaran Anda.
+                            </p>
+                            <a href="{{ route('login') }}" class="btn pri" style="display: inline-block; padding: 10px 24px;">
+                                Masuk untuk Melamar
+                            </a>
+                        </div>
+                    @elseif($myApplication)
                         <div class="card" style="border: 2px solid #7b6cf6;">
                             <h3 style="font-family: 'Fredoka', sans-serif; font-size: 20px; color: var(--ink); margin-bottom: 8px;">
                                 Status Lamaran Anda
