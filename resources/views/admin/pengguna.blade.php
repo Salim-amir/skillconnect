@@ -215,6 +215,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 }
 .badge.admin { background: #e5ebff; color: #2b3a8f; }
 .badge.member { background: #f4e5ff; color: #7b4fe8; }
+.badge.creator { background: #e5ffe5; color: #008000; }
 
 .btn {
     display: inline-block;
@@ -505,6 +506,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             <td>
                                 @if($user->role === 'admin')
                                     <span class="badge admin">Admin</span>
+                                @elseif($user->role === 'creator')
+                                    <span class="badge creator">Creator</span>
                                 @else
                                     <span class="badge member">Member</span>
                                 @endif
@@ -516,7 +519,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                     data-id="{{ $user->id }}"
                                     data-name="{{ $user->name }}"
                                     data-email="{{ $user->email }}"
-                                    data-role="{{ $user->role }}">Edit</button>
+                                    data-role="{{ $user->role }}">Edit Role</button>
                                 <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
                                     style="display:inline;"
                                     onsubmit="return confirm('Yakin ingin menghapus pengguna {{ addslashes($user->name) }}? Tindakan ini tidak dapat dibatalkan.');">
@@ -548,28 +551,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <input type="hidden" name="_form" value="edit">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="edit_name">Nama Lengkap</label>
-                        <input type="text" id="edit_name" name="name" value="{{ old('name') }}" required>
-                        @error('name') <span class="form-error">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_email">Alamat Email</label>
-                        <input type="email" id="edit_email" name="email" value="{{ old('email') }}" required>
-                        @error('email') <span class="form-error">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="form-group">
                         <label for="edit_role">Role</label>
                         <select id="edit_role" name="role" required>
                             <option value="member">Member</option>
+                            <option value="creator">Creator</option>
                             <option value="admin">Admin</option>
                         </select>
                         @error('role') <span class="form-error">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_password">Password Baru</label>
-                        <input type="password" id="edit_password" name="password" autocomplete="new-password">
-                        <span class="form-hint">Kosongkan jika tidak ingin mengubah password.</span>
-                        @error('password') <span class="form-error">{{ $message }}</span> @enderror
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -605,6 +593,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         <label for="create_role">Role</label>
                         <select id="create_role" name="role" required>
                             <option value="member" {{ old('role') === 'member' ? 'selected' : '' }}>Member</option>
+                            <option value="creator" {{ old('role') === 'creator' ? 'selected' : '' }}>Creator</option>
                             <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                         @error('role') <span class="form-error">{{ $message }}</span> @enderror
@@ -633,8 +622,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         // ===== MODAL EDIT =====
         function openEditModal(button) {
             const id    = button.getAttribute('data-id');
-            const name  = button.getAttribute('data-name');
-            const email = button.getAttribute('data-email');
             const role  = button.getAttribute('data-role');
 
             // Set action form ke route update
@@ -642,10 +629,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             document.getElementById('edit_id').value = id;
 
             // Isi nilai form
-            document.getElementById('edit_name').value = name;
-            document.getElementById('edit_email').value = email;
             document.getElementById('edit_role').value = role;
-            document.getElementById('edit_password').value = '';
 
             // Hapus pesan error lama (jika ada)
             document.querySelectorAll('#editForm .form-error').forEach(el => el.remove());

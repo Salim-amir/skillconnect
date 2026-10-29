@@ -156,6 +156,23 @@ Route::middleware('auth')->group(function () {
 // Webhook Midtrans (HTTP Notification dari server Midtrans)
 Route::post('/midtrans/callback', [PaymentController::class, 'webhook'])->name('midtrans.webhook');
 
+// ===================== ROOT ALIAS: /pengguna =====================
+// Halaman http://127.0.0.1:8000/pengguna menampilkan data seluruh pengguna
+// (nama, role, dan alamat email) beserta aksi CRUD.
+
+Route::middleware(['auth', 'admin'])->group(function () {
+
+    Route::get('/pengguna', function () {
+        $users = User::all();
+        return view('admin.pengguna', compact('users'));
+    })->name('pengguna');
+
+    Route::post('/pengguna',            [PenggunaController::class, 'store'])->name('pengguna.store');
+    Route::put('/pengguna/{id}',       [PenggunaController::class, 'update'])->name('pengguna.update');
+    Route::delete('/pengguna/{id}',    [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
+
+});
+
 // Fallback penyajian file bukti kerja (jika storage:link belum dibuat di sistem operasi Windows)
 Route::get('/storage/bukti-kerja/{filename}', function ($filename) {
     $path = storage_path('app/public/bukti-kerja/' . $filename);
@@ -164,3 +181,17 @@ Route::get('/storage/bukti-kerja/{filename}', function ($filename) {
     }
     return response()->file($path);
 })->name('storage.bukti');
+
+// ===================== ROOT ALIAS: /laporan =====================
+// Halaman http://127.0.0.1:8000/laporan menampilkan laporan data pengguna
+// (beserta skill) dan data proyek (berjalan, selesai, dan berhasil).
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+});
+
+// ===================== ROOT ALIAS: /transaksi =====================
+Route::middleware(['auth', 'admin'])->get('/transaksi', function () {
+    $transactions = Transaction::with(['project', 'user'])->latest()->get();
+    return view('admin.transaksi', compact('transactions'));
+})->name('transaksi');
