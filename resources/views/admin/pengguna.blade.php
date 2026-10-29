@@ -215,6 +215,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 }
 .badge.admin { background: #e5ebff; color: #2b3a8f; }
 .badge.member { background: #f4e5ff; color: #7b4fe8; }
+.badge.creator { background: #e5ffe5; color: #008000; }
 
 .btn {
     display: inline-block;
@@ -505,6 +506,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             <td>
                                 @if($user->role === 'admin')
                                     <span class="badge admin">Admin</span>
+                                @elseif($user->role === 'creator')
+                                    <span class="badge creator">Creator</span>
                                 @else
                                     <span class="badge member">Member</span>
                                 @endif
@@ -561,6 +564,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         <label for="edit_role">Role</label>
                         <select id="edit_role" name="role" required>
                             <option value="member">Member</option>
+                            <option value="creator">Creator</option>
                             <option value="admin">Admin</option>
                         </select>
                         @error('role') <span class="form-error">{{ $message }}</span> @enderror
@@ -605,6 +609,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         <label for="create_role">Role</label>
                         <select id="create_role" name="role" required>
                             <option value="member" {{ old('role') === 'member' ? 'selected' : '' }}>Member</option>
+                            <option value="creator" {{ old('role') === 'creator' ? 'selected' : '' }}>Creator</option>
                             <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                         @error('role') <span class="form-error">{{ $message }}</span> @enderror
