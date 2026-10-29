@@ -745,9 +745,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             @empty
                 <div class="empty-state">
                     <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    <h3>Belum Ada Proyek yang Ditemukan</h3>
-                    <p>Coba gunakan kata kunci pencarian yang lain atau jadilah yang pertama membuat proyek baru!</p>
-                    <a href="{{ route('proyek.create') }}" class="btn pri">+ Buat Proyek Baru Sekarang</a>
+                    @if(auth()->check() && auth()->user()->role === 'creator')
+                        <h3>Belum Ada Proyek yang Dibuat</h3>
+                        <p>Anda belum memiliki proyek. Buat proyek baru dan mulai rekrut talenta terbaik untuk tim Anda!</p>
+                        <a href="{{ route('proyek.create') }}" class="btn pri">+ Buat Proyek Baru Sekarang</a>
+                    @else
+                        <h3>Belum Ada Proyek yang Ditemukan</h3>
+                        <p>Coba gunakan kata kunci pencarian yang lain atau periksa kembali nanti.</p>
+                    @endif
                 </div>
             @endforelse
         </div>

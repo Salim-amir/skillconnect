@@ -27,6 +27,11 @@ class ProyekController extends Controller
     {
         $query = Project::with(['creator', 'skills', 'members']);
 
+        // Jika user adalah Creator, khusus tampilkan proyek miliknya sendiri untuk dikelola
+        if (Auth::check() && Auth::user()->role === 'creator') {
+            $query->where('creator_id', Auth::id());
+        }
+
         // Filter pencarian berdasarkan judul proyek atau deskripsi
         if ($request->filled('q')) {
             $keyword = $request->input('q');
