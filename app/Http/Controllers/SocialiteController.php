@@ -67,8 +67,7 @@ class SocialiteController extends Controller
                 if ($user->role !== 'admin' && $user->role !== $targetRole) {
                     $roleLabel = ucfirst($user->role);
                     return redirect()->route('login')
-                        ->withErrors(['email' => 'Akun Google ini terdaftar sebagai ' . $roleLabel . '. Silakan pilih jenis akun ' . $roleLabel . '.'])
-                        ->with('error', 'Akun Google ini terdaftar sebagai ' . $roleLabel . '. Silakan pilih jenis akun yang sesuai.');
+                        ->with('error', 'Akun Google ini terdaftar sebagai ' . $roleLabel . '. Silakan pilih jenis akun ' . $roleLabel . '.');
                 }
             }
 
@@ -80,7 +79,6 @@ class SocialiteController extends Controller
         } catch (\Exception $e) {
             // PERBAIKAN: Kembalikan ke route('login') agar alert error Blade ter-render sempurna
             return redirect()->route('login')
-                ->withErrors(['email' => 'Gagal masuk menggunakan Google. Err: ' . $e->getMessage()])
                 ->with('error', 'Gagal masuk menggunakan Google: ' . $e->getMessage());
         }
     }
