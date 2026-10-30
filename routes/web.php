@@ -91,7 +91,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/pengguna', function () {
-        $users = User::all();
+        $users = User::paginate(8)->withQueryString();
         return view('admin.pengguna', compact('users'));
     })->name('pengguna');
 
@@ -163,7 +163,7 @@ Route::post('/midtrans/callback', [PaymentController::class, 'webhook'])->name('
 Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/pengguna', function () {
-        $users = User::all();
+        $users = User::paginate(8)->withQueryString();
         return view('admin.pengguna', compact('users'));
     })->name('pengguna');
 
