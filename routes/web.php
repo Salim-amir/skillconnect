@@ -109,8 +109,25 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     })->name('proyek');
 
     Route::get('/transaksi', function () {
-        $transactions = Transaction::with(['project', 'user'])->latest()->get();
-        return view('admin.transaksi', compact('transactions'));
+        $allTransactions = Transaction::with(['project.members', 'user'])->latest()->get();
+        $totalTransactions = $allTransactions->count();
+        $totalLunas        = $allTransactions->where('status_pembayaran', 'lunas')->count();
+        $totalPending      = $allTransactions->where('status_pembayaran', 'pending')->count();
+        $totalBatal        = $allTransactions->whereNotIn('status_pembayaran', ['lunas', 'pending'])->count();
+        $nominalLunas      = $allTransactions->where('status_pembayaran', 'lunas')->sum('jumlah_fee');
+        $nominalPending    = $allTransactions->where('status_pembayaran', 'pending')->sum('jumlah_fee');
+        $transactions      = Transaction::with(['project.members', 'user'])->latest()->paginate(8)->withQueryString();
+
+        return view('admin.transaksi', compact(
+            'transactions',
+            'allTransactions',
+            'totalTransactions',
+            'totalLunas',
+            'totalPending',
+            'totalBatal',
+            'nominalLunas',
+            'nominalPending'
+        ));
     })->name('transaksi');
 
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
@@ -192,6 +209,23 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 // ===================== ROOT ALIAS: /transaksi =====================
 Route::middleware(['auth', 'admin'])->get('/transaksi', function () {
-    $transactions = Transaction::with(['project', 'user'])->latest()->get();
-    return view('admin.transaksi', compact('transactions'));
+    $allTransactions = Transaction::with(['project.members', 'user'])->latest()->get();
+    $totalTransactions = $allTransactions->count();
+    $totalLunas        = $allTransactions->where('status_pembayaran', 'lunas')->count();
+    $totalPending      = $allTransactions->where('status_pembayaran', 'pending')->count();
+    $totalBatal        = $allTransactions->whereNotIn('status_pembayaran', ['lunas', 'pending'])->count();
+    $nominalLunas      = $allTransactions->where('status_pembayaran', 'lunas')->sum('jumlah_fee');
+    $nominalPending    = $allTransactions->where('status_pembayaran', 'pending')->sum('jumlah_fee');
+    $transactions      = Transaction::with(['project.members', 'user'])->latest()->paginate(8)->withQueryString();
+
+    return view('admin.transaksi', compact(
+        'transactions',
+        'allTransactions',
+        'totalTransactions',
+        'totalLunas',
+        'totalPending',
+        'totalBatal',
+        'nominalLunas',
+        'nominalPending'
+    ));
 })->name('transaksi');
