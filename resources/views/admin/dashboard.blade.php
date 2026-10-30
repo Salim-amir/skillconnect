@@ -459,7 +459,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             <tr>
                                 <th>Nama</th>
                                 <th>Email</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -467,11 +466,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             <tr>
                                 <td>{{ $u->name }}</td>
                                 <td>{{ $u->email }}</td>
-                                <td><span class="badge success">Aktif</span></td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="3" style="text-align:center; color:#8f9bd8;">Belum ada pengguna</td>
+                                <td colspan="2" style="text-align:center; color:#8f9bd8;">Belum ada pengguna</td>
                             </tr>
                             @endforelse
                         </tbody>
