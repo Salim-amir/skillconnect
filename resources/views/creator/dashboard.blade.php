@@ -500,7 +500,7 @@ button { font-family: inherit; }
             <div style="display: flex; align-items: center; gap: 16px;">
                 <a href="{{ route('proyek.create') }}" class="btn-sm pri" style="padding: 10px 18px; border-radius: 12px; font-size: 13.5px; text-decoration: none;">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                    + Buat Proyek Baru
+                    Buat Proyek Baru
                 </a>
                 <div class="user-profile">
                     <div class="user-info">

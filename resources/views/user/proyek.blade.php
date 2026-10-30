@@ -748,7 +748,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     @if(auth()->check() && auth()->user()->role === 'creator')
                         <h3>Belum Ada Proyek yang Dibuat</h3>
                         <p>Anda belum memiliki proyek. Buat proyek baru dan mulai rekrut talenta terbaik untuk tim Anda!</p>
-                        <a href="{{ route('proyek.create') }}" class="btn pri">+ Buat Proyek Baru Sekarang</a>
+                        <a href="{{ route('proyek.create') }}" class="btn pri">Buat Proyek Baru Sekarang</a>
                     @else
                         <h3>Belum Ada Proyek yang Ditemukan</h3>
                         <p>Coba gunakan kata kunci pencarian yang lain atau periksa kembali nanti.</p>
