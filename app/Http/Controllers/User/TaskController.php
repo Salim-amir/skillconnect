@@ -55,6 +55,12 @@ class TaskController extends Controller
         $latestPayment = Transaction::where('project_id', $project->id)->where('status_pembayaran', '!=', 'batal')->latest()->first();
         $isPaid = $latestPayment && $latestPayment->status_pembayaran === 'lunas';
 
+        // Cegah akses Task Board jika dana proyek belum disetor (Escrow belum lunas)
+        if (!$isPaid && Auth::user()?->role !== 'admin') {
+            return redirect()->route('proyek.detail', $project->id)
+                ->with('error', 'Papan kerja (Task Board) terkunci. Creator wajib mengunci dana proyek sebesar Rp ' . number_format($project->budget, 0, ',', '.') . ' ke Rekening Bersama terlebih dahulu agar tugas dapat dimulai.');
+        }
+
         // Evaluasi milik user yang sedang login (untuk tampilan anggota)
         $myEvaluation = $acceptedMembers->firstWhere('id', Auth::id());
 

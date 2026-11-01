@@ -561,7 +561,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             @if(!$isPaid)
                                 <button id="btnBayarSekarang" onclick="bayarProyek()" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14.5px; border: none; background: linear-gradient(90deg, #10b981, #059669); color: #fff; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 6px 18px -4px rgba(16,185,129,.6); transition: all .2s;">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                                    Danai Proyek Sekarang (Midtrans)
+                                    Danai Proyek Sekarang
                                 </button>
                             @else
                                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -594,10 +594,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     @endphp
                     @if($isTeamMember || (auth()->user() && auth()->user()->role === 'creator' && auth()->id() === $project->creator_id) || (auth()->user() && auth()->user()->role === 'admin'))
                         <div style="margin-top: 20px;">
-                            <a href="{{ route('proyek.tasks', $project->id) }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; background: linear-gradient(90deg, #2b3a8f, #7b6cf6); color: #fff; box-shadow: 0 6px 18px -4px rgba(123,108,246,.5); transition: all .2s;">
-                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                                Buka Task Board
-                            </a>
+                            @if($isPaid)
+                                <a href="{{ route('proyek.tasks', $project->id) }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; background: linear-gradient(90deg, #2b3a8f, #7b6cf6); color: #fff; box-shadow: 0 6px 18px -4px rgba(123,108,246,.5); transition: all .2s;">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                    Buka Task Board
+                                </a>
+                            @else
+                                <div style="display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 12px; background: #f8fafc; border: 1.5px dashed #cbd5e1; color: #64748b; font-size: 13.5px; font-weight: 700;">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                    <span>Task Board Terkunci — Menunggu Pendanaan Proyek (Escrow) oleh Creator</span>
+                                </div>
+                            @endif
                         </div>
                     @endif
                 @endif
@@ -841,7 +848,60 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             : 'https://app.sandbox.midtrans.com/snap/snap.js';
     @endphp
     <script src="{{ $snapUrl }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    {{-- CUSTOM MODAL POPUP STATUS PEMBAYARAN ESCROW --}}
+    <div id="modalPaymentCustom" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(6px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; width: 100%; max-width: 440px; border-radius: 24px; padding: 36px 28px; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.3); animation: popModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div id="payModalIconWrap" style="width: 76px; height: 76px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h3 id="payModalTitle" style="font-family: 'Fredoka', sans-serif; font-size: 23px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Pembayaran Berhasil!</h3>
+            <p id="payModalDesc" style="font-size: 13.5px; color: #64748b; line-height: 1.55; margin-bottom: 22px;">Dana proyek sebesar Rp {{ number_format($project->budget, 0, ',', '.') }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Proyek kini aktif berjalan!</p>
+            
+            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 14px 18px; margin-bottom: 24px;">
+                <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;">Total Dana Diamankan</div>
+                <div style="font-family: 'Fredoka', sans-serif; font-size: 24px; font-weight: 800; color: #047857;">Rp {{ number_format($project->budget, 0, ',', '.') }}</div>
+                <div id="payModalBadge" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: #059669; font-weight: 700; margin-top: 4px;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    Status: 100% Escrow Terkunci
+                </div>
+            </div>
+
+            <button type="button" onclick="window.location.reload()" style="width: 100%; padding: 14px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; border: none; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4); font-family: 'Nunito', sans-serif;">
+                <span>Lanjutkan ke Proyek</span>
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+        </div>
+    </div>
+
     <script>
+        function showCustomPaymentModal(title, desc, isSuccess = true) {
+            const modal = document.getElementById('modalPaymentCustom');
+            const modalTitle = document.getElementById('payModalTitle');
+            const modalDesc = document.getElementById('payModalDesc');
+            const iconWrap = document.getElementById('payModalIconWrap');
+            const badge = document.getElementById('payModalBadge');
+
+            if (modal && modalTitle && modalDesc && iconWrap) {
+                modalTitle.textContent = title;
+                modalDesc.textContent = desc;
+                if (isSuccess) {
+                    iconWrap.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    iconWrap.style.boxShadow = '0 10px 25px -5px rgba(16, 185, 129, 0.5)';
+                    iconWrap.innerHTML = '<svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+                    if (badge) badge.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Status: 100% Escrow Terkunci';
+                } else {
+                    iconWrap.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    iconWrap.style.boxShadow = '0 10px 25px -5px rgba(245, 158, 11, 0.5)';
+                    iconWrap.innerHTML = '<svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                    if (badge) badge.innerHTML = 'Status: Menunggu Pembayaran';
+                }
+                modal.style.display = 'flex';
+            } else {
+                alert(title + '\n\n' + desc);
+                window.location.reload();
+            }
+        }
+
         function verifikasiPembayaran(orderId, resultData, isPending = false) {
             const btn = document.getElementById('btnBayarSekarang');
             if (btn) {
@@ -863,11 +923,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             .then(res => res.json())
             .then(data => {
                 if (data.is_paid) {
-                    alert('🎉 Pembayaran Berhasil!\n\nDana proyek Rp {{ number_format($project->budget, 0, ",", ".") }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Proyek kini resmi berstatus BERJALAN!');
-                    window.location.reload();
+                    showCustomPaymentModal('Pembayaran Berhasil!', 'Dana proyek sebesar Rp {{ number_format($project->budget, 0, ",", ".") }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Proyek kini resmi berstatus BERJALAN dan Task Board telah terbuka!', true);
                 } else if (isPending) {
-                    alert('Menunggu penyelesaian pembayaran. Jika sudah transfer di simulator, halaman akan otomatis memverifikasi saat ditutup/direfresh.');
-                    window.location.reload();
+                    showCustomPaymentModal('Menunggu Pembayaran', 'Tagihan telah diterbitkan. Silakan selesaikan pembayaran di simulator / bank Anda. Halaman akan otomatis memverifikasi saat ditutup.', false);
                 } else {
                     window.location.reload();
                 }
@@ -898,7 +956,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     alert(data.message || 'Gagal memulai pembayaran.');
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang (Midtrans)';
+                        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang';
                     }
                     return;
                 }
@@ -915,7 +973,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         alert('Pembayaran gagal atau dibatalkan.');
                         if (btn) {
                             btn.disabled = false;
-                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang (Midtrans)';
+                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang';
                         }
                     },
                     onClose: function() {
@@ -929,13 +987,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 alert('Terjadi kesalahan jaringan.');
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang (Midtrans)';
+                    btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang';
                 }
             });
         }
     </script>
     <style>
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes popModal {
+            0% { opacity: 0; transform: scale(0.92); }
+            100% { opacity: 1; transform: scale(1); }
+        }
     </style>
 
 </body>

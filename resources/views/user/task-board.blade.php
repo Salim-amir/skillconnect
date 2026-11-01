@@ -766,7 +766,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 @if($isCreator)
                     <button id="btnBayarSekarangTask" onclick="bayarProyekTaskBoard()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 10px; font-weight: 700; font-size: 13.5px; border: none; background: linear-gradient(90deg, #10b981, #059669); color: #fff; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 4px 12px -2px rgba(16,185,129,.5);">
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                        Danai Proyek (Midtrans)
+                        Danai Proyek Sekarang
                     </button>
                 @endif
             </div>
@@ -1182,11 +1182,39 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         @endif
 
         @if($isCreator && !$isPaid)
+        function showCustomPaymentModalTaskBoard(title, desc, isSuccess = true) {
+            const modal = document.getElementById('modalPaymentCustomTask');
+            const modalTitle = document.getElementById('payModalTitleTask');
+            const modalDesc = document.getElementById('payModalDescTask');
+            const iconWrap = document.getElementById('payModalIconWrapTask');
+            const badge = document.getElementById('payModalBadgeTask');
+
+            if (modal && modalTitle && modalDesc && iconWrap) {
+                modalTitle.textContent = title;
+                modalDesc.textContent = desc;
+                if (isSuccess) {
+                    iconWrap.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    iconWrap.style.boxShadow = '0 10px 25px -5px rgba(16, 185, 129, 0.5)';
+                    iconWrap.innerHTML = '<svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+                    if (badge) badge.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Status: 100% Escrow Terkunci';
+                } else {
+                    iconWrap.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    iconWrap.style.boxShadow = '0 10px 25px -5px rgba(245, 158, 11, 0.5)';
+                    iconWrap.innerHTML = '<svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                    if (badge) badge.innerHTML = 'Status: Menunggu Pembayaran';
+                }
+                modal.style.display = 'flex';
+            } else {
+                alert(title + '\n\n' + desc);
+                window.location.reload();
+            }
+        }
+
         function verifikasiPembayaranTaskBoard(orderId, resultData, isPending = false) {
             const btn = document.getElementById('btnBayarSekarangTask');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = 'Memverifikasi...';
+                btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Memverifikasi Dana...';
             }
 
             fetch('{{ route("proyek.bayar.sync", $project->id) }}', {
@@ -1203,11 +1231,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             .then(res => res.json())
             .then(data => {
                 if (data.is_paid) {
-                    alert('🎉 Pembayaran Berhasil!\n\nDana proyek Rp {{ number_format($project->budget, 0, ",", ".") }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Proyek kini resmi aktif berjalan!');
-                    window.location.reload();
+                    showCustomPaymentModalTaskBoard(
+                        'Pembayaran Berhasil! 🎉',
+                        'Dana proyek sebesar Rp {{ number_format($project->budget, 0, ",", ".") }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Anda dan tim kini dapat mengerjakan tugas secara aman!',
+                        true
+                    );
                 } else if (isPending) {
-                    alert('Menunggu penyelesaian pembayaran di simulator / bank.');
-                    window.location.reload();
+                    showCustomPaymentModalTaskBoard(
+                        'Menunggu Pembayaran',
+                        'Instruksi pembayaran telah dibuat. Silakan selesaikan pembayaran agar Task Board dapat digunakan secara penuh.',
+                        false
+                    );
                 } else {
                     window.location.reload();
                 }
@@ -1222,7 +1256,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             const btn = document.getElementById('btnBayarSekarangTask');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = 'Memproses...';
+                btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Memproses...';
             }
 
             fetch('{{ route("proyek.bayar", $project->id) }}', {
@@ -1238,7 +1272,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     alert(data.message || 'Gagal memulai pembayaran.');
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = 'Danai Proyek (Midtrans)';
+                        btn.innerHTML = 'Danai Proyek Sekarang';
                     }
                     return;
                 }
@@ -1254,7 +1288,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         alert('Pembayaran gagal atau dibatalkan.');
                         if (btn) {
                             btn.disabled = false;
-                            btn.innerHTML = 'Danai Proyek (Midtrans)';
+                            btn.innerHTML = 'Danai Proyek Sekarang';
                         }
                     },
                     onClose: function() {
@@ -1267,7 +1301,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 alert('Terjadi kesalahan jaringan.');
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = 'Danai Proyek (Midtrans)';
+                    btn.innerHTML = 'Danai Proyek Sekarang';
                 }
             });
         }
@@ -1281,5 +1315,29 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         });
     </script>
 
+    {{-- CUSTOM MODAL POPUP STATUS PEMBAYARAN ESCROW --}}
+    <div id="modalPaymentCustomTask" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(6px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; width: 100%; max-width: 440px; border-radius: 24px; padding: 36px 28px; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.3); animation: popModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div id="payModalIconWrapTask" style="width: 76px; height: 76px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h3 id="payModalTitleTask" style="font-family: 'Fredoka', sans-serif; font-size: 23px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Pembayaran Berhasil!</h3>
+            <p id="payModalDescTask" style="font-size: 13.5px; color: #64748b; line-height: 1.55; margin-bottom: 22px;">Dana proyek sebesar Rp {{ number_format($project->budget, 0, ',', '.') }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Proyek kini aktif berjalan!</p>
+            
+            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 14px 18px; margin-bottom: 24px;">
+                <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;">Total Dana Diamankan</div>
+                <div style="font-family: 'Fredoka', sans-serif; font-size: 24px; font-weight: 800; color: #047857;">Rp {{ number_format($project->budget, 0, ',', '.') }}</div>
+                <div id="payModalBadgeTask" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: #059669; font-weight: 700; margin-top: 4px;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    Status: 100% Escrow Terkunci
+                </div>
+            </div>
+
+            <button type="button" onclick="window.location.reload()" style="width: 100%; padding: 14px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; border: none; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4); font-family: 'Nunito', sans-serif;">
+                <span>Mulai Kerjakan Tugas</span>
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+        </div>
+    </div>
 </body>
 </html>
