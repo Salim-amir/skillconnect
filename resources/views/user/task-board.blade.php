@@ -737,25 +737,36 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             @endif
         </div>
 
-        <!-- PAYMENT STATUS ESCROW BANNER -->
-        @if($isPaid)
+        <!-- PAYMENT STATUS ESCROW BANNER (OPSI A) -->
+        @if($project->status_project === 'Selesai')
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 14px 20px; background: #ecfdf5; border: 2px solid #10b981; border-radius: 14px; margin-bottom: 24px; font-size: 14px; color: #065f46; font-weight: 700; box-shadow: 0 4px 14px -4px rgba(16,185,129,.2);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 22px;">🏆</span>
+                    <div>
+                        <div style="font-size: 15px; font-weight: 800; color: #047857;">Proyek Telah Resmi SELESAI</div>
+                        <div style="font-size: 12.5px; font-weight: 500; color: #065f46; margin-top: 2px;">Dana Rekening Bersama (Escrow) sebesar Rp {{ number_format($project->budget, 0, ',', '.') }} telah resmi dicairkan ke masing-masing anggota tim.</div>
+                    </div>
+                </div>
+                <span style="font-size: 12px; font-weight: 800; background: #10b981; color: #fff; padding: 6px 14px; border-radius: 99px;">Tuntas & Lunas</span>
+            </div>
+        @elseif($isPaid)
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 12px 18px; background: #e8f9ee; border: 1.5px solid #b6edc8; border-radius: 12px; margin-bottom: 24px; font-size: 13.5px; color: #0d8239; font-weight: 700;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                    <span>Dana Proyek Terjamin: Lunas di Rekening Bersama (Rp {{ number_format($project->budget, 0, ',', '.') }})</span>
+                    <span>Dana Proyek Terjamin: 100% Lunas di Rekening Bersama (Rp {{ number_format($project->budget, 0, ',', '.') }})</span>
                 </div>
-                <span style="font-size: 12px; font-weight: 600; background: #fff; padding: 3px 10px; border-radius: 99px; border: 1px solid #b6edc8;">Aman & Terverifikasi</span>
+                <span style="font-size: 12px; font-weight: 600; background: #fff; padding: 3px 10px; border-radius: 99px; border: 1px solid #b6edc8;">Escrow Terkunci</span>
             </div>
         @else
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 14px 18px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; margin-bottom: 24px; font-size: 13.5px; color: #92400e;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    <span><strong>Perhatian:</strong> Dana proyek sebesar <strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong> belum disetorkan oleh Creator.</span>
+                    <span><strong>Perhatian:</strong> Dana proyek sebesar <strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong> belum dikunci di Rekening Bersama oleh Creator.</span>
                 </div>
                 @if($isCreator)
                     <button id="btnBayarSekarangTask" onclick="bayarProyekTaskBoard()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 10px; font-weight: 700; font-size: 13.5px; border: none; background: linear-gradient(90deg, #10b981, #059669); color: #fff; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 4px 12px -2px rgba(16,185,129,.5);">
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                        Bayar Sekarang
+                        Danai Proyek (Midtrans)
                     </button>
                 @endif
             </div>
@@ -787,6 +798,29 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <div class="stat-card-label">Selesai</div>
             </div>
         </div>
+
+        {{-- KARTU PENYELESAIAN PROYEK & PENCAIRAN FEE (OPSI A: FULL ESCROW RELEASE) --}}
+        @if($isCreator && $project->status_project !== 'Selesai')
+            @if($totalTasks > 0 && $belum === 0 && $sedang === 0 && $review === 0)
+                <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px dashed #16a34a; border-radius: 14px; padding: 18px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 14px -4px rgba(22,163,74,.2);">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; color: #15803d;">
+                            <span style="font-size: 20px;">🎉</span> Seluruh Tugas Selesai Dikerjakan!
+                        </div>
+                        <div style="font-size: 13px; color: #166534; margin-top: 4px; line-height: 1.5;">
+                            Semua tugas di papan kerja telah tuntas. Klik tombol di samping untuk menyelesaikan proyek secara resmi dan mencairkan dana Escrow (<strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong>) ke saldo/fee masing-masing anggota tim.
+                        </div>
+                    </div>
+                    <form action="{{ route('proyek.selesaikan', $project->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menyelesaikan proyek ini? Dana Rekening Bersama (Rp {{ number_format($project->budget, 0, ',', '.') }}) akan resmi dicairkan ke seluruh anggota tim.');">
+                        @csrf
+                        <button type="submit" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; background: linear-gradient(90deg, #16a34a, #15803d); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 14px -3px rgba(22,163,74,.5); font-family: 'Nunito', sans-serif;">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            Selesaikan Proyek & Cairkan Dana Tim
+                        </button>
+                    </form>
+                </div>
+            @endif
+        @endif
 
         <!-- KANBAN BOARD -->
         <div class="kanban-board" id="taskBoard">
@@ -1148,6 +1182,42 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         @endif
 
         @if($isCreator && !$isPaid)
+        function verifikasiPembayaranTaskBoard(orderId, resultData, isPending = false) {
+            const btn = document.getElementById('btnBayarSekarangTask');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = 'Memverifikasi...';
+            }
+
+            fetch('{{ route("proyek.bayar.sync", $project->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    result: resultData || {}
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.is_paid) {
+                    alert('🎉 Pembayaran Berhasil!\n\nDana proyek Rp {{ number_format($project->budget, 0, ",", ".") }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Proyek kini resmi aktif berjalan!');
+                    window.location.reload();
+                } else if (isPending) {
+                    alert('Menunggu penyelesaian pembayaran di simulator / bank.');
+                    window.location.reload();
+                } else {
+                    window.location.reload();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                window.location.reload();
+            });
+        }
+
         function bayarProyekTaskBoard() {
             const btn = document.getElementById('btnBayarSekarangTask');
             if (btn) {
@@ -1168,32 +1238,27 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     alert(data.message || 'Gagal memulai pembayaran.');
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = 'Bayar Sekarang';
+                        btn.innerHTML = 'Danai Proyek (Midtrans)';
                     }
                     return;
                 }
 
                 window.snap.pay(data.snap_token, {
                     onSuccess: function(result) {
-                        alert('Pembayaran berhasil! Dana proyek telah aman tersimpan di Rekening Bersama.');
-                        window.location.reload();
+                        verifikasiPembayaranTaskBoard(data.order_id, result, false);
                     },
                     onPending: function(result) {
-                        alert('Menunggu penyelesaian pembayaran.');
-                        window.location.reload();
+                        verifikasiPembayaranTaskBoard(data.order_id, result, true);
                     },
                     onError: function(result) {
                         alert('Pembayaran gagal atau dibatalkan.');
                         if (btn) {
                             btn.disabled = false;
-                            btn.innerHTML = 'Bayar Sekarang';
+                            btn.innerHTML = 'Danai Proyek (Midtrans)';
                         }
                     },
                     onClose: function() {
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.innerHTML = 'Bayar Sekarang';
-                        }
+                        verifikasiPembayaranTaskBoard(data.order_id, {}, false);
                     }
                 });
             })
@@ -1202,7 +1267,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 alert('Terjadi kesalahan jaringan.');
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = 'Bayar Sekarang';
+                    btn.innerHTML = 'Danai Proyek (Midtrans)';
                 }
             });
         }

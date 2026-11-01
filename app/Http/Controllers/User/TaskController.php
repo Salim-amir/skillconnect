@@ -50,8 +50,9 @@ class TaskController extends Controller
 
         $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
 
-        // Status Pembayaran Proyek
-        $latestPayment = Transaction::where('project_id', $project->id)->latest()->first();
+        // Sinkronisasi & Cek Status Pembayaran Proyek (Midtrans Escrow - Opsi A)
+        \App\Http\Controllers\User\PaymentController::checkAndSyncProjectPayment($project->id);
+        $latestPayment = Transaction::where('project_id', $project->id)->where('status_pembayaran', '!=', 'batal')->latest()->first();
         $isPaid = $latestPayment && $latestPayment->status_pembayaran === 'lunas';
 
         // Evaluasi milik user yang sedang login (untuk tampilan anggota)

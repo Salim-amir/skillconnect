@@ -164,9 +164,13 @@ Route::middleware('auth')->group(function () {
     // MOD-09: Evaluasi Anggota Tim oleh Creator
     Route::post('/proyek/{id}/evaluasi/{memberId}',         [TaskController::class, 'evaluateMember'])->name('proyek.evaluasi');
 
-    // Integrasi Pembayaran Dana Proyek via Midtrans
+    // Integrasi Pembayaran Dana Proyek via Midtrans (Full Escrow Opsi A)
     Route::post('/proyek/{id}/bayar',                       [PaymentController::class, 'initiate'])->name('proyek.bayar');
     Route::get('/proyek/{id}/bayar/status',                 [PaymentController::class, 'checkStatus'])->name('proyek.bayar.status');
+    Route::post('/proyek/{id}/bayar/sync',                  [PaymentController::class, 'syncStatus'])->name('proyek.bayar.sync');
+
+    // Penyelesaian Proyek & Pencairan Fee Escrow ke Member
+    Route::post('/proyek/{id}/selesaikan',                  [ProyekController::class, 'completeProject'])->name('proyek.selesaikan');
 
 });
 

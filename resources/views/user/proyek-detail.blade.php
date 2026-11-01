@@ -533,24 +533,24 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     @endforelse
                 </div>
 
-                {{-- KOTAK INFORMASI DANA & STATUS PEMBAYARAN PROYEK --}}
-                <div style="margin-top: 24px; padding: 18px 20px; background: #ffffff; border: 1.5px solid var(--line); border-radius: 14px; box-shadow: 0 4px 14px -6px rgba(80,70,200,.08);">
+                {{-- KOTAK INFORMASI DANA & STATUS PEMBAYARAN PROYEK (OPSI A: FULL ESCROW) --}}
+                <div style="margin-top: 24px; padding: 20px 22px; background: #ffffff; border: 1.5px solid var(--line); border-radius: 16px; box-shadow: 0 4px 14px -6px rgba(80,70,200,.08);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
                         <div>
-                            <div style="font-size: 11.5px; font-weight: 800; color: var(--mute); text-transform: uppercase; letter-spacing: .06em;">Budget / Dana Proyek</div>
+                            <div style="font-size: 11.5px; font-weight: 800; color: var(--mute); text-transform: uppercase; letter-spacing: .06em;">Budget / Dana Rekening Bersama (Escrow)</div>
                             <div style="font-size: 24px; font-weight: 800; font-family: 'Fredoka', sans-serif; color: var(--ink);">
                                 Rp {{ number_format($project->budget, 0, ',', '.') }}
                             </div>
                             <div style="margin-top: 6px;">
                                 @if($isPaid)
-                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #0d8239; background: #e8f9ee; padding: 4px 12px; border-radius: 20px; border: 1px solid #b6edc8;">
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #065f46; background: #d1fae5; padding: 5px 14px; border-radius: 20px; border: 1px solid #6ee7b7;">
                                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                        Dana Terjamin (Lunas di Rekening Bersama)
+                                        Dana Terjamin (100% Lunas di Rekening Bersama)
                                     </span>
                                 @else
-                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #b45309; background: #fef3c7; padding: 4px 12px; border-radius: 20px; border: 1px solid #fcd34d;">
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #92400e; background: #fef3c7; padding: 5px 14px; border-radius: 20px; border: 1px solid #fcd34d;">
                                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        Menunggu Pembayaran Creator
+                                        Menunggu Pendanaan Escrow Creator
                                     </span>
                                 @endif
                             </div>
@@ -561,11 +561,28 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             @if(!$isPaid)
                                 <button id="btnBayarSekarang" onclick="bayarProyek()" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14.5px; border: none; background: linear-gradient(90deg, #10b981, #059669); color: #fff; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 6px 18px -4px rgba(16,185,129,.6); transition: all .2s;">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                                    Bayar Sekarang
+                                    Danai Proyek Sekarang (Midtrans)
                                 </button>
+                            @else
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 12px; font-weight: 700; color: #047857; background: #e8f9ee; border: 1px solid #a7f3d0; padding: 8px 14px; border-radius: 10px;">
+                                        ID Transaksi: {{ $latestPayment->order_id ?? '-' }}
+                                    </span>
+                                </div>
                             @endif
                         @endif
                     </div>
+
+                    {{-- Informasi Skema Escrow Opsi A --}}
+                    @if($isPaid)
+                        <div style="margin-top: 14px; padding: 10px 14px; background: #f0fdf4; border-radius: 10px; border-left: 4px solid #10b981; font-size: 12px; color: #166534; line-height: 1.5;">
+                            <strong>🛡️ Skema Escrow Terjamin:</strong> Dana proyek sebesar <strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong> telah dikunci di Rekening Bersama SkillConnect. Dana ini aman dan akan otomatis dicairkan ke masing-masing anggota tim setelah proyek diselesaikan dan dievaluasi.
+                        </div>
+                    @else
+                        <div style="margin-top: 14px; padding: 10px 14px; background: #fffbeb; border-radius: 10px; border-left: 4px solid #f59e0b; font-size: 12px; color: #92400e; line-height: 1.5;">
+                            <strong>ℹ️ Info Jaminan Proyek:</strong> Sebagai jaminan bagi para pencari kerja (Member), Creator mengunci 100% dana budget ke Rekening Bersama sistem. Proyek akan resmi berstatus <strong>Berjalan</strong> setelah dana disetorkan.
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Link ke Task Board (MOD-08) --}}
@@ -825,6 +842,42 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     @endphp
     <script src="{{ $snapUrl }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
     <script>
+        function verifikasiPembayaran(orderId, resultData, isPending = false) {
+            const btn = document.getElementById('btnBayarSekarang');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Memverifikasi Dana...';
+            }
+
+            fetch('{{ route("proyek.bayar.sync", $project->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    result: resultData || {}
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.is_paid) {
+                    alert('🎉 Pembayaran Berhasil!\n\nDana proyek Rp {{ number_format($project->budget, 0, ",", ".") }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Proyek kini resmi berstatus BERJALAN!');
+                    window.location.reload();
+                } else if (isPending) {
+                    alert('Menunggu penyelesaian pembayaran. Jika sudah transfer di simulator, halaman akan otomatis memverifikasi saat ditutup/direfresh.');
+                    window.location.reload();
+                } else {
+                    window.location.reload();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                window.location.reload();
+            });
+        }
+
         function bayarProyek() {
             const btn = document.getElementById('btnBayarSekarang');
             if (btn) {
@@ -845,7 +898,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     alert(data.message || 'Gagal memulai pembayaran.');
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang (Midtrans)';
                     }
                     return;
                 }
@@ -853,25 +906,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 // Buka popup Midtrans Snap
                 window.snap.pay(data.snap_token, {
                     onSuccess: function(result) {
-                        alert('Pembayaran berhasil! Dana proyek telah aman tersimpan di Rekening Bersama.');
-                        window.location.reload();
+                        verifikasiPembayaran(data.order_id, result, false);
                     },
                     onPending: function(result) {
-                        alert('Menunggu penyelesaian pembayaran. Silakan selesaikan pembayaran sesuai instruksi.');
-                        window.location.reload();
+                        verifikasiPembayaran(data.order_id, result, true);
                     },
                     onError: function(result) {
-                        alert('Pembayaran gagal atau terjadi kesalahan.');
+                        alert('Pembayaran gagal atau dibatalkan.');
                         if (btn) {
                             btn.disabled = false;
-                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang (Midtrans)';
                         }
                     },
                     onClose: function() {
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
-                        }
+                        // Cek apakah user sudah bayar di simulator saat popup ditutup
+                        verifikasiPembayaran(data.order_id, {}, false);
                     }
                 });
             })
@@ -880,7 +929,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 alert('Terjadi kesalahan jaringan.');
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                    btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang (Midtrans)';
                 }
             });
         }

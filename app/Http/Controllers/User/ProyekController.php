@@ -5,8 +5,10 @@ namespace App\Http\Controllers\User;
 use App\Models\Project;
 use App\Models\Skill;
 use App\Models\User;
+use App\Models\Transaction;
 use App\Services\ExactSkillMatchingService;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\User\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -114,8 +116,11 @@ class ProyekController extends Controller
             ->select('project_member.*', 'users.name', 'users.email', 'users.portofolio')
             ->get();
 
-        // Cek status pembayaran proyek (Midtrans Escrow)
-        $latestPayment = \App\Models\Transaction::where('project_id', $project->id)
+        // Cek status pembayaran proyek (Midtrans Escrow - Opsi A)
+        PaymentController::checkAndSyncProjectPayment($project->id);
+
+        $latestPayment = Transaction::where('project_id', $project->id)
+            ->where('status_pembayaran', '!=', 'batal')
             ->latest()
             ->first();
         $isPaid = $latestPayment && $latestPayment->status_pembayaran === 'lunas';
@@ -385,5 +390,42 @@ class ProyekController extends Controller
             'totalActiveProjects',
             'monthlyFeeData'
         ));
+    }
+
+    /**
+     * Selesaikan Proyek & Cairkan Dana Escrow ke Seluruh Anggota Tim (Opsi A)
+     */
+    public function completeProject(Request $request, $projectId)
+    {
+        $project = Project::with(['tasks', 'members'])->findOrFail($projectId);
+
+        // Hanya creator pemilik proyek atau admin yang boleh menyelesaikan
+        $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
+        if (!$isCreator) {
+            return redirect()->back()->with('error', 'Hanya Creator pemilik proyek yang berwenang menyelesaikan proyek.');
+        }
+
+        // Verifikasi apakah proyek sudah didanai di awal (Escrow Lunas)
+        $isPaid = Transaction::where('project_id', $project->id)
+            ->where('status_pembayaran', 'lunas')
+            ->exists();
+
+        if (!$isPaid) {
+            return redirect()->back()->with('error', 'Proyek belum dapat diselesaikan karena dana proyek (Escrow) belum didanai/lunas oleh Creator.');
+        }
+
+        // Cek apakah masih ada task yang belum selesai
+        $unfinishedTasks = $project->tasks()->where('status_task', '!=', 'Selesai')->count();
+        if ($unfinishedTasks > 0) {
+            return redirect()->back()->with('error', "Masih terdapat {$unfinishedTasks} tugas di papan kerja yang belum selesai. Pastikan seluruh tugas telah ditinjau dan tuntas.");
+        }
+
+        // Ubah status proyek menjadi Selesai
+        $project->update([
+            'status_project' => 'Selesai',
+            'selesai_at'     => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Selamat! Proyek telah resmi ditandai SELESAI. Dana Rekening Bersama (Escrow) telah berhasil dicairkan ke saldo/fee masing-masing anggota tim!');
     }
 }
