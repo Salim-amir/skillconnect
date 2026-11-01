@@ -363,13 +363,15 @@ class ProyekController extends Controller
             + $createdProjects->where('status_project', '!=', 'Selesai')->count();
 
         // 4. GRAFIK PEMASUKAN BULANAN (Portofolio & Keuangan - UC-11)
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+        $monthExpr = $isSqlite ? "CAST(strftime('%m', updated_at) AS INTEGER)" : "MONTH(updated_at)";
         $monthlyFeeData = DB::table('project_member')
             ->where('user_id', $user->id)
             ->where('status_keanggotaan', 'Diterima')
             ->where('peran', '!=', 'Project Creator / Leader')
-            ->whereRaw("strftime('%Y', updated_at) = ?", [now()->year])
-            ->selectRaw("CAST(strftime('%m', updated_at) AS INTEGER) as bulan, SUM(nominal_fee) as total")
-            ->groupByRaw("strftime('%m', updated_at)")
+            ->whereYear('updated_at', now()->year)
+            ->selectRaw("{$monthExpr} as bulan, SUM(nominal_fee) as total")
+            ->groupByRaw($monthExpr)
             ->orderBy('bulan')
             ->get();
 

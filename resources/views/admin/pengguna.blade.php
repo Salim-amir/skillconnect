@@ -398,6 +398,60 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     color: #b00009;
 }
 .nav-item.logout:hover svg { color: #b00009; }
+
+/* ===== PAGINATION ===== */
+.pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 24px;
+    border-top: 1.5px solid #edf0ff;
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: #8f9bd8;
+    font-weight: 600;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    min-width: 36px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #d6d9fb;
+    background: #fff;
+    color: #4b5686;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    transition: .2s;
+}
+
+a.page-btn:hover {
+    background: #f4f6ff;
+    color: #1c2766;
+}
+
+.page-btn.active {
+    background: linear-gradient(90deg,#2b3a8f,#7b6cf6);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 6px 16px -8px rgba(123,108,246,.7);
+}
+
+.page-btn.disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
 </style>
 </head>
 <body>
@@ -465,7 +519,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
         <div class="page-header">
             <h1 class="page-title">Kelola Pengguna</h1>
-            <button type="button" class="btn pri" onclick="openCreateModal()">+ Tambah Pengguna</button>
+            {{-- <button type="button" class="btn pri" onclick="openCreateModal()">+ Tambah Pengguna</button> --}}
         </div>
 
         @if(session('success'))
@@ -498,9 +552,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($users as $user)
+                        @foreach($users as $i => $user)
                         <tr>
-                            <td style="color: #8f9bd8; font-weight: 600;">#{{ $loop->iteration }}</td>
+                            <td style="color: #8f9bd8; font-weight: 600;">#{{ $users->firstItem() + $i }}</td>
                             <td style="font-weight: 700; color: #1c2766;">{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
@@ -533,6 +587,35 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </tbody>
                 </table>
             </div>
+
+            @if($users->hasPages())
+            <div class="pagination-bar">
+                <div class="pagination-info">
+                    Menampilkan {{ $users->firstItem() }}&ndash;{{ $users->lastItem() }} dari {{ $users->total() }} pengguna
+                </div>
+                <div class="pagination-controls">
+                    @if($users->onFirstPage())
+                        <span class="page-btn disabled">&laquo; Sebelumnya</span>
+                    @else
+                        <a href="{{ $users->previousPageUrl() }}" class="page-btn">&laquo; Sebelumnya</a>
+                    @endif
+
+                    @for($p = 1; $p <= $users->lastPage(); $p++)
+                        @if($p == $users->currentPage())
+                            <span class="page-btn active">{{ $p }}</span>
+                        @else
+                            <a href="{{ $users->url($p) }}" class="page-btn">{{ $p }}</a>
+                        @endif
+                    @endfor
+
+                    @if($users->hasMorePages())
+                        <a href="{{ $users->nextPageUrl() }}" class="page-btn">Berikutnya &raquo;</a>
+                    @else
+                        <span class="page-btn disabled">Berikutnya &raquo;</span>
+                    @endif
+                </div>
+            </div>
+            @endif
         </div>
 
     </main>
