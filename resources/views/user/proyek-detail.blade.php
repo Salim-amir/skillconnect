@@ -722,15 +722,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                     </div>
                                     @if($cand->status_keanggotaan === 'Pending')
                                         <div style="display: flex; gap: 8px;">
-                                            <form action="{{ route('proyek.kandidat.status', [$project->id, $cand->application_id]) }}" method="POST" style="display:inline;">
+                                            <form id="formKandidatTolak{{ $cand->application_id }}" action="{{ route('proyek.kandidat.status', [$project->id, $cand->application_id]) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 <input type="hidden" name="action" value="tolak">
-                                                <button type="submit" class="btn-action btn-reject" onclick="return confirm('Tolak lamaran kandidat ini?')">Tolak</button>
+                                                <button type="button" class="btn-action btn-reject" onclick="konfirmasiAksiKandidat({{ $cand->application_id }}, 'tolak', '{{ addslashes($cand->user->name ?? 'Kandidat') }}')">Tolak</button>
                                             </form>
-                                            <form action="{{ route('proyek.kandidat.status', [$project->id, $cand->application_id]) }}" method="POST" style="display:inline;">
+                                            <form id="formKandidatTerima{{ $cand->application_id }}" action="{{ route('proyek.kandidat.status', [$project->id, $cand->application_id]) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 <input type="hidden" name="action" value="terima">
-                                                <button type="submit" class="btn-action btn-accept" onclick="return confirm('Terima kandidat ini ke dalam tim?')">Terima</button>
+                                                <button type="button" class="btn-action btn-accept" onclick="konfirmasiAksiKandidat({{ $cand->application_id }}, 'terima', '{{ addslashes($cand->user->name ?? 'Kandidat') }}')">Terima</button>
                                             </form>
                                         </div>
                                     @endif
@@ -997,6 +997,56 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 }
             });
         }
+
+        let candConfirmCallback = null;
+        function konfirmasiAksiKandidat(appId, action, candidateName) {
+            const modal = document.getElementById('modalCustomConfirmProyek');
+            const title = document.getElementById('confirmProyekTitle');
+            const desc = document.getElementById('confirmProyekDesc');
+            const submitBtn = document.getElementById('btnProyekConfirmAction');
+
+            if (action === 'terima') {
+                title.textContent = 'Terima Kandidat?';
+                desc.textContent = 'Apakah Anda yakin ingin menerima "' + candidateName + '" sebagai anggota tim dalam proyek ini?';
+                submitBtn.textContent = 'Ya, Terima Kandidat';
+                submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                submitBtn.style.boxShadow = '0 4px 14px -3px rgba(16,185,129,.5)';
+                candConfirmCallback = function() {
+                    const f = document.getElementById('formKandidatTerima' + appId);
+                    if (f) f.submit();
+                };
+            } else {
+                title.textContent = 'Tolak Kandidat?';
+                desc.textContent = 'Apakah Anda yakin ingin menolak lamaran dari "' + candidateName + '"?';
+                submitBtn.textContent = 'Ya, Tolak';
+                submitBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                submitBtn.style.boxShadow = '0 4px 14px -3px rgba(239,68,68,.5)';
+                candConfirmCallback = function() {
+                    const f = document.getElementById('formKandidatTolak' + appId);
+                    if (f) f.submit();
+                };
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeProyekConfirm() {
+            document.getElementById('modalCustomConfirmProyek').style.display = 'none';
+            candConfirmCallback = null;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('btnProyekConfirmAction');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    if (typeof candConfirmCallback === 'function') {
+                        const cb = candConfirmCallback;
+                        closeProyekConfirm();
+                        cb();
+                    }
+                });
+            }
+        });
     </script>
     <style>
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -1005,6 +1055,26 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             100% { opacity: 1; transform: scale(1); }
         }
     </style>
+
+    {{-- CUSTOM GENERIC CONFIRM MODAL PROYEK --}}
+    <div id="modalCustomConfirmProyek" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(6px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; width: 100%; max-width: 420px; border-radius: 24px; padding: 32px 26px; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.3); animation: popModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: #e0e7ff; color: #4338ca; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+                <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 id="confirmProyekTitle" style="font-family: 'Fredoka', sans-serif; font-size: 21px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Konfirmasi</h3>
+            <p id="confirmProyekDesc" style="font-size: 13.5px; color: #64748b; line-height: 1.55; margin-bottom: 24px;">Apakah Anda yakin?</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button type="button" onclick="closeProyekConfirm()" style="padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 14px; border: 1.5px solid #e2e8f0; background: #fff; color: #64748b; cursor: pointer; font-family: 'Nunito', sans-serif;">
+                    Batal
+                </button>
+                <button type="button" id="btnProyekConfirmAction" style="padding: 12px 18px; border-radius: 12px; font-weight: 800; font-size: 14px; border: none; color: #fff; cursor: pointer; font-family: 'Nunito', sans-serif;">
+                    Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

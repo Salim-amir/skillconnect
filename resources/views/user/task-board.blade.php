@@ -814,9 +814,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             Semua tugas di papan kerja telah tuntas. Klik tombol di samping untuk menyelesaikan proyek secara resmi dan mencairkan dana Escrow (<strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong>) ke saldo/fee masing-masing anggota tim.
                         </div>
                     </div>
-                    <form action="{{ route('proyek.selesaikan', $project->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menyelesaikan proyek ini? Dana Rekening Bersama (Rp {{ number_format($project->budget, 0, ',', '.') }}) akan resmi dicairkan ke seluruh anggota tim.');">
+                    <form id="formSelesaikanProyek" action="{{ route('proyek.selesaikan', $project->id) }}" method="POST">
                         @csrf
-                        <button type="submit" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; background: linear-gradient(90deg, #16a34a, #15803d); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 14px -3px rgba(22,163,74,.5); font-family: 'Nunito', sans-serif;">
+                        <button type="button" onclick="openSelesaikanProyekModal()" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; background: linear-gradient(90deg, #16a34a, #15803d); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 14px -3px rgba(22,163,74,.5); font-family: 'Nunito', sans-serif;">
                             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                             Selesaikan Proyek & Cairkan Dana Tim
                         </button>
@@ -911,10 +911,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 {{-- Creator: bisa approve, revisi, ubah status --}}
                                 @if($isCreator)
                                     @if($task->status_task === 'Menunggu Review')
-                                        <form action="{{ route('proyek.tasks.status', [$project->id, $task->id]) }}" method="POST" style="display:inline;">
+                                        <form id="formApproveTask{{ $task->id }}" action="{{ route('proyek.tasks.status', [$project->id, $task->id]) }}" method="POST" style="display:inline;">
                                             @csrf @method('PUT')
                                             <input type="hidden" name="status_task" value="Selesai">
-                                            <button type="submit" class="btn-task-action done" onclick="return confirm('Setujui task ini sebagai selesai?')" style="display:inline-flex; align-items:center; gap:4px;">
+                                            <button type="button" class="btn-task-action done" onclick="konfirmasiSetujuiTask({{ $task->id }}, '{{ addslashes($task->nama_task) }}')" style="display:inline-flex; align-items:center; gap:4px;">
                                                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                                 Setujui
                                             </button>
@@ -1324,6 +1324,57 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         }
         @endif
 
+        // Handlers untuk Custom Modal Konfirmasi Selesaikan Proyek & Aksi Task
+        function openSelesaikanProyekModal() {
+            const m = document.getElementById('modalConfirmSelesaikanProyek');
+            if (m) m.style.display = 'flex';
+        }
+        function closeSelesaikanProyekModal() {
+            const m = document.getElementById('modalConfirmSelesaikanProyek');
+            if (m) m.style.display = 'none';
+        }
+        function submitSelesaikanProyek() {
+            const f = document.getElementById('formSelesaikanProyek');
+            if (f) f.submit();
+        }
+
+        let customConfirmCallback = null;
+        function showCustomConfirm(title, desc, onConfirm, btnText = 'Ya, Lanjutkan') {
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalDesc').textContent = desc;
+            document.getElementById('btnConfirmAction').textContent = btnText;
+            customConfirmCallback = onConfirm;
+            document.getElementById('modalCustomConfirm').style.display = 'flex';
+        }
+        function closeCustomConfirm() {
+            document.getElementById('modalCustomConfirm').style.display = 'none';
+            customConfirmCallback = null;
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('btnConfirmAction');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    if (typeof customConfirmCallback === 'function') {
+                        const cb = customConfirmCallback;
+                        closeCustomConfirm();
+                        cb();
+                    }
+                });
+            }
+        });
+
+        function konfirmasiSetujuiTask(taskId, taskName) {
+            showCustomConfirm(
+                'Setujui Task Ini?',
+                'Tandai task "' + taskName + '" sebagai selesai. Task ini akan dipindahkan ke kolom Selesai.',
+                function() {
+                    const f = document.getElementById('formApproveTask' + taskId);
+                    if (f) f.submit();
+                },
+                'Ya, Setujui Selesai'
+            );
+        }
+
         // Close modal on overlay click
         document.querySelectorAll('.modal-overlay').forEach(el => {
             el.addEventListener('click', function(e) {
@@ -1354,6 +1405,56 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <span>Mulai Kerjakan Tugas</span>
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
+        </div>
+    </div>
+
+    {{-- CUSTOM MODAL KONFIRMASI SELESAIKAN PROYEK & PENCAIRAN ESCROW --}}
+    <div id="modalConfirmSelesaikanProyek" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(6px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; width: 100%; max-width: 460px; border-radius: 24px; padding: 34px 28px; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.3); animation: popModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);">
+                <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 style="font-family: 'Fredoka', sans-serif; font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Selesaikan Proyek?</h3>
+            <p style="font-size: 13.5px; color: #64748b; line-height: 1.55; margin-bottom: 20px;">
+                Apakah Anda yakin ingin menyelesaikan proyek ini secara resmi? Seluruh tugas telah tuntas dikerjakan oleh tim Anda.
+            </p>
+
+            <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 16px; padding: 14px 18px; margin-bottom: 24px; text-align: left;">
+                <div style="font-size: 11px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;">Pencairan Dana Rekening Bersama</div>
+                <div style="font-family: 'Fredoka', sans-serif; font-size: 22px; font-weight: 800; color: #047857; margin-bottom: 4px;">Rp {{ number_format($project->budget, 0, ',', '.') }}</div>
+                <div style="font-size: 12px; color: #15803d; line-height: 1.4;">
+                    Dana Escrow akan otomatis dicairkan ke masing-masing anggota tim sesuai porsi kerja dan fee yang disepakati.
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px;">
+                <button type="button" onclick="closeSelesaikanProyekModal()" style="padding: 13px 18px; border-radius: 12px; font-weight: 700; font-size: 14px; border: 1.5px solid #e2e8f0; background: #fff; color: #64748b; cursor: pointer; font-family: 'Nunito', sans-serif;">
+                    Batal
+                </button>
+                <button type="button" onclick="submitSelesaikanProyek()" style="padding: 13px 18px; border-radius: 12px; font-weight: 800; font-size: 14px; border: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; cursor: pointer; box-shadow: 0 4px 14px -3px rgba(16,185,129,.5); font-family: 'Nunito', sans-serif;">
+                    Ya, Selesaikan & Cairkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- CUSTOM GENERIC CONFIRM MODAL (SETUJUI TASK, DLL) --}}
+    <div id="modalCustomConfirm" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(6px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; width: 100%; max-width: 420px; border-radius: 24px; padding: 32px 26px; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.3); animation: popModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div id="confirmModalIconWrap" style="width: 64px; height: 64px; border-radius: 50%; background: #e0e7ff; color: #4338ca; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+                <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 id="confirmModalTitle" style="font-family: 'Fredoka', sans-serif; font-size: 21px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Konfirmasi</h3>
+            <p id="confirmModalDesc" style="font-size: 13.5px; color: #64748b; line-height: 1.55; margin-bottom: 24px;">Apakah Anda yakin?</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button type="button" onclick="closeCustomConfirm()" style="padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 14px; border: 1.5px solid #e2e8f0; background: #fff; color: #64748b; cursor: pointer; font-family: 'Nunito', sans-serif;">
+                    Batal
+                </button>
+                <button type="button" id="btnConfirmAction" style="padding: 12px 18px; border-radius: 12px; font-weight: 800; font-size: 14px; border: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; cursor: pointer; box-shadow: 0 4px 14px -3px rgba(16,185,129,.5); font-family: 'Nunito', sans-serif;">
+                    Ya, Setujui
+                </button>
+            </div>
         </div>
     </div>
 </body>
