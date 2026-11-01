@@ -575,12 +575,18 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
                     {{-- Informasi Skema Escrow Opsi A --}}
                     @if($isPaid)
-                        <div style="margin-top: 14px; padding: 10px 14px; background: #f0fdf4; border-radius: 10px; border-left: 4px solid #10b981; font-size: 12px; color: #166534; line-height: 1.5;">
-                            <strong>🛡️ Skema Escrow Terjamin:</strong> Dana proyek sebesar <strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong> telah dikunci di Rekening Bersama SkillConnect. Dana ini aman dan akan otomatis dicairkan ke masing-masing anggota tim setelah proyek diselesaikan dan dievaluasi.
+                        <div style="margin-top: 14px; padding: 12px 16px; background: #f0fdf4; border-radius: 10px; border-left: 4px solid #10b981; font-size: 12.5px; color: #166534; line-height: 1.5; display: flex; align-items: flex-start; gap: 8px;">
+                            <svg width="18" height="18" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 1px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            <div>
+                                <strong>Skema Escrow Terjamin:</strong> Dana proyek sebesar <strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong> telah dikunci di Rekening Bersama SkillConnect. Dana ini aman dan akan otomatis dicairkan ke masing-masing anggota tim setelah proyek diselesaikan dan dievaluasi.
+                            </div>
                         </div>
                     @else
-                        <div style="margin-top: 14px; padding: 10px 14px; background: #fffbeb; border-radius: 10px; border-left: 4px solid #f59e0b; font-size: 12px; color: #92400e; line-height: 1.5;">
-                            <strong>ℹ️ Info Jaminan Proyek:</strong> Sebagai jaminan bagi para pencari kerja (Member), Creator mengunci 100% dana budget ke Rekening Bersama sistem. Proyek akan resmi berstatus <strong>Berjalan</strong> setelah dana disetorkan.
+                        <div style="margin-top: 14px; padding: 12px 16px; background: #fffbeb; border-radius: 10px; border-left: 4px solid #f59e0b; font-size: 12.5px; color: #92400e; line-height: 1.5; display: flex; align-items: flex-start; gap: 8px;">
+                            <svg width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 1px;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div>
+                                <strong>Info Jaminan Proyek:</strong> Sebagai jaminan bagi para pencari kerja (Member), Creator mengunci 100% dana budget ke Rekening Bersama sistem. Proyek akan resmi berstatus <strong>Berjalan</strong> setelah dana disetorkan.
+                            </div>
                         </div>
                     @endif
                 </div>

@@ -411,7 +411,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
         @if(session('success'))
             <div class="toast-notification" id="toastNotif">
-                {{ session('success') }} 🎉
+                {{ session('success') }}
             </div>
         @endif
 

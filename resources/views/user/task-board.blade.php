@@ -740,8 +740,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <!-- PAYMENT STATUS ESCROW BANNER (OPSI A) -->
         @if($project->status_project === 'Selesai')
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 14px 20px; background: #ecfdf5; border: 2px solid #10b981; border-radius: 14px; margin-bottom: 24px; font-size: 14px; color: #065f46; font-weight: 700; box-shadow: 0 4px 14px -4px rgba(16,185,129,.2);">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 22px;">🏆</span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #d1fae5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="22" height="22" fill="none" stroke="#059669" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
                     <div>
                         <div style="font-size: 15px; font-weight: 800; color: #047857;">Proyek Telah Resmi SELESAI</div>
                         <div style="font-size: 12.5px; font-weight: 500; color: #065f46; margin-top: 2px;">Dana Rekening Bersama (Escrow) sebesar Rp {{ number_format($project->budget, 0, ',', '.') }} telah resmi dicairkan ke masing-masing anggota tim.</div>
@@ -805,7 +807,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px dashed #16a34a; border-radius: 14px; padding: 18px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 14px -4px rgba(22,163,74,.2);">
                     <div>
                         <div style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; color: #15803d;">
-                            <span style="font-size: 20px;">🎉</span> Seluruh Tugas Selesai Dikerjakan!
+                            <svg width="20" height="20" fill="none" stroke="#15803d" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Seluruh Tugas Selesai Dikerjakan!</span>
                         </div>
                         <div style="font-size: 13px; color: #166534; margin-top: 4px; line-height: 1.5;">
                             Semua tugas di papan kerja telah tuntas. Klik tombol di samping untuk menyelesaikan proyek secara resmi dan mencairkan dana Escrow (<strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong>) ke saldo/fee masing-masing anggota tim.
@@ -877,7 +880,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             {{-- Catatan Revisi --}}
                             @if($task->catatan_revisi)
                                 <div class="revision-note">
-                                    <strong>📝 Catatan Revisi:</strong>
+                                    <strong>Catatan Revisi:</strong>
                                     {{ $task->catatan_revisi }}
                                 </div>
                             @endif
@@ -891,11 +894,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                             <form action="{{ route('proyek.tasks.status', [$project->id, $task->id]) }}" method="POST" style="display:inline;">
                                                 @csrf @method('PUT')
                                                 <input type="hidden" name="status_task" value="Sedang Dikerjakan">
-                                                <button type="submit" class="btn-task-action">▶ Mulai Kerjakan</button>
+                                                <button type="submit" class="btn-task-action" style="display:inline-flex; align-items:center; gap:4px;">
+                                                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                                    Mulai Kerjakan
+                                                </button>
                                             </form>
                                         @endif
 
-                                        <button class="btn-task-action upload" onclick="openUploadModal({{ $task->id }})">📎 Upload Bukti</button>
+                                        <button class="btn-task-action upload" onclick="openUploadModal({{ $task->id }})" style="display:inline-flex; align-items:center; gap:4px;">
+                                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                            Upload Bukti
+                                        </button>
                                     @endif
                                 @endif
 
@@ -905,9 +914,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                         <form action="{{ route('proyek.tasks.status', [$project->id, $task->id]) }}" method="POST" style="display:inline;">
                                             @csrf @method('PUT')
                                             <input type="hidden" name="status_task" value="Selesai">
-                                            <button type="submit" class="btn-task-action done" onclick="return confirm('Setujui task ini sebagai selesai?')">✅ Setujui</button>
+                                            <button type="submit" class="btn-task-action done" onclick="return confirm('Setujui task ini sebagai selesai?')" style="display:inline-flex; align-items:center; gap:4px;">
+                                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                                Setujui
+                                            </button>
                                         </form>
-                                        <button class="btn-task-action review" onclick="openRevisionModal({{ $task->id }})">✏️ Minta Revisi</button>
+                                        <button class="btn-task-action review" onclick="openRevisionModal({{ $task->id }})" style="display:inline-flex; align-items:center; gap:4px;">
+                                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            Minta Revisi
+                                        </button>
                                     @endif
                                 @endif
                             </div>
@@ -991,8 +1006,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         @endif
                     </div>
                 @else
-                    <div style="color: var(--mute); font-size: 14px; padding: 20px; text-align: center; background: #f8f9ff; border-radius: 14px; border: 1.5px dashed var(--line);">
-                        <div style="font-size: 32px; margin-bottom: 8px;">⏳</div>
+                    <div style="color: var(--mute); font-size: 14px; padding: 24px 20px; text-align: center; background: #f8f9ff; border-radius: 14px; border: 1.5px dashed var(--line);">
+                        <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                            <svg width="34" height="34" fill="none" stroke="#94a3b8" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
                         <strong>Belum ada penilaian</strong><br>
                         <span style="font-size: 13px;">Creator proyek belum memberikan evaluasi untukmu.</span>
                     </div>
@@ -1006,7 +1023,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     @if($isCreator)
     <div class="modal-overlay" id="modalAddTask">
         <div class="modal-box">
-            <h2 class="modal-title">➕ Tambah Task Baru</h2>
+            <h2 class="modal-title">Tambah Task Baru</h2>
             <form action="{{ route('proyek.tasks.store', $project->id) }}" method="POST">
                 @csrf
                 <div class="form-group">
@@ -1038,7 +1055,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     {{-- MODAL: Upload Bukti Kerja --}}
     <div class="modal-overlay" id="modalUploadBukti">
         <div class="modal-box">
-            <h2 class="modal-title">📎 Upload Bukti Kerja</h2>
+            <h2 class="modal-title">Upload Bukti Kerja</h2>
             <form id="formUploadBukti" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
@@ -1064,7 +1081,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     @if($isCreator)
     <div class="modal-overlay" id="modalRevisi">
         <div class="modal-box">
-            <h2 class="modal-title">✏️ Catatan Revisi</h2>
+            <h2 class="modal-title">Catatan Revisi</h2>
             <form id="formRevisi" method="POST">
                 @csrf
                 <div class="form-group">
@@ -1084,7 +1101,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     @if($isCreator)
     <div class="modal-overlay" id="modalEvaluasi">
         <div class="modal-box">
-            <h2 class="modal-title">⭐ Evaluasi Anggota Tim</h2>
+            <h2 class="modal-title">Evaluasi Anggota Tim</h2>
             <p id="evalMemberName" style="font-size: 14px; color: var(--mute); margin-bottom: 20px;"></p>
             <form id="formEvaluasi" method="POST">
                 @csrf
@@ -1232,7 +1249,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             .then(data => {
                 if (data.is_paid) {
                     showCustomPaymentModalTaskBoard(
-                        'Pembayaran Berhasil! 🎉',
+                        'Pembayaran Berhasil!',
                         'Dana proyek sebesar Rp {{ number_format($project->budget, 0, ",", ".") }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Anda dan tim kini dapat mengerjakan tugas secara aman!',
                         true
                     );
