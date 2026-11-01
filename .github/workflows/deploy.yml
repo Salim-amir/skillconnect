@@ -21,6 +21,18 @@ jobs:
             cd /var/www/skillconnect
             git checkout develop
             git pull origin develop
+
+            # Pastikan konfigurasi Midtrans terpasang di .env server jika belum ada
+            if ! grep -q "MIDTRANS_SERVER_KEY" .env; then
+              echo "" >> .env
+              echo "# MIDTRANS PAYMENT GATEWAY CONFIG" >> .env
+              echo "MIDTRANS_SERVER_KEY=SB-Mid-server-XUkiJWrHJE0C8MVhZogtf64q" >> .env
+              echo "MIDTRANS_CLIENT_KEY=SB-Mid-client-CM2_EtJZ1DUCdxfpumFOm-W0" >> .env
+              echo "MIDTRANS_IS_PRODUCTION=false" >> .env
+              echo "MIDTRANS_IS_SANITIZED=true" >> .env
+              echo "MIDTRANS_IS_3DS=true" >> .env
+            fi
+
             composer install --no-dev --optimize-autoloader
             php artisan migrate --force
             php artisan optimize:clear
