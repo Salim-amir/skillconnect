@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+use Illuminate\Contracts\Auth\CanResetPassword;
 
 class AuthController extends Controller
 {
@@ -15,57 +19,186 @@ class AuthController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
+            'role'     => 'required|in:member,creator',
         ], [
-            'name.required' => 'Nama wajib diisi.',
-            'name.max' => 'Nama maksimal 255 karakter.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'email.unique' => 'Email ini sudah terdaftar.',
-            'password.required' => 'Password wajib diisi.',
-            'password.min' => 'Password minimal harus 8 karakter.',
+            'name.required'      => 'Nama wajib diisi.',
+            'name.max'           => 'Nama maksimal 255 karakter.',
+            'email.required'     => 'Email wajib diisi.',
+            'email.email'        => 'Format email tidak valid.',
+            'email.unique'       => 'Email ini sudah terdaftar.',
+            'password.required'  => 'Password wajib diisi.',
+            'password.min'       => 'Password minimal harus 8 karakter.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'role.required'      => 'Pilih peran akun Anda.',
+            'role.in'            => 'Peran yang dipilih tidak valid.',
         ]);
 
-        $user = User::create([
+        User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'member', // Default role untuk registrasi biasa
+            'role'     => $request->role, // Menyimpan role 'member' atau 'creator' secara dinamis
         ]);
 
-        \Illuminate\Support\Facades\Auth::login($user);
+        // Hapus memori intended URL agar murni mengarah ke halaman login
+        $request->session()->forget('url.intended');
 
-        return redirect('/')->with('success', 'Registrasi berhasil');
+        return redirect('/?role=' . $request->role . '#masuk')->with('success', 'Registrasi berhasil! Silakan masuk dengan akun Anda.');
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
+        $request->validate([
+            'email'      => 'required|email',
+            'password'   => 'required',
+            'login_role' => 'nullable|in:member,creator,admin',
         ], [
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
+            'email.required'    => 'Email wajib diisi.',
+            'email.email'       => 'Format email tidak valid.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
+        // Autentikasi kredensial email & password
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $user = Auth::user();
+            $requestedRole = $request->input('login_role', 'member');
+
+            // Pengecekan kesesuaian role akun secara ketat (strict)
+            if ($user->role !== $requestedRole) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                $roleLabels = [
+                    'admin'   => 'Administrator',
+                    'creator' => 'Creator',
+                    'member'  => 'Member',
+                ];
+
+                $actualRoleLabel = $roleLabels[$user->role] ?? ucfirst($user->role);
+
+                if ($user->role === 'admin') {
+                    $errorMessage = 'Akun ini adalah Administrator. Silakan gunakan tab Admin untuk masuk.';
+                } else {
+                    $errorMessage = 'Akun ini terdaftar sebagai ' . $actualRoleLabel . '. Silakan gunakan tab ' . $actualRoleLabel . ' untuk masuk.';
+                }
+
+                return redirect('/?role=' . $requestedRole . '#masuk')
+                    ->withErrors(['email' => $errorMessage])
+                    ->with('error', $errorMessage)
+                    ->withInput($request->only('email', 'login_role'));
+            }
+
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard')->with('success', 'Login berhasil!');
+            return redirect()->intended('/dashboard')->with('success', 'Login berhasil! Selamat datang kembali.');
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah',
-        ])->onlyInput('email');
+        // Hapus intended URL agar tidak terjebak loop saat login gagal
+        $request->session()->forget('url.intended');
+
+        $requestedRole = $request->input('login_role', 'member');
+        return redirect('/' . ($requestedRole ? '?role=' . $requestedRole : '') . '#masuk')
+            ->withErrors(['email' => 'Email atau kata sandi yang Anda masukkan salah.'])
+            ->with('error', 'Email atau kata sandi salah. Silakan coba lagi.')
+            ->withInput($request->only('email', 'login_role'));
     }
 
     public function logout(Request $request)
     {
-        \Illuminate\Support\Facades\Auth::logout();
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/#masuk')->with('success', 'Anda telah berhasil keluar.');
+    }
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ], [
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email'    => 'Format email tidak valid.',
+        ]);
+
+        /** @var User|null $user */
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return redirect('/#lupa-sandi')
+                ->withErrors(['email' => 'Alamat email ini tidak terdaftar di sistem kami.'])
+                ->withInput($request->only('email', 'is_forgot'));
+        }
+
+        // Generate token pemulihan kata sandi
+        /** @var CanResetPassword $user */
+        $token = Password::createToken($user);
+        $resetUrl = route('password.reset', ['token' => $token, 'email' => $user->email]);
+
+        // Kirim email notification jika mailer aktif
+        try {
+            $user->sendPasswordResetNotification($token);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal mengirim email reset password: ' . $e->getMessage());
+            if (config('mail.default') !== 'log') {
+                return redirect('/#lupa-sandi')
+                    ->withErrors(['email' => 'Gagal mengirim email via SMTP: ' . $e->getMessage()])
+                    ->withInput($request->only('email', 'is_forgot'));
+            }
+        }
+
+        return redirect('/#lupa-sandi')
+            ->with('status', 'Tautan pemulihan kata sandi telah berhasil dikirim ke alamat email Anda!')
+            ->with('reset_url', $resetUrl);
+    }
+
+    public function showResetPasswordForm(Request $request, $token = null)
+    {
+        return view('shared.reset-password', [
+            'token' => $token,
+            'email' => $request->query('email', old('email')),
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token'    => 'required',
+            'email'    => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'token.required'     => 'Token pemulihan kata sandi tidak valid.',
+            'email.required'     => 'Email wajib diisi.',
+            'email.email'        => 'Format email tidak valid.',
+            'password.required'  => 'Kata sandi baru wajib diisi.',
+            'password.min'       => 'Kata sandi minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, string $password) {
+                /** @var User $user */
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                ]);
+
+                if (Schema::hasColumn('users', 'remember_token')) {
+                    $user->setRememberToken(Str::random(60));
+                }
+
+                $user->save();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect('/#masuk')->with('success', 'Kata sandi Anda berhasil diperbarui! Silakan masuk dengan kata sandi baru.');
+        }
+
+        return redirect()->back()
+            ->withErrors(['email' => 'Tautan pemulihan kata sandi tidak valid atau telah kedaluwarsa.'])
+            ->withInput($request->only('email'));
     }
 }

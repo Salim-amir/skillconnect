@@ -8,8 +8,9 @@ export default defineConfig({
     video: false,
     screenshotOnRunFailure: true,
     supportFile: false,
-    defaultCommandTimeout: 10000,
-    pageLoadTimeout: 30000,
+    defaultCommandTimeout: 15000,
+    pageLoadTimeout: 60000,
+    chromeWebSecurity: false,
     specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
   },
 });

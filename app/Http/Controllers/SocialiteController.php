@@ -11,21 +11,33 @@ use Illuminate\Support\Str;
 
 class SocialiteController extends Controller
 {
-    public function redirectToGoogle()
+    public function redirectToGoogle(Request $request)
     {
+        $requestedRole = $request->query('role', 'member');
+        if (!in_array($requestedRole, ['member', 'creator'])) {
+            $requestedRole = 'member';
+        }
+        session(['google_login_role' => $requestedRole]);
+
         return Socialite::driver('google')->redirect();
     }
 
-    public function handleGoogleCallback() //
+    public function handleGoogleCallback(Request $request)
     {
         try {
-            /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
-            $driver = Socialite::driver('google');
+            // PERBAIKAN: Gunakan Guzzle client tanpa merusak instansiasi driver, 
+            // atau jika masih bermasalah di lokal gunakan ->stateless()
+            $googleUser = Socialite::driver('google')
+                ->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))
+                ->stateless() // Menghindari InvalidStateException akibat Mismatch State di Localhost
+                ->user();
 
-            // Set SSL verify false tanpa trigering warning di VS Code
-            $driver->setHttpClient(new \GuzzleHttp\Client(['verify' => false]));
-
-            $googleUser = $driver->user();
+            // Ambil role yang disimpan saat redirect tadi (default: member)
+            $targetRole = session('google_login_role', 'member');
+            if (!in_array($targetRole, ['member', 'creator'])) {
+                $targetRole = 'member';
+            }
+            session()->forget('google_login_role');
 
             // Cari berdasarkan google_id atau email
             $user = User::where('google_id', $googleUser->getId())
@@ -33,10 +45,10 @@ class SocialiteController extends Controller
                         ->first();
 
             if (!$user) {
-                // Tentukan role default
+                // Prioritaskan admin jika email/nama mengandung 'admin'
                 $role = (strtolower($googleUser->getName()) === 'admin' || str_contains(strtolower($googleUser->getEmail()), 'admin')) 
                     ? 'admin' 
-                    : 'user';
+                    : $targetRole;
 
                 $user = User::create([
                     'name'      => $googleUser->getName(),
@@ -50,15 +62,24 @@ class SocialiteController extends Controller
                 if (!$user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
+
+                // Validasi role pengguna lama (Admin dikecualikan)
+                if ($user->role !== 'admin' && $user->role !== $targetRole) {
+                    $roleLabel = ucfirst($user->role);
+                    return redirect()->route('login')
+                        ->with('error', 'Akun Google ini terdaftar sebagai ' . $roleLabel . '. Silakan pilih jenis akun ' . $roleLabel . '.');
+                }
             }
 
             Auth::login($user);
+            $request->session()->regenerate();
 
-            // Redirect ke route 'dashboard'
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard')->with('success', 'Berhasil masuk dengan akun Google!');
 
         } catch (\Exception $e) {
-        return redirect()->route('login')->withErrors(['email' => 'Gagal masuk menggunakan Google. Silakan coba lagi.']);        
+            // PERBAIKAN: Kembalikan ke route('login') agar alert error Blade ter-render sempurna
+            return redirect()->route('login')
+                ->with('error', 'Gagal masuk menggunakan Google: ' . $e->getMessage());
         }
     }
 }

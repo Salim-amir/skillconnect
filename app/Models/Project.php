@@ -40,4 +40,14 @@ class Project extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function latestTransaction()
+    {
+        return $this->hasOne(Transaction::class)->latestOfMany();
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatusHistory;
+use App\Models\Transaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,7 +48,18 @@ class TaskController extends Controller
             'Selesai'           => $project->tasks->where('status_task', 'Selesai'),
         ];
 
-        $isCreator = Auth::id() === $project->creator_id || Auth::user()?->role === 'admin';
+        $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
+
+        // Sinkronisasi & Cek Status Pembayaran Proyek (Midtrans Escrow - Opsi A)
+        \App\Http\Controllers\User\PaymentController::checkAndSyncProjectPayment($project->id);
+        $latestPayment = Transaction::where('project_id', $project->id)->where('status_pembayaran', '!=', 'batal')->latest()->first();
+        $isPaid = $latestPayment && $latestPayment->status_pembayaran === 'lunas';
+
+        // Cegah akses Task Board jika dana proyek belum disetor (Escrow belum lunas)
+        if (!$isPaid && Auth::user()?->role !== 'admin') {
+            return redirect()->route('proyek.detail', $project->id)
+                ->with('error', 'Papan kerja (Task Board) terkunci. Creator wajib mengunci dana proyek sebesar Rp ' . number_format($project->budget, 0, ',', '.') . ' ke Rekening Bersama terlebih dahulu agar tugas dapat dimulai.');
+        }
 
         // Evaluasi milik user yang sedang login (untuk tampilan anggota)
         $myEvaluation = $acceptedMembers->firstWhere('id', Auth::id());
@@ -57,7 +69,9 @@ class TaskController extends Controller
             'tasksByStatus',
             'acceptedMembers',
             'isCreator',
-            'myEvaluation'
+            'myEvaluation',
+            'isPaid',
+            'latestPayment'
         ));
     }
 
@@ -68,8 +82,8 @@ class TaskController extends Controller
     {
         $project = Project::findOrFail($projectId);
 
-        // Hanya creator atau admin yang boleh menambah task
-        if (Auth::id() !== $project->creator_id && Auth::user()?->role !== 'admin') {
+        // Hanya creator pemilik proyek atau admin yang boleh menambah task
+        if ((Auth::user()?->role !== 'creator' || Auth::id() !== $project->creator_id) && Auth::user()?->role !== 'admin') {
             return redirect()->back()->with('error', 'Hanya creator proyek yang dapat menambahkan task.');
         }
 
@@ -131,7 +145,8 @@ class TaskController extends Controller
         ]);
 
         // Hanya pemilik task atau creator yang boleh ubah status
-        if (Auth::id() !== $task->user_id && Auth::id() !== $project->creator_id) {
+        $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
+        if (Auth::id() !== $task->user_id && !$isCreator) {
             return redirect()->back()->with('error', 'Anda tidak memiliki hak untuk mengubah status task ini.');
         }
 
@@ -196,7 +211,8 @@ class TaskController extends Controller
         $project = Project::findOrFail($projectId);
         $task = Task::where('project_id', $project->id)->findOrFail($taskId);
 
-        if (Auth::id() !== $project->creator_id) {
+        $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
+        if (!$isCreator) {
             return redirect()->back()->with('error', 'Hanya creator proyek yang dapat memberikan catatan revisi.');
         }
 
@@ -229,7 +245,8 @@ class TaskController extends Controller
         $project = Project::findOrFail($projectId);
 
         // Hanya creator atau admin yang boleh mengevaluasi
-        if (Auth::id() !== $project->creator_id && Auth::user()?->role !== 'admin') {
+        $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
+        if (!$isCreator) {
             return redirect()->back()->with('error', 'Hanya creator proyek yang dapat memberikan evaluasi.');
         }
 
@@ -272,7 +289,8 @@ class TaskController extends Controller
     private function authorizeProjectMember(Project $project)
     {
         // Creator proyek atau Admin otomatis diizinkan tanpa perlu record di project_member
-        if (Auth::id() === $project->creator_id || Auth::user()?->role === 'admin') {
+        $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
+        if ($isCreator) {
             return;
         }
 

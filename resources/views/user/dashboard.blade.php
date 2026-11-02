@@ -342,55 +342,52 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     0% { opacity: 1; transform: translateX(-50%) translateY(0); }
     100% { opacity: 0; transform: translateX(-50%) translateY(100px); }
 }
+
+@media(max-width: 992px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+    .grid-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 600px) {
+    .grid-stats { grid-template-columns: 1fr; }
+}
+/* ===== INJECTED RESPONSIVE CSS ===== */
+
+@media(max-width: 992px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+    .top-bar { display: none !important; }
+    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .grid-content { grid-template-columns: 1fr !important; }
+    .filter-bar { flex-direction: column !important; align-items: stretch !important; }
+}
+@media(max-width: 600px) {
+    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: 1fr !important; }
+    .search-box, .btn { width: 100% !important; }
+}
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a class="brand" href="/" aria-label="SkillConnect">
-                <svg viewBox="0 0 64 32" fill="none">
-                  <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#4d6bff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient></defs>
-                  <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C52 5 38 5 32 16C26 27 12 27 12 16Z" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
-                </svg>
-                <span>SKILL CONNECT</span>
-            </a>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item active">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                Dashboard
-            </a>
-            <!-- MENU UNTUK USER (MEMBER / CREATOR) -->
-            <a href="{{ route('profile.skill') }}" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                Profil & Skill
-            </a>
-            <a href="{{ route('proyek') }}" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                Cari Proyek
-            </a>
-            <a href="{{ route('proyek.create') }}" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                Buat Proyek
-            </a>
-            <a href="{{ route('proyek.riwayat') }}" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Portofolio & Fee
-            </a>
-        </nav>
-
-        <div style="padding: 20px 16px; border-top: 1.5px solid #f0f2ff; margin-top: auto;">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" style="width: 100%; padding: 12px; background: #fff; border: 1.5px solid #f0e0e5; color: #d80044; border-radius: 10px; font-weight: 700; cursor: pointer; transition: .2s; font-family: 'Nunito', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Keluar Akun
-                </button>
-            </form>
-        </div>
-    </aside>
+    @include('shared.sidebar')
 
 
     <!-- MAIN CONTENT -->

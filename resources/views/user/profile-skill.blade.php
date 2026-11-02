@@ -433,6 +433,184 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     margin-top: 4px;
 }
 
+/* CV Link Styles */
+.cv-link-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8f9ff;
+    border: 2px solid #c4c9f0;
+    border-radius: 14px;
+    padding: 14px 18px;
+    transition: border-color .2s, background .2s;
+}
+.cv-link-input-wrap:focus-within {
+    border-color: #7b6cf6;
+    background: #f0f1ff;
+}
+.cv-link-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #e8e9ff, #d9d6ff);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.cv-link-input-wrap input[type="url"] {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex: 1;
+    font-size: 14px;
+    color: var(--ink);
+    min-width: 0;
+}
+.cv-link-input-wrap input[type="url"]::placeholder {
+    color: #9aa2cc;
+}
+.cv-link-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #fff8e1;
+    border: 1.5px solid #ffe082;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #795400;
+}
+.cv-link-notice svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.cv-file-selected {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: #eefaf2;
+    border: 1.5px solid #a8e6be;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-top: 10px;
+}
+.cv-file-selected.show { display: flex; }
+.cv-file-selected .file-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #d0f0de, #b3e8c7);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.cv-file-selected .file-name {
+    font-weight: 700;
+    color: #0d6e36;
+    font-size: 14px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cv-file-selected .file-size {
+    font-size: 12px;
+    color: #4b9e6b;
+}
+.btn-remove-cv {
+    background: none;
+    border: none;
+    color: #c0392b;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color .2s;
+}
+.btn-remove-cv:hover { color: #e74c3c; }
+
+/* CV Preview Card (Pratinjau) */
+.cv-preview-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f4f1ff;
+    border: 1.5px solid #d6d9fb;
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+.cv-preview-card .cv-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #7b6cf6, #4f5fe0);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.cv-preview-card .cv-meta {
+    flex: 1;
+}
+.cv-preview-card .cv-meta .cv-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #7b6cf6;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.cv-preview-card .cv-meta .cv-name {
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+.cv-preview-card .cv-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.btn-cv-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(90deg, #2b3a8f, #7b6cf6);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: .2s;
+    text-decoration: none;
+}
+.btn-cv-view:hover { opacity: .88; transform: translateY(-1px); }
+.btn-cv-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    background: #fff;
+    color: #2b3a8f;
+    border: 1.5px solid #d6d9fb;
+    cursor: pointer;
+    transition: .2s;
+    text-decoration: none;
+}
+.btn-cv-change:hover { border-color: #7b6cf6; background: #f4f0ff; }
+
 .form-control {
     width: 100%;
     padding: 12px 16px;
@@ -514,75 +692,27 @@ textarea.form-control {
 
 @media(max-width: 992px) {
     .profile-grid { grid-template-columns: 1fr; }
-    .main-content { margin-left: 0; padding: 20px; }
-    .sidebar { display: none; }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+}
+
+@media(max-width: 600px) {
+    .profile-card { padding: 18px; }
+    .form-group-row { flex-direction: column; }
+    .profile-avatar-wrap { flex-direction: column; text-align: center; }
 }
 </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a class="brand" href="/" aria-label="SkillConnect">
-                <svg viewBox="0 0 64 32" fill="none">
-                  <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#4d6bff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient></defs>
-                  <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C52 5 38 5 32 16C26 27 12 27 12 16Z" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
-                </svg>
-                <span>SKILL CONNECT</span>
-            </a>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                Dashboard
-            </a>
-            
-            @if(auth()->check() && auth()->user()->role === 'admin')
-                <!-- MENU UNTUK ADMIN -->
-                <a href="/pengguna" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    Pengguna
-                </a>
-                <a href="/proyek" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                    Proyek
-                </a>
-                <a href="/transaksi" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                    Transaksi
-                </a>
-                <a href="/laporan" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Laporan
-                </a>
-            @else
-                <!-- MENU UNTUK USER MEMBER / CREATOR -->
-                <a href="{{ route('profile.skill') }}" class="nav-item active">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    Profil & Skill
-                </a>
-                <a href="{{ route('proyek') }}" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                    Cari Proyek
-                </a>
-                <a href="{{ route('proyek.create') }}" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                    Buat Proyek
-                </a>
-            @endif
-        </nav>
-
-        <div class="sidebar-footer">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn-logout">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Keluar Akun
-                </button>
-            </form>
-        </div>
-    </aside>
+    <!-- SHARED UNIFIED SIDEBAR -->
+    @include('shared.sidebar')
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
@@ -660,10 +790,17 @@ textarea.form-control {
                 </div>
 
                 <div class="info-row">
-                    <label>Tentang & Pengalaman</label>
-                    <div class="val">
-                        {{ $user->pengalaman ?: 'Belum mengisi deskripsi pengalaman. Lengkapi di formulir sebelah kanan.' }}
-                    </div>
+                    <label>Tautan CV</label>
+                    @if($user->cv_path)
+                        <a href="{{ $user->cv_path }}" target="_blank" rel="noopener noreferrer" class="link-portfolio">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                            {{ $user->cv_path }}
+                        </a>
+                    @else
+                        <div class="val" style="color: #9aa2cc; font-style: italic; font-size: 14px;">
+                            Belum ada tautan CV.
+                        </div>
+                    @endif
                 </div>
 
                 <div class="info-row">
@@ -751,10 +888,40 @@ textarea.form-control {
                         <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $user->name) }}" required placeholder="Contoh: Budi Pratama">
                     </div>
 
-                    <div class="form-group">
-                        <label for="pengalaman">Deskripsi Pengalaman & Bio</label>
-                        <textarea id="pengalaman" name="pengalaman" class="form-control" placeholder="Jelaskan bidang keahlian, pengalaman proyek yang pernah dikerjakan, dan tools yang dikuasai...">{{ old('pengalaman', $user->pengalaman) }}</textarea>
-                        <div class="hint">Deskripsi ini akan dilihat oleh Project Creator saat Anda melamar proyek.</div>
+                    {{-- CV Link Section --}}
+                    <div class="form-group" id="cv-upload-section">
+                        <label for="cv_link">
+                            Tautan CV (Google Drive) <span class="req">*</span>
+                        </label>
+
+                        {{-- Input link Google Drive --}}
+                        <div class="cv-link-input-wrap">
+                            <div class="cv-link-icon">
+                                <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                            </div>
+                            <input type="url" id="cv_link" name="cv_link"
+                                class="form-control"
+                                style="border:none; outline:none; background:transparent; flex:1; padding:0;"
+                                value="{{ old('cv_link', $user->cv_path) }}"
+                                placeholder="https://drive.google.com/file/d/..."
+                                required>
+                        </div>
+
+                        {{-- Peringatan akses publik --}}
+                        <div class="cv-link-notice" style="margin-top: 10px;">
+                            <svg width="16" height="16" fill="none" stroke="#b45309" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                            </svg>
+                            <span>
+                                <strong>Penting:</strong> Pastikan Tautan Google Drive Anda sudah diatur agar
+                                <strong>dapat diakses oleh semua orang</strong> (Anyone with the link → Viewer),
+                                sehingga Project Creator dapat membuka CV Anda.
+                            </span>
+                        </div>
+
+                        <div class="hint" style="margin-top: 8px;">
+                            Tautan CV ini akan ditampilkan di profil Anda dan dapat dilihat oleh Project Creator.
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -789,6 +956,8 @@ textarea.form-control {
         </div>
 
     </main>
+
+
 
 </body>
 </html>

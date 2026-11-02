@@ -505,6 +505,46 @@ button { font-family: inherit; }
     0% { opacity: 1; transform: translateX(-50%) translateY(0); }
     100% { opacity: 0; transform: translateX(-50%) translateY(100px); }
 }
+
+/* ===== RESPONSIVE MOBILE OPTIMIZATIONS ===== */
+@media(max-width: 992px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+    .grid-stats { grid-template-columns: repeat(2, 1fr); }
+    .grid-content { grid-template-columns: 1fr; }
+}
+
+@media(max-width: 600px) {
+    .grid-stats { grid-template-columns: 1fr; }
+    .welcome-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px 18px;
+    }
+    .welcome-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    .btn-banner-pri, .btn-banner-sec {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    .project-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+}
 </style>
 </head>
 <body>

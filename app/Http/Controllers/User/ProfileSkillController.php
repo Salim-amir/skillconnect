@@ -49,7 +49,7 @@ class ProfileSkillController extends Controller
         // Validasi input, format tautan, dan kelengkapan data sesuai diagram
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
-            'pengalaman'  => 'nullable|string|max:1000',
+            'cv_link'     => 'required|url|max:500',
             'portofolio'  => 'nullable|url|max:255',
             'skill_id'    => 'nullable|array',
             'skill_id.*'  => 'nullable|exists:skills,id',
@@ -58,17 +58,22 @@ class ProfileSkillController extends Controller
             'custom_skill'=> 'nullable|string|max:50',
             'custom_level'=> 'nullable|in:Beginner,Intermediate,Advanced',
         ], [
-            'name.required'     => 'Nama lengkap wajib diisi.',
-            'portofolio.url'    => 'Tautan bukti portofolio harus berupa URL yang valid (misal: https://github.com/username).',
-            'level.*.in'        => 'Tingkat keahlian harus Beginner, Intermediate, atau Advanced.',
+            'name.required'    => 'Nama lengkap wajib diisi.',
+            'cv_link.required' => 'Tautan CV wajib diisi.',
+            'cv_link.url'      => 'Link CV harus berupa URL yang valid (misal: https://drive.google.com/...).',
+            'portofolio.url'   => 'Tautan bukti portofolio harus berupa URL yang valid (misal: https://github.com/username).',
+            'level.*.in'       => 'Tingkat keahlian harus Beginner, Intermediate, atau Advanced.',
         ]);
 
         DB::beginTransaction();
         try {
-            // 1. Perbarui data pada tabel users (name, pengalaman, portofolio)
+            // Simpan link CV yang selalu wajib diisi
+            $cvPath = $validated['cv_link'];
+
+            // 1. Perbarui data pada tabel users (name, cv_path, portofolio)
             $user->update([
                 'name'       => $validated['name'],
-                'pengalaman' => $validated['pengalaman'] ?? null,
+                'cv_path'    => $cvPath,
                 'portofolio' => $validated['portofolio'] ?? null,
             ]);
 
