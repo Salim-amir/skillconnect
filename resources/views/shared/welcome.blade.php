@@ -1225,9 +1225,172 @@
             }
         }
 
+        .header-mobile-actions {
+            display: none;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+            width: 38px;
+            height: 38px;
+            background: #fff;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            cursor: pointer;
+            padding: 0;
+            transition: all .2s ease;
+            box-shadow: 0 2px 8px rgba(123, 108, 246, 0.08);
+        }
+
+        .mobile-menu-btn:hover,
+        .mobile-menu-btn:focus-visible {
+            border-color: var(--violet);
+            background: #f8f9ff;
+        }
+
+        .mobile-menu-btn .bar {
+            width: 18px;
+            height: 2px;
+            background: var(--ink);
+            border-radius: 2px;
+            transition: all .25s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: center;
+        }
+
+        .mobile-menu-btn.active .bar1 {
+            transform: translateY(6px) rotate(45deg);
+        }
+
+        .mobile-menu-btn.active .bar2 {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .mobile-menu-btn.active .bar3 {
+            transform: translateY(-6px) rotate(-45deg);
+        }
+
+        .btn-mobile-masuk {
+            padding: 7px 14px !important;
+            font-size: 13px !important;
+            border-radius: 8px !important;
+            font-weight: 700 !important;
+        }
+
+        .landing-mobile-menu {
+            display: none;
+            position: fixed;
+            top: calc(56px + env(safe-area-inset-top, 0px));
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--line);
+            border-radius: 0 0 18px 18px;
+            padding: 16px 18px 20px;
+            box-shadow: 0 16px 36px -10px rgba(28, 39, 102, 0.16);
+            z-index: 99;
+            opacity: 0;
+            transform: translateY(-12px);
+            pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .landing-mobile-menu.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .landing-mobile-menu-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 14.5px;
+            text-decoration: none;
+            transition: .2s;
+            background: #f8f9ff;
+            border: 1px solid #edf0ff;
+        }
+
+        .mobile-nav-link:hover,
+        .mobile-nav-link:active {
+            background: #ece8ff;
+            color: var(--violet);
+            border-color: #d6d0ff;
+        }
+
+        .mobile-nav-link svg {
+            color: var(--violet);
+            flex-shrink: 0;
+        }
+
+        .mobile-nav-divider {
+            height: 1px;
+            background: var(--line);
+            margin: 4px 0;
+        }
+
+        .mobile-nav-auth {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mobile-nav-auth .btn {
+            width: 100%;
+            text-align: center;
+            padding: 11px 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .landing-menu-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            top: calc(56px + env(safe-area-inset-top, 0px));
+            background: rgba(15, 23, 42, 0.35);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 98;
+            opacity: 0;
+            transition: opacity .25s ease;
+            pointer-events: none;
+        }
+
+        .landing-menu-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .auth .header-mobile-actions,
+        .auth .landing-mobile-menu,
+        .auth .landing-menu-backdrop {
+            display: none !important;
+        }
+
         @media(max-width:820px) {
             header {
                 padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
+                z-index: 100;
             }
 
             .brand {
@@ -1240,17 +1403,26 @@
                 height: 18px;
             }
 
-            nav .lk {
-                display: none
+            nav.desktop-nav {
+                display: none !important;
             }
 
-            nav {
-                gap: 8px
+            .header-mobile-actions {
+                display: flex !important;
+                align-items: center;
+                gap: 8px;
             }
 
-            nav .btn {
-                padding: 8px 14px;
-                font-size: 13px;
+            .mobile-menu-btn {
+                display: inline-flex !important;
+            }
+
+            .landing-mobile-menu {
+                display: block;
+            }
+
+            .landing-menu-backdrop {
+                display: block;
             }
 
             .hero {
@@ -1337,13 +1509,45 @@
             </svg>
             <span>SKILL CONNECT</span>
         </a>
-        <nav>
+        <nav class="desktop-nav">
             <a class="lk" href="#fitur">Fitur Utama</a>
             <a class="lk" href="#katalog">Katalog Proyek Publik</a>
             <a class="btn ghost" href="#masuk" data-open="l">Masuk</a>
             <a class="btn pri" href="#daftar" data-open="r">Daftar</a>
         </nav>
+        <div class="header-mobile-actions">
+            <a class="btn ghost btn-mobile-masuk" href="#masuk" data-open="l">Masuk</a>
+            <button class="mobile-menu-btn" id="landingMenuToggle" onclick="toggleLandingMenu()" aria-label="Buka navigasi menu" aria-expanded="false">
+                <span class="bar bar1"></span>
+                <span class="bar bar2"></span>
+                <span class="bar bar3"></span>
+            </button>
+        </div>
     </header>
+
+    <!-- MOBILE NAV DRAWER & BACKDROP -->
+    <div class="landing-mobile-menu" id="landingMobileMenu">
+        <div class="landing-mobile-menu-inner">
+            <a class="mobile-nav-link" href="#fitur" onclick="closeLandingMenu()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span>Fitur Utama</span>
+            </a>
+            <a class="mobile-nav-link" href="#katalog" onclick="closeLandingMenu()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                <span>Katalog Proyek Publik</span>
+            </a>
+            <div class="mobile-nav-divider"></div>
+            <div class="mobile-nav-auth">
+                <a class="btn ghost mobile-nav-btn" href="#masuk" data-open="l" onclick="closeLandingMenu()">
+                    Masuk ke Akun
+                </a>
+                <a class="btn pri mobile-nav-btn" href="#daftar" data-open="r" onclick="closeLandingMenu()">
+                    Daftar Sekarang
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="landing-menu-backdrop" id="landingMenuBackdrop" onclick="closeLandingMenu()"></div>
 
     <div class="hero">
         <span class="blob" style="width:280px;height:280px;left:46%;top:4%;background:#a99bff"></span><span
@@ -2450,7 +2654,36 @@
                 return root.classList.contains('auth')
             }
 
+            window.toggleLandingMenu = function() {
+                var btn = document.getElementById('landingMenuToggle');
+                var menu = document.getElementById('landingMobileMenu');
+                var backdrop = document.getElementById('landingMenuBackdrop');
+                if (!btn || !menu) return;
+                var isOpen = menu.classList.contains('open');
+                if (isOpen) {
+                    window.closeLandingMenu();
+                } else {
+                    menu.classList.add('open');
+                    if (backdrop) backdrop.classList.add('open');
+                    btn.classList.add('active');
+                    btn.setAttribute('aria-expanded', 'true');
+                }
+            };
+
+            window.closeLandingMenu = function() {
+                var btn = document.getElementById('landingMenuToggle');
+                var menu = document.getElementById('landingMobileMenu');
+                var backdrop = document.getElementById('landingMenuBackdrop');
+                if (menu) menu.classList.remove('open');
+                if (backdrop) backdrop.classList.remove('open');
+                if (btn) {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            };
+
             function open(w, inst) {
+                if (typeof window.closeLandingMenu === 'function') window.closeLandingMenu();
                 if (!isAuth()) {
                     window.scrollTo({
                         top: 0,
