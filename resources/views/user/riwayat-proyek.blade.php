@@ -383,7 +383,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             <div class="user-profile">
                 <div class="user-info">
                     <div class="name">{{ $user->name }}</div>
-                    <div class="role">Member / Creator</div>
+                    <div class="role">
+                        @if(auth()->check() && auth()->user()->role === 'creator')
+                            Project Creator
+                        @elseif(auth()->check() && auth()->user()->role === 'member')
+                            Project Member
+                        @else
+                            {{ ucfirst($user->role ?? 'User') }}
+                        @endif
+                    </div>
                 </div>
                 <div class="avatar">{{ substr($user->name, 0, 1) }}</div>
             </div>

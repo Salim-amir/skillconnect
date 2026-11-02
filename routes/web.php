@@ -64,7 +64,16 @@ Route::middleware('auth')->group(function () {
         }
 
         // Jika User Biasa -> Tampilkan User Dashboard (user/dashboard.blade.php)
-        return view('user.dashboard');
+        $myApplications = DB::table('project_member')
+            ->join('projects', 'project_member.project_id', '=', 'projects.id')
+            ->leftJoin('users', 'projects.creator_id', '=', 'users.id')
+            ->where('project_member.user_id', $currentUser->id)
+            ->select('project_member.*', 'projects.judul_project', 'users.name as creator_name')
+            ->latest('project_member.created_at')
+            ->take(5)
+            ->get();
+
+        return view('user.dashboard', compact('myApplications'));
     })->name('dashboard');
 
 });

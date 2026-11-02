@@ -292,12 +292,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     box-shadow: 0 10px 40px -8px rgba(124, 140, 248, 0.45);
     opacity: 0;
     animation: toastSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-               toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) 3s forwards;
+               toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) 3.5s forwards;
     display: flex;
     align-items: center;
     gap: 8px;
     text-align: center;
     letter-spacing: 0.3px;
+    pointer-events: none;
+}
+.toast-notification.toast-error {
+    background: linear-gradient(135deg, #f87171, #f43f5e);
+    box-shadow: 0 10px 40px -8px rgba(248, 113, 113, 0.45);
 }
 
 @keyframes toastSlideUp {
@@ -373,11 +378,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             </div>
         </header>
 
-        @if(session('success'))
-            <div class="toast-notification" id="toastNotif">
-                {{ session('success') }} 🎉
-            </div>
-        @endif
+        {{-- Toast notifications are rendered as fixed bottom popups --}}
 
         <!-- ===================== ADMIN DASHBOARD ===================== -->
         <h1 class="page-title">Dashboard Admin</h1>
@@ -442,13 +443,26 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
     </main>
 
+    @if(session('success'))
+        <div class="toast-notification" id="toastNotif">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="toast-notification toast-error" id="toastNotif">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ session('error') }}
+        </div>
+    @endif
+
 <script>
     // Auto-remove toast dari DOM setelah animasi selesai
     const toast = document.getElementById('toastNotif');
     if (toast) {
         setTimeout(() => {
             toast.remove();
-        }, 3500);
+        }, 4000);
     }
 </script>
 </body>

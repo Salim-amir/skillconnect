@@ -594,7 +594,15 @@ textarea.form-control {
             <div class="user-profile">
                 <div class="user-info">
                     <div class="name">{{ $user->name }}</div>
-                    <div class="role">{{ ucfirst($user->role) }} • Member / Creator</div>
+                    <div class="role">
+                        @if($user->role === 'creator')
+                            Project Creator
+                        @elseif($user->role === 'member')
+                            Project Member
+                        @else
+                            {{ ucfirst($user->role) }}
+                        @endif
+                    </div>
                 </div>
                 <div class="avatar">{{ substr($user->name, 0, 1) }}</div>
             </div>

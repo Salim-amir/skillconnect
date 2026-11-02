@@ -321,8 +321,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     <div class="role">
                         @if(auth()->check() && auth()->user()->role === 'admin')
                             Administrator
+                        @elseif(auth()->check() && auth()->user()->role === 'creator')
+                            Project Creator
+                        @elseif(auth()->check() && auth()->user()->role === 'member')
+                            Project Member
                         @else
-                            Project Creator & Member
+                            {{ ucfirst(auth()->user()->role ?? 'User') }}
                         @endif
                     </div>
                 </div>
