@@ -437,8 +437,36 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
 @media(max-width: 992px) {
     .detail-grid { grid-template-columns: 1fr; }
-    .main-content { margin-left: 0; padding: 20px; }
-    .sidebar { display: none; }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+}
+
+@media(max-width: 600px) {
+    .candidate-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .candidate-actions {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+    }
+    .candidate-actions form,
+    .candidate-actions button {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+    }
+    .detail-card {
+        padding: 18px;
+    }
 }
 </style>
 </head>

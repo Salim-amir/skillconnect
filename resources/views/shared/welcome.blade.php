@@ -1190,7 +1190,7 @@
             }
 
             .auth .copy {
-                position: absolute
+                display: none !important;
             }
 
             .acard {
@@ -1198,15 +1198,16 @@
                 top: auto;
                 left: 50%;
                 transform: translate(-50%, 40px);
-                padding: 26px 22px
+                padding: 24px 20px;
+                width: min(480px, 94vw);
             }
 
             .auth .acard {
                 position: relative;
                 left: auto;
-                margin: 290px auto 30px;
+                margin: 76px auto 30px;
                 transform: none;
-                width: min(520px, 90%);
+                width: min(480px, 94vw);
                 height: auto;
                 max-height: none
             }
@@ -1225,18 +1226,56 @@
         }
 
         @media(max-width:820px) {
+            header {
+                padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
+            }
+
+            .brand {
+                font-size: 16px;
+                gap: 8px;
+            }
+
+            .brand svg {
+                width: 36px;
+                height: 18px;
+            }
+
             nav .lk {
                 display: none
             }
 
             nav {
-                gap: 10px
+                gap: 8px
+            }
+
+            nav .btn {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+
+            .hero {
+                min-height: 560px;
             }
 
             .copy {
                 max-width: none;
-                justify-content: flex-end;
-                padding-bottom: 11vh
+                justify-content: center;
+                padding: 80px 20px 40px;
+            }
+
+            h1 {
+                font-size: clamp(30px, 8vw, 44px);
+            }
+
+            .cta {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .cta .btn {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
             }
 
             .hint {
@@ -1249,7 +1288,25 @@
             }
 
             .copy p {
-                font-size: 16px
+                font-size: 15px;
+                margin: 16px 0 24px;
+            }
+
+            section {
+                padding: 60px 20px;
+            }
+        }
+
+        @media(max-width:480px) {
+            .role-switch button span {
+                font-size: 11.5px;
+            }
+            .role-switch button svg {
+                width: 14px;
+                height: 14px;
+            }
+            .acard {
+                padding: 18px 16px 14px;
             }
         }
 

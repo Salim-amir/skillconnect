@@ -320,10 +320,38 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     border-color: #7b6cf6;
 }
 
+#tab-joined, #tab-created {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.history-table {
+    min-width: 600px;
+}
+
 @media(max-width: 992px) {
     .fee-boxes-grid { grid-template-columns: 1fr; }
-    .main-content { margin-left: 0; padding: 20px; }
-    .sidebar { display: none; }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+}
+
+@media(max-width: 600px) {
+    .tabs-nav {
+        flex-direction: column;
+        gap: 6px;
+    }
+    .tab-btn {
+        width: 100%;
+        text-align: center;
+    }
+    .history-section {
+        padding: 16px;
+    }
 }
 </style>
 </head>

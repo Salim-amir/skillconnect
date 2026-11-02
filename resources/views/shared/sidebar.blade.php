@@ -118,8 +118,135 @@
     border-color: #fda4af;
 }
 
+/* ===== MOBILE TOP BAR (SHOWN ON <= 992px) ===== */
+.mobile-top-bar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1.5px solid #e0e3fa;
+    z-index: 990;
+    padding: 0 16px;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(80, 70, 200, 0.05);
+}
+
+.mobile-toggle-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1.5px solid #e0e3fa;
+    background: #f8f9ff;
+    color: #1c2766;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .2s;
+}
+.mobile-toggle-btn:active {
+    background: #eef1ff;
+    transform: scale(0.95);
+}
+
+.mobile-user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 3px 8px rgba(123, 108, 246, 0.35);
+}
+
+.sidebar-close-btn {
+    display: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .2s;
+    margin-left: auto;
+}
+.sidebar-close-btn:active {
+    background: #e2e8f0;
+}
+
+/* ===== SIDEBAR BACKDROP OVERLAY ===== */
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.sidebar-backdrop.show {
+    display: block;
+    opacity: 1;
+}
+
 @media(max-width: 992px) {
-    .sidebar { display: none; }
+    .mobile-top-bar {
+        display: flex;
+    }
+    .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        width: min(300px, 84vw) !important;
+        z-index: 9999 !important;
+        background: #fff !important;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        display: flex !important;
+        box-shadow: 0 0 50px rgba(15, 23, 42, 0.25) !important;
+    }
+    .sidebar.open {
+        transform: translateX(0) !important;
+    }
+    .sidebar-close-btn {
+        display: flex;
+    }
+    .sidebar-header {
+        justify-content: space-between;
+        padding: 16px 18px;
+    }
+    /* Auto adjust all content on mobile */
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important; /* space for fixed mobile topbar */
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+    .top-bar {
+        display: none !important;
+    }
 }
 
 /* ===== LOGOUT CONFIRMATION MODAL ===== */
@@ -239,6 +366,26 @@
 }
 </style>
 
+<!-- MOBILE TOP BAR -->
+<header class="mobile-top-bar">
+    <button type="button" class="mobile-toggle-btn" onclick="toggleMobileSidebar()" aria-label="Buka Menu">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a class="brand" href="/" aria-label="SkillConnect" style="text-decoration:none; display:flex; align-items:center; gap:8px;">
+        <svg viewBox="0 0 64 32" fill="none" style="width:36px; height:18px;">
+          <defs><linearGradient id="sb_g_mob" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4d6bff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient></defs>
+          <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C52 5 38 5 32 16C26 27 12 27 12 16Z" stroke="url(#sb_g_mob)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span style="font-family:'Fredoka',sans-serif; font-size:16px; font-weight:700; background:linear-gradient(90deg, #1c2766, #7b6cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">SKILL CONNECT</span>
+    </a>
+    <div class="mobile-user-avatar">
+        {{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}
+    </div>
+</header>
+
+<!-- BACKDROP OVERLAY UNTUK MOBILE DRAWER -->
+<div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+
 <!-- SIDEBAR -->
 <aside class="sidebar">
     <div class="sidebar-header">
@@ -249,6 +396,9 @@
             </svg>
             <span>SKILL CONNECT</span>
         </a>
+        <button type="button" class="sidebar-close-btn" onclick="closeMobileSidebar()" aria-label="Tutup Menu">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
     </div>
 
     <nav class="sidebar-nav">
@@ -349,6 +499,25 @@
 </div>
 
 <script>
+function toggleMobileSidebar() {
+    const sb = document.querySelector('.sidebar');
+    const bd = document.getElementById('sidebarBackdrop');
+    if (sb && bd) {
+        sb.classList.toggle('open');
+        bd.classList.toggle('show');
+        document.body.style.overflow = sb.classList.contains('open') ? 'hidden' : '';
+    }
+}
+function closeMobileSidebar() {
+    const sb = document.querySelector('.sidebar');
+    const bd = document.getElementById('sidebarBackdrop');
+    if (sb && bd) {
+        sb.classList.remove('open');
+        bd.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+
 function openLogoutModal() {
     const modal = document.getElementById('logoutModal');
     if (modal) {

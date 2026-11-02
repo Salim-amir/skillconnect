@@ -578,11 +578,47 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 @media(max-width: 1200px) {
     .kanban-board { grid-template-columns: repeat(2, 1fr); }
 }
+
+@media(max-width: 992px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+    .board-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+    .board-header-row button,
+    .board-header-row a {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 @media(max-width: 768px) {
     .kanban-board { grid-template-columns: 1fr; }
-    .main-content { margin-left: 0; padding: 20px; }
-    .sidebar { display: none; }
-    .task-stats-row { flex-direction: column; }
+    .task-stats-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .eval-section {
+        padding: 20px 16px;
+    }
+    .eval-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 480px) {
+    .task-stats-row {
+        grid-template-columns: 1fr;
+    }
 }
 /* ===== MOD-09: EVALUASI ===== */
 .eval-section {
