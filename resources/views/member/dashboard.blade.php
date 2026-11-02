@@ -544,7 +544,6 @@ button { font-family: inherit; }
         gap: 12px;
     }
 }
-}
 </style>
 </head>
 <body>
