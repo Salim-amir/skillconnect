@@ -575,8 +575,12 @@ a.page-btn:hover {
                     <div class="role">
                         @if(auth()->check() && auth()->user()->role === 'admin')
                             Administrator
+                        @elseif(auth()->check() && auth()->user()->role === 'creator')
+                            Project Creator
+                        @elseif(auth()->check() && auth()->user()->role === 'member')
+                            Project Member
                         @else
-                            Project Creator &amp; Member
+                            {{ ucfirst(auth()->user()->role ?? 'User') }}
                         @endif
                     </div>
                 </div>

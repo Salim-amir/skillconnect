@@ -212,9 +212,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
 .grid-content {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     margin-bottom: 24px;
+}
+
+.card.full-width {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+    .grid-content {
+        grid-template-columns: 1fr;
+    }
+    .grid-stats {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Task & List Items */
@@ -290,27 +303,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     color: #1c2766;
 }
 
-/* Chart Placeholder */
-.chart-placeholder {
-    width: 100%;
-    height: 220px;
-    background: repeating-linear-gradient(
-        45deg,
-        #f4f6ff,
-        #f4f6ff 10px,
-        #ffffff 10px,
-        #ffffff 20px
-    );
-    border: 1.5px dashed #d6d9fb;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #8f9bd8;
-    font-weight: 600;
-    font-family: 'Fredoka', sans-serif;
-}
-
 /* ===== Toast Notification ===== */
 .toast-notification {
     position: fixed;
@@ -328,12 +320,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     box-shadow: 0 10px 40px -8px rgba(124, 140, 248, 0.45);
     opacity: 0;
     animation: toastSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-               toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) 3s forwards;
+               toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) 3.5s forwards;
     display: flex;
     align-items: center;
     gap: 8px;
     text-align: center;
     letter-spacing: 0.3px;
+    pointer-events: none;
+}
+.toast-notification.toast-error {
+    background: linear-gradient(135deg, #f87171, #f43f5e);
+    box-shadow: 0 10px 40px -8px rgba(248, 113, 113, 0.45);
 }
 
 @keyframes toastSlideUp {
@@ -400,17 +397,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             <div class="user-profile">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Nama Pengguna' }}</div>
-                    <div class="role">Project Creator & Member</div>
+                    <div class="role">
+                        @if(auth()->check() && auth()->user()->role === 'creator')
+                            Project Creator
+                        @elseif(auth()->check() && auth()->user()->role === 'member')
+                            Project Member
+                        @else
+                            {{ ucfirst(auth()->user()->role ?? 'User') }}
+                        @endif
+                    </div>
                 </div>
                 <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}</div>
             </div>
         </header>
 
-        @if(session('success'))
-            <div class="toast-notification" id="toastNotif">
-                {{ session('success') }}
-            </div>
-        @endif
+        {{-- Toast notifications are rendered as fixed bottom popups --}}
 
         <!-- ===================== USER DASHBOARD ===================== -->
         <h1 class="page-title">Dashboard Pengguna</h1>
@@ -431,15 +432,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             </div>
         </div>
 
-        <!-- 2 MIDDLE CARDS (CHART & TASKS) -->
+        <!-- DASHBOARD CARDS GRID -->
         <div class="grid-content">
-            <div class="card">
-                <div class="card-title">Grafik Pemasukan</div>
-                <div class="chart-placeholder">
-                    [ Area Chart Pemasukan ]
-                </div>
-            </div>
             
+            <!-- Tugas Mendekati Deadline -->
             <div class="card">
                 <div class="card-title">Tugas Mendekati Deadline</div>
                 <div class="task-list">
@@ -466,58 +462,98 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 2 BOTTOM CARDS (INCOME DETAILS & INVITATIONS) -->
-        <div class="grid-content">
+            <!-- Status Pendaftaran Proyek -->
             <div class="card">
-                <div class="card-title">Rincian Pemasukan Terakhir</div>
-                <div class="income-list">
-                    <div class="list-item">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div class="card-title" style="margin-bottom: 0;">Status Pendaftaran Proyek</div>
+                    <a href="{{ route('proyek') }}" style="font-size: 13px; font-weight: 700; color: #7b6cf6; text-decoration: none;">Cari Proyek &rarr;</a>
+                </div>
+                <div class="application-list">
+                    @if(isset($myApplications) && $myApplications->count() > 0)
+                        @foreach($myApplications as $app)
+                            <div class="list-item">
+                                <div class="task-info">
+                                    <h4>{{ $app->judul_project }}</h4>
+                                    <p>Creator: {{ $app->creator_name ?? 'Project Creator' }} &bull; Posisi: {{ $app->peran }}</p>
+                                </div>
+                                <div>
+                                    @if($app->status_keanggotaan === 'Diterima')
+                                        <span class="badge success">Diterima</span>
+                                    @elseif($app->status_keanggotaan === 'Ditolak')
+                                        <span class="badge danger">Ditolak</span>
+                                    @else
+                                        <span class="badge warning">{{ $app->status_keanggotaan ?? 'Menunggu Review' }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="list-item">
+                            <div class="task-info">
+                                <h4>Pengembangan Sistem ERP Berbasis Web</h4>
+                                <p>Creator: PT Teknologi Maju &bull; Posisi: Backend Developer (Laravel)</p>
+                            </div>
+                            <span class="badge warning">Menunggu Review</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="task-info">
+                                <h4>Aplikasi Booking Futsal</h4>
+                                <p>Creator: Budi Santoso &bull; Posisi: UI/UX Designer</p>
+                            </div>
+                            <span class="badge success">Diterima</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="task-info">
+                                <h4>Platform E-Commerce Fashion</h4>
+                                <p>Creator: Toko Busana &bull; Posisi: Frontend Developer</p>
+                            </div>
+                            <span class="badge warning">Menunggu Review</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Rincian Pemasukan Terakhir (Full Width) -->
+            <div class="card full-width">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <div class="card-title" style="margin-bottom: 0;">Rincian Pemasukan Terakhir</div>
+                    <a href="{{ route('proyek.riwayat') }}" style="font-size: 13px; font-weight: 700; color: #7b6cf6; text-decoration: none;">Lihat Portofolio & Fee &rarr;</a>
+                </div>
+                <div class="income-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+                    <div class="list-item" style="margin-bottom: 0;">
                         <div class="task-info">
                             <h4>Pembayaran Termin 2 (Final)</h4>
                             <p>Proyek: Redesign Website Perusahaan</p>
                         </div>
-                        <div style="font-weight: 700; color: #008000;">+ Rp 1.500.000</div>
+                        <div style="font-weight: 700; color: #008000; font-size: 15px;">+ Rp 1.500.000</div>
                     </div>
-                    <div class="list-item">
+                    <div class="list-item" style="margin-bottom: 0;">
                         <div class="task-info">
                             <h4>Pembayaran Termin 1 (DP)</h4>
                             <p>Proyek: Aplikasi Mobile E-Learning</p>
                         </div>
-                        <div style="font-weight: 700; color: #008000;">+ Rp 2.000.000</div>
+                        <div style="font-weight: 700; color: #008000; font-size: 15px;">+ Rp 2.000.000</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="card">
-                <div class="card-title">Undangan Proyek</div>
-                <div class="invite-list">
-                    <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-                        <div class="task-info">
-                            <h4>Pengembangan Sistem ERP Berbasis Web</h4>
-                            <p>Creator: PT Teknologi Maju • Butuh role: Backend Developer (Laravel)</p>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-sm pri">Terima</button>
-                            <button class="btn-sm ghost">Tolak</button>
-                        </div>
-                    </div>
-                    <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-                        <div class="task-info">
-                            <h4>Aplikasi Booking Futsal</h4>
-                            <p>Creator: Budi Santoso • Butuh role: UI/UX Designer</p>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-sm pri">Terima</button>
-                            <button class="btn-sm ghost">Tolak</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
     </main>
+
+    @if(session('success'))
+        <div class="toast-notification" id="toastNotif">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="toast-notification toast-error" id="toastNotif">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ session('error') }}
+        </div>
+    @endif
 
 <script>
     // Auto-remove toast dari DOM setelah animasi selesai
@@ -525,7 +561,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     if (toast) {
         setTimeout(() => {
             toast.remove();
-        }, 3500);
+        }, 4000);
     }
 </script>
 </body>
