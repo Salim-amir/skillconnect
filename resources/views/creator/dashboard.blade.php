@@ -482,6 +482,94 @@ button { font-family: inherit; }
     color: #64748b;
     line-height: 1.4;
 }
+
+/* ===== Toast Notification ===== */
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, #7c8cf8, #a78bfa);
+    color: #fff;
+    padding: 16px 28px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    z-index: 9999;
+    box-shadow: 0 10px 40px -8px rgba(124, 140, 248, 0.45);
+    opacity: 0;
+    animation: toastSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+               toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) 3.5s forwards;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    letter-spacing: 0.3px;
+    pointer-events: none;
+}
+.toast-notification.toast-error {
+    background: linear-gradient(135deg, #f87171, #f43f5e);
+    box-shadow: 0 10px 40px -8px rgba(248, 113, 113, 0.45);
+}
+
+@keyframes toastSlideUp {
+    0% { opacity: 0; transform: translateX(-50%) translateY(100px); }
+    100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes toastSlideDown {
+    0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(100px); }
+}
+
+/* ===== RESPONSIVE MOBILE OPTIMIZATIONS ===== */
+@media(max-width: 992px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+    .grid-stats { grid-template-columns: repeat(2, 1fr); }
+    .grid-content { grid-template-columns: 1fr; }
+}
+
+@media(max-width: 600px) {
+    .grid-stats { grid-template-columns: 1fr; }
+    .welcome-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px 18px;
+    }
+    .welcome-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    .btn-banner-pri, .btn-banner-sec {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    .applicant-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .applicant-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    .project-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
 </style>
 </head>
 <body>
@@ -512,19 +600,7 @@ button { font-family: inherit; }
             </div>
         </header>
 
-        <!-- FLASH NOTIFICATION -->
-        @if(session('success'))
-            <div style="background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 8px;">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-        @if(session('error'))
-            <div style="background: #fee2e2; border: 1px solid #fecaca; color: #991b1b; padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 8px;">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
+        {{-- Toast notifications are rendered as fixed bottom popups --}}
 
         <!-- 4 STATS CARDS -->
         <div class="grid-stats">
@@ -696,5 +772,27 @@ button { font-family: inherit; }
         </div>
     </main>
 
+    @if(session('success'))
+        <div class="toast-notification" id="toastNotif">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="toast-notification toast-error" id="toastNotif">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ session('error') }}
+        </div>
+    @endif
+
+<script>
+    // Auto-remove toast dari DOM setelah animasi selesai
+    const toast = document.getElementById('toastNotif');
+    if (toast) {
+        setTimeout(() => {
+            toast.remove();
+        }, 4000);
+    }
+</script>
 </body>
 </html>

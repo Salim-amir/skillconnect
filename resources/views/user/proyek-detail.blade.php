@@ -437,8 +437,36 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
 @media(max-width: 992px) {
     .detail-grid { grid-template-columns: 1fr; }
-    .main-content { margin-left: 0; padding: 20px; }
-    .sidebar { display: none; }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+}
+
+@media(max-width: 600px) {
+    .candidate-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .candidate-actions {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+    }
+    .candidate-actions form,
+    .candidate-actions button {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+    }
+    .detail-card {
+        padding: 18px;
+    }
 }
 </style>
 </head>
@@ -533,24 +561,24 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     @endforelse
                 </div>
 
-                {{-- KOTAK INFORMASI DANA & STATUS PEMBAYARAN PROYEK --}}
-                <div style="margin-top: 24px; padding: 18px 20px; background: #ffffff; border: 1.5px solid var(--line); border-radius: 14px; box-shadow: 0 4px 14px -6px rgba(80,70,200,.08);">
+                {{-- KOTAK INFORMASI DANA & STATUS PEMBAYARAN PROYEK (OPSI A: FULL ESCROW) --}}
+                <div style="margin-top: 24px; padding: 20px 22px; background: #ffffff; border: 1.5px solid var(--line); border-radius: 16px; box-shadow: 0 4px 14px -6px rgba(80,70,200,.08);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
                         <div>
-                            <div style="font-size: 11.5px; font-weight: 800; color: var(--mute); text-transform: uppercase; letter-spacing: .06em;">Budget / Dana Proyek</div>
+                            <div style="font-size: 11.5px; font-weight: 800; color: var(--mute); text-transform: uppercase; letter-spacing: .06em;">Budget / Dana Rekening Bersama (Escrow)</div>
                             <div style="font-size: 24px; font-weight: 800; font-family: 'Fredoka', sans-serif; color: var(--ink);">
                                 Rp {{ number_format($project->budget, 0, ',', '.') }}
                             </div>
                             <div style="margin-top: 6px;">
                                 @if($isPaid)
-                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #0d8239; background: #e8f9ee; padding: 4px 12px; border-radius: 20px; border: 1px solid #b6edc8;">
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #065f46; background: #d1fae5; padding: 5px 14px; border-radius: 20px; border: 1px solid #6ee7b7;">
                                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                        Dana Terjamin (Lunas di Rekening Bersama)
+                                        Dana Terjamin (100% Lunas di Rekening Bersama)
                                     </span>
                                 @else
-                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #b45309; background: #fef3c7; padding: 4px 12px; border-radius: 20px; border: 1px solid #fcd34d;">
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #92400e; background: #fef3c7; padding: 5px 14px; border-radius: 20px; border: 1px solid #fcd34d;">
                                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        Menunggu Pembayaran Creator
+                                        Menunggu Pendanaan Escrow Creator
                                     </span>
                                 @endif
                             </div>
@@ -561,11 +589,34 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             @if(!$isPaid)
                                 <button id="btnBayarSekarang" onclick="bayarProyek()" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14.5px; border: none; background: linear-gradient(90deg, #10b981, #059669); color: #fff; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 6px 18px -4px rgba(16,185,129,.6); transition: all .2s;">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                                    Bayar Sekarang
+                                    Danai Proyek Sekarang
                                 </button>
+                            @else
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 12px; font-weight: 700; color: #047857; background: #e8f9ee; border: 1px solid #a7f3d0; padding: 8px 14px; border-radius: 10px;">
+                                        ID Transaksi: {{ $latestPayment->order_id ?? '-' }}
+                                    </span>
+                                </div>
                             @endif
                         @endif
                     </div>
+
+                    {{-- Informasi Skema Escrow Opsi A --}}
+                    @if($isPaid)
+                        <div style="margin-top: 14px; padding: 12px 16px; background: #f0fdf4; border-radius: 10px; border-left: 4px solid #10b981; font-size: 12.5px; color: #166534; line-height: 1.5; display: flex; align-items: flex-start; gap: 8px;">
+                            <svg width="18" height="18" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 1px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            <div>
+                                <strong>Skema Escrow Terjamin:</strong> Dana proyek sebesar <strong>Rp {{ number_format($project->budget, 0, ',', '.') }}</strong> telah dikunci di Rekening Bersama SkillConnect. Dana ini aman dan akan otomatis dicairkan ke masing-masing anggota tim setelah proyek diselesaikan dan dievaluasi.
+                            </div>
+                        </div>
+                    @else
+                        <div style="margin-top: 14px; padding: 12px 16px; background: #fffbeb; border-radius: 10px; border-left: 4px solid #f59e0b; font-size: 12.5px; color: #92400e; line-height: 1.5; display: flex; align-items: flex-start; gap: 8px;">
+                            <svg width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 1px;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div>
+                                <strong>Info Jaminan Proyek:</strong> Sebagai jaminan bagi para pencari kerja (Member), Creator mengunci 100% dana budget ke Rekening Bersama sistem. Proyek akan resmi berstatus <strong>Berjalan</strong> setelah dana disetorkan.
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Link ke Task Board (MOD-08) --}}
@@ -577,10 +628,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     @endphp
                     @if($isTeamMember || (auth()->user() && auth()->user()->role === 'creator' && auth()->id() === $project->creator_id) || (auth()->user() && auth()->user()->role === 'admin'))
                         <div style="margin-top: 20px;">
-                            <a href="{{ route('proyek.tasks', $project->id) }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; background: linear-gradient(90deg, #2b3a8f, #7b6cf6); color: #fff; box-shadow: 0 6px 18px -4px rgba(123,108,246,.5); transition: all .2s;">
-                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                                Buka Task Board
-                            </a>
+                            @if($isPaid)
+                                <a href="{{ route('proyek.tasks', $project->id) }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; background: linear-gradient(90deg, #2b3a8f, #7b6cf6); color: #fff; box-shadow: 0 6px 18px -4px rgba(123,108,246,.5); transition: all .2s;">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                    Buka Task Board
+                                </a>
+                            @else
+                                <div style="display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 12px; background: #f8fafc; border: 1.5px dashed #cbd5e1; color: #64748b; font-size: 13.5px; font-weight: 700;">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                    <span>Task Board Terkunci — Menunggu Pendanaan Proyek (Escrow) oleh Creator</span>
+                                </div>
+                            @endif
                         </div>
                     @endif
                 @endif
@@ -692,15 +750,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                     </div>
                                     @if($cand->status_keanggotaan === 'Pending')
                                         <div style="display: flex; gap: 8px;">
-                                            <form action="{{ route('proyek.kandidat.status', [$project->id, $cand->application_id]) }}" method="POST" style="display:inline;">
+                                            <form id="formKandidatTolak{{ $cand->application_id }}" action="{{ route('proyek.kandidat.status', [$project->id, $cand->application_id]) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 <input type="hidden" name="action" value="tolak">
-                                                <button type="submit" class="btn-action btn-reject" onclick="return confirm('Tolak lamaran kandidat ini?')">Tolak</button>
+                                                <button type="button" class="btn-action btn-reject" onclick="konfirmasiAksiKandidat({{ $cand->application_id }}, 'tolak', '{{ addslashes($cand->user->name ?? 'Kandidat') }}')">Tolak</button>
                                             </form>
-                                            <form action="{{ route('proyek.kandidat.status', [$project->id, $cand->application_id]) }}" method="POST" style="display:inline;">
+                                            <form id="formKandidatTerima{{ $cand->application_id }}" action="{{ route('proyek.kandidat.status', [$project->id, $cand->application_id]) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 <input type="hidden" name="action" value="terima">
-                                                <button type="submit" class="btn-action btn-accept" onclick="return confirm('Terima kandidat ini ke dalam tim?')">Terima</button>
+                                                <button type="button" class="btn-action btn-accept" onclick="konfirmasiAksiKandidat({{ $cand->application_id }}, 'terima', '{{ addslashes($cand->user->name ?? 'Kandidat') }}')">Terima</button>
                                             </form>
                                         </div>
                                     @endif
@@ -824,7 +882,94 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             : 'https://app.sandbox.midtrans.com/snap/snap.js';
     @endphp
     <script src="{{ $snapUrl }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    {{-- CUSTOM MODAL POPUP STATUS PEMBAYARAN ESCROW --}}
+    <div id="modalPaymentCustom" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(6px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; width: 100%; max-width: 440px; border-radius: 24px; padding: 36px 28px; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.3); animation: popModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div id="payModalIconWrap" style="width: 76px; height: 76px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h3 id="payModalTitle" style="font-family: 'Fredoka', sans-serif; font-size: 23px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Pembayaran Berhasil!</h3>
+            <p id="payModalDesc" style="font-size: 13.5px; color: #64748b; line-height: 1.55; margin-bottom: 22px;">Dana proyek sebesar Rp {{ number_format($project->budget, 0, ',', '.') }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Proyek kini aktif berjalan!</p>
+            
+            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 14px 18px; margin-bottom: 24px;">
+                <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;">Total Dana Diamankan</div>
+                <div style="font-family: 'Fredoka', sans-serif; font-size: 24px; font-weight: 800; color: #047857;">Rp {{ number_format($project->budget, 0, ',', '.') }}</div>
+                <div id="payModalBadge" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: #059669; font-weight: 700; margin-top: 4px;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    Status: 100% Escrow Terkunci
+                </div>
+            </div>
+
+            <button type="button" onclick="window.location.reload()" style="width: 100%; padding: 14px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; border: none; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4); font-family: 'Nunito', sans-serif;">
+                <span>Lanjutkan ke Proyek</span>
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+        </div>
+    </div>
+
     <script>
+        function showCustomPaymentModal(title, desc, isSuccess = true) {
+            const modal = document.getElementById('modalPaymentCustom');
+            const modalTitle = document.getElementById('payModalTitle');
+            const modalDesc = document.getElementById('payModalDesc');
+            const iconWrap = document.getElementById('payModalIconWrap');
+            const badge = document.getElementById('payModalBadge');
+
+            if (modal && modalTitle && modalDesc && iconWrap) {
+                modalTitle.textContent = title;
+                modalDesc.textContent = desc;
+                if (isSuccess) {
+                    iconWrap.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    iconWrap.style.boxShadow = '0 10px 25px -5px rgba(16, 185, 129, 0.5)';
+                    iconWrap.innerHTML = '<svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+                    if (badge) badge.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Status: 100% Escrow Terkunci';
+                } else {
+                    iconWrap.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    iconWrap.style.boxShadow = '0 10px 25px -5px rgba(245, 158, 11, 0.5)';
+                    iconWrap.innerHTML = '<svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                    if (badge) badge.innerHTML = 'Status: Menunggu Pembayaran';
+                }
+                modal.style.display = 'flex';
+            } else {
+                alert(title + '\n\n' + desc);
+                window.location.reload();
+            }
+        }
+
+        function verifikasiPembayaran(orderId, resultData, isPending = false) {
+            const btn = document.getElementById('btnBayarSekarang');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Memverifikasi Dana...';
+            }
+
+            fetch('{{ route("proyek.bayar.sync", $project->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    result: resultData || {}
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.is_paid) {
+                    showCustomPaymentModal('Pembayaran Berhasil!', 'Dana proyek sebesar Rp {{ number_format($project->budget, 0, ",", ".") }} telah berhasil dikunci di Rekening Bersama SkillConnect (Escrow). Proyek kini resmi berstatus BERJALAN dan Task Board telah terbuka!', true);
+                } else if (isPending) {
+                    showCustomPaymentModal('Menunggu Pembayaran', 'Tagihan telah diterbitkan. Silakan selesaikan pembayaran di simulator / bank Anda. Halaman akan otomatis memverifikasi saat ditutup.', false);
+                } else {
+                    window.location.reload();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                window.location.reload();
+            });
+        }
+
         function bayarProyek() {
             const btn = document.getElementById('btnBayarSekarang');
             if (btn) {
@@ -845,7 +990,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     alert(data.message || 'Gagal memulai pembayaran.');
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang';
                     }
                     return;
                 }
@@ -853,25 +998,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 // Buka popup Midtrans Snap
                 window.snap.pay(data.snap_token, {
                     onSuccess: function(result) {
-                        alert('Pembayaran berhasil! Dana proyek telah aman tersimpan di Rekening Bersama.');
-                        window.location.reload();
+                        verifikasiPembayaran(data.order_id, result, false);
                     },
                     onPending: function(result) {
-                        alert('Menunggu penyelesaian pembayaran. Silakan selesaikan pembayaran sesuai instruksi.');
-                        window.location.reload();
+                        verifikasiPembayaran(data.order_id, result, true);
                     },
                     onError: function(result) {
-                        alert('Pembayaran gagal atau terjadi kesalahan.');
+                        alert('Pembayaran gagal atau dibatalkan.');
                         if (btn) {
                             btn.disabled = false;
-                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang';
                         }
                     },
                     onClose: function() {
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
-                        }
+                        // Cek apakah user sudah bayar di simulator saat popup ditutup
+                        verifikasiPembayaran(data.order_id, {}, false);
                     }
                 });
             })
@@ -880,14 +1021,88 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 alert('Terjadi kesalahan jaringan.');
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Bayar Sekarang';
+                    btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Danai Proyek Sekarang';
                 }
             });
         }
+
+        let candConfirmCallback = null;
+        function konfirmasiAksiKandidat(appId, action, candidateName) {
+            const modal = document.getElementById('modalCustomConfirmProyek');
+            const title = document.getElementById('confirmProyekTitle');
+            const desc = document.getElementById('confirmProyekDesc');
+            const submitBtn = document.getElementById('btnProyekConfirmAction');
+
+            if (action === 'terima') {
+                title.textContent = 'Terima Kandidat?';
+                desc.textContent = 'Apakah Anda yakin ingin menerima "' + candidateName + '" sebagai anggota tim dalam proyek ini?';
+                submitBtn.textContent = 'Ya, Terima Kandidat';
+                submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                submitBtn.style.boxShadow = '0 4px 14px -3px rgba(16,185,129,.5)';
+                candConfirmCallback = function() {
+                    const f = document.getElementById('formKandidatTerima' + appId);
+                    if (f) f.submit();
+                };
+            } else {
+                title.textContent = 'Tolak Kandidat?';
+                desc.textContent = 'Apakah Anda yakin ingin menolak lamaran dari "' + candidateName + '"?';
+                submitBtn.textContent = 'Ya, Tolak';
+                submitBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                submitBtn.style.boxShadow = '0 4px 14px -3px rgba(239,68,68,.5)';
+                candConfirmCallback = function() {
+                    const f = document.getElementById('formKandidatTolak' + appId);
+                    if (f) f.submit();
+                };
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeProyekConfirm() {
+            document.getElementById('modalCustomConfirmProyek').style.display = 'none';
+            candConfirmCallback = null;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('btnProyekConfirmAction');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    if (typeof candConfirmCallback === 'function') {
+                        const cb = candConfirmCallback;
+                        closeProyekConfirm();
+                        cb();
+                    }
+                });
+            }
+        });
     </script>
     <style>
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes popModal {
+            0% { opacity: 0; transform: scale(0.92); }
+            100% { opacity: 1; transform: scale(1); }
+        }
     </style>
+
+    {{-- CUSTOM GENERIC CONFIRM MODAL PROYEK --}}
+    <div id="modalCustomConfirmProyek" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(6px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; width: 100%; max-width: 420px; border-radius: 24px; padding: 32px 26px; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.3); animation: popModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: #e0e7ff; color: #4338ca; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+                <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 id="confirmProyekTitle" style="font-family: 'Fredoka', sans-serif; font-size: 21px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Konfirmasi</h3>
+            <p id="confirmProyekDesc" style="font-size: 13.5px; color: #64748b; line-height: 1.55; margin-bottom: 24px;">Apakah Anda yakin?</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button type="button" onclick="closeProyekConfirm()" style="padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 14px; border: 1.5px solid #e2e8f0; background: #fff; color: #64748b; cursor: pointer; font-family: 'Nunito', sans-serif;">
+                    Batal
+                </button>
+                <button type="button" id="btnProyekConfirmAction" style="padding: 12px 18px; border-radius: 12px; font-weight: 800; font-size: 14px; border: none; color: #fff; cursor: pointer; font-family: 'Nunito', sans-serif;">
+                    Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

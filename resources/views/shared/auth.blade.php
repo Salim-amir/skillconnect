@@ -225,7 +225,7 @@
             const role = document.getElementById('reg_role').value;
 
             if (!name || !email || !password) {
-                showAlert('⚠️ Harap isi semua bidang input register!', 'warning');
+                showAlert('Harap isi semua bidang input register!', 'warning');
                 return;
             }
 
@@ -243,22 +243,22 @@
                 logOutput(data);
 
                 if (res.ok) {
-                    showAlert('✅ Register Berhasil! Silakan lanjut Login.', 'success');
+                    showAlert('Register Berhasil! Silakan lanjut Login.', 'success');
                     if (data.token) {
                         authToken = data.token;
                         localStorage.setItem('token', authToken);
                     }
                 } else {
                     if (data.errors && data.errors.email) {
-                        showAlert('❌ Register Gagal: ' + data.errors.email[0], 'danger');
+                        showAlert('Register Gagal: ' + data.errors.email[0], 'danger');
                     } else if (data.message) {
-                        showAlert('❌ Register Gagal: ' + data.message, 'danger');
+                        showAlert('Register Gagal: ' + data.message, 'danger');
                     } else {
-                        showAlert('❌ Register Gagal! Periksa kembali inputan Anda.', 'danger');
+                        showAlert('Register Gagal! Periksa kembali inputan Anda.', 'danger');
                     }
                 }
             } catch (err) {
-                showAlert('💥 Terjadi kesalahan koneksi ke server!', 'danger');
+                showAlert('Terjadi kesalahan koneksi ke server!', 'danger');
                 console.error(err);
             }
         }
@@ -270,7 +270,7 @@
             const password = document.getElementById('login_password').value.trim();
 
             if (!email || !password) {
-                showAlert('⚠️ Harap isi Email dan Password!', 'warning');
+                showAlert('Harap isi Email dan Password!', 'warning');
                 return;
             }
 
@@ -288,23 +288,23 @@
                 logOutput(data);
 
                 if (res.ok) {
-                    showAlert('Login Berhasil! Welcome ' + (data.user?.name || 'User') + ' 🎉', 'success');
+                    showAlert('Login Berhasil! Selamat datang, ' + (data.user?.name || 'User') + '.', 'success');
                     if (data.token) {
                         authToken = data.token;
                         localStorage.setItem('token', authToken);
                     }
                 } else {
                     if (res.status === 401 || (data.message && data.message.toLowerCase().includes('invalid'))) {
-                        showAlert('❌ Login Gagal: Email atau Password salah!', 'danger');
+                        showAlert('Login Gagal: Email atau Password salah!', 'danger');
                     } else if (data.errors) {
                         const firstErrKey = Object.keys(data.errors)[0];
-                        showAlert('❌ Login Gagal: ' + data.errors[firstErrKey][0], 'danger');
+                        showAlert('Login Gagal: ' + data.errors[firstErrKey][0], 'danger');
                     } else {
-                        showAlert('❌ Login Gagal: ' + (data.message || 'Email atau Password tidak cocok!'), 'danger');
+                        showAlert('Login Gagal: ' + (data.message || 'Email atau Password tidak cocok!'), 'danger');
                     }
                 }
             } catch (err) {
-                showAlert('💥 Terjadi kesalahan koneksi ke server!', 'danger');
+                showAlert('Terjadi kesalahan koneksi ke server!', 'danger');
                 console.error(err);
             }
         }

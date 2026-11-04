@@ -16,7 +16,7 @@ class PaymentController extends Controller
     /**
      * Konfigurasi Midtrans dari config/midtrans.php
      */
-    protected function setupMidtransConfig()
+    public static function setupMidtransConfig()
     {
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production', false);
@@ -167,7 +167,7 @@ class PaymentController extends Controller
     /**
      * Helper: Tandai transaksi lunas dan perbarui status proyek
      */
-    protected function markAsPaid(Transaction $transaction)
+    public function markAsPaid(Transaction $transaction)
     {
         $transaction->update(['status_pembayaran' => 'lunas']);
 
@@ -176,7 +176,136 @@ class PaymentController extends Controller
             $project->update(['status_project' => 'Berjalan']);
         }
 
+        // Batalkan transaksi pending lainnya pada proyek yang sama agar tidak menumpuk
+        Transaction::where('project_id', $transaction->project_id)
+            ->where('id', '!=', $transaction->id)
+            ->where('status_pembayaran', 'pending')
+            ->update(['status_pembayaran' => 'batal']);
+
         Log::info("Midtrans: Transaksi {$transaction->order_id} berhasil lunas (dana escrow tersimpan).");
+    }
+
+    /**
+     * Sinkronisasi status pembayaran langsung dengan Midtrans Core API (Client callback / Fallback)
+     */
+    public function syncStatus(Request $request, $projectId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        // Hanya creator pemilik proyek atau admin
+        $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
+        if (!$isCreator) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya creator pemilik proyek yang dapat memverifikasi pembayaran.',
+            ], 403);
+        }
+
+        $orderId = $request->input('order_id');
+        $result = $request->input('result', []);
+
+        // Cari transaksi berdasarkan order_id atau transaksi pending/terbaru
+        $transaction = null;
+        if ($orderId) {
+            $transaction = Transaction::where('order_id', $orderId)->first();
+        }
+        if (!$transaction) {
+            $transaction = Transaction::where('project_id', $project->id)
+                ->where('status_pembayaran', '!=', 'batal')
+                ->latest()
+                ->first();
+        }
+
+        if (!$transaction) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transaksi tidak ditemukan.',
+            ], 404);
+        }
+
+        if ($transaction->status_pembayaran === 'lunas') {
+            return response()->json([
+                'success' => true,
+                'is_paid' => true,
+                'message' => 'Pembayaran telah terverifikasi lunas (Dana Escrow Aman).',
+            ]);
+        }
+
+        $isPaid = false;
+
+        // 1. Cek langsung ke API Midtrans jika order_id tersedia
+        if ($transaction->order_id) {
+            try {
+                self::setupMidtransConfig();
+                $midtransStatus = \Midtrans\Transaction::status($transaction->order_id);
+                $transStatus = is_object($midtransStatus) ? ($midtransStatus->transaction_status ?? null) : ($midtransStatus['transaction_status'] ?? null);
+                $fraudStatus = is_object($midtransStatus) ? ($midtransStatus->fraud_status ?? null) : ($midtransStatus['fraud_status'] ?? null);
+
+                if ($transStatus === 'settlement' || ($transStatus === 'capture' && $fraudStatus === 'accept')) {
+                    $isPaid = true;
+                }
+            } catch (\Exception $e) {
+                Log::info('Midtrans direct status check notice: ' . $e->getMessage());
+            }
+        }
+
+        // 2. Fallback: Verifikasi dari callback payload Snap.js client-side
+        if (!$isPaid && !empty($result)) {
+            $snapStatus = $result['transaction_status'] ?? null;
+            $snapCode   = (string) ($result['status_code'] ?? '');
+            if ($snapStatus === 'settlement' || $snapStatus === 'capture' || $snapCode === '200') {
+                $isPaid = true;
+            }
+        }
+
+        if ($isPaid) {
+            $this->markAsPaid($transaction);
+            return response()->json([
+                'success' => true,
+                'is_paid' => true,
+                'message' => 'Pembayaran berhasil! Dana proyek Rp ' . number_format($project->budget, 0, ',', '.') . ' kini tersimpan aman di Rekening Bersama SkillConnect.',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'is_paid' => false,
+            'message' => 'Pembayaran masih menunggu penyelesaian di simulator / bank.',
+        ]);
+    }
+
+    /**
+     * Helper background sync saat halaman proyek dimuat
+     */
+    public static function checkAndSyncProjectPayment($projectId)
+    {
+        $pendingTrans = Transaction::where('project_id', $projectId)
+            ->where('status_pembayaran', 'pending')
+            ->latest()
+            ->first();
+
+        if ($pendingTrans && $pendingTrans->order_id) {
+            try {
+                self::setupMidtransConfig();
+                $midtransStatus = \Midtrans\Transaction::status($pendingTrans->order_id);
+                $transStatus = is_object($midtransStatus) ? ($midtransStatus->transaction_status ?? null) : ($midtransStatus['transaction_status'] ?? null);
+                $fraudStatus = is_object($midtransStatus) ? ($midtransStatus->fraud_status ?? null) : ($midtransStatus['fraud_status'] ?? null);
+
+                if ($transStatus === 'settlement' || ($transStatus === 'capture' && $fraudStatus === 'accept')) {
+                    $pendingTrans->update(['status_pembayaran' => 'lunas']);
+                    $project = $pendingTrans->project;
+                    if ($project && $project->status_project === 'Mencari Tim') {
+                        $project->update(['status_project' => 'Berjalan']);
+                    }
+                    Transaction::where('project_id', $projectId)
+                        ->where('id', '!=', $pendingTrans->id)
+                        ->where('status_pembayaran', 'pending')
+                        ->update(['status_pembayaran' => 'batal']);
+                }
+            } catch (\Throwable $e) {
+                // Abaikan jika offline atau koneksi timeout
+            }
+        }
     }
 
     /**

@@ -462,8 +462,30 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
 @media(max-width: 992px) {
     .filter-form { grid-template-columns: 1fr; }
-    .main-content { margin-left: 0; padding: 20px; }
-    .sidebar { display: none; }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+}
+
+@media(max-width: 600px) {
+    .project-grid { grid-template-columns: 1fr !important; }
+    .filter-card { padding: 16px; }
+    .project-card { padding: 18px; }
+    .card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .card-footer a {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
 }
 </style>
 </head>

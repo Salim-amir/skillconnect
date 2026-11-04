@@ -692,8 +692,20 @@ textarea.form-control {
 
 @media(max-width: 992px) {
     .profile-grid { grid-template-columns: 1fr; }
-    .main-content { margin-left: 0; padding: 20px; }
-    .sidebar { display: none; }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+}
+
+@media(max-width: 600px) {
+    .profile-card { padding: 18px; }
+    .form-group-row { flex-direction: column; }
+    .profile-avatar-wrap { flex-direction: column; text-align: center; }
 }
 </style>
 </head>
@@ -712,7 +724,15 @@ textarea.form-control {
             <div class="user-profile">
                 <div class="user-info">
                     <div class="name">{{ $user->name }}</div>
-                    <div class="role">{{ ucfirst($user->role) }}</div>
+                    <div class="role">
+                        @if($user->role === 'creator')
+                            Project Creator
+                        @elseif($user->role === 'member')
+                            Project Member
+                        @else
+                            {{ ucfirst($user->role) }}
+                        @endif
+                    </div>
                 </div>
                 <div class="avatar">{{ substr($user->name, 0, 1) }}</div>
             </div>

@@ -317,9 +317,20 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
 @media(max-width: 992px) {
     .grid-2 { grid-template-columns: 1fr; }
-    .form-container-card { padding: 24px; }
-    .main-content { margin-left: 0; padding: 20px; }
-    .sidebar { display: none; }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+}
+
+@media(max-width: 600px) {
+    .form-container-card { padding: 18px; }
+    .form-actions { flex-direction: column; }
+    .form-actions button, .form-actions a { width: 100%; text-align: center; justify-content: center; }
 }
 </style>
 </head>
