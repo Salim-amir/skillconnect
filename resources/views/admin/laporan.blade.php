@@ -668,57 +668,99 @@ a.page-btn:hover {
     cursor: not-allowed;
 }
 
-/* ===== PRINT / EXPORT RINGKAS ===== */
-.print-only { display: none; }
+/* ===== PRINT / EXPORT DOKUMEN LAPORAN RESMI ===== */
+.print-document { display: none; }
 
 @media print {
     @page {
         size: A4 portrait;
-        margin: 12mm;
+        margin: 14mm 12mm;
     }
-    .sidebar, .top-bar, .no-print, .pagination-bar, .section-bar {
+    .sidebar, .top-bar, .no-print, .pagination-bar, .section-bar,
+    .page-header, .kpi-grid, .visual-grid, .report-panel {
         display: none !important;
     }
-    .print-only {
+    .print-document {
         display: block !important;
-    }
-    .report-panel {
-        display: block !important;
+        color: #0f172a !important;
+        font-family: 'Nunito', Arial, sans-serif;
+        font-size: 11px;
+        line-height: 1.45;
     }
     body {
         background: #fff !important;
-        color: #000 !important;
+        color: #0f172a !important;
         display: block !important;
-        font-size: 11.5px !important;
     }
     .main-content {
         margin-left: 0 !important;
         max-width: 100% !important;
         padding: 0 !important;
     }
-    .kpi-grid {
-        grid-template-columns: repeat(4, 1fr) !important;
-        gap: 10px !important;
-        margin-bottom: 14px !important;
+    .doc-header {
+        border-bottom: 2px solid #0f172a;
+        padding-bottom: 10px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
     }
-    .visual-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 10px !important;
-        margin-bottom: 16px !important;
+    .doc-title {
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #0f172a;
     }
-    .kpi-card, .visual-card, .card {
-        box-shadow: none !important;
-        border: 1px solid #cbd5e1 !important;
-        break-inside: avoid;
-        page-break-inside: avoid;
+    .doc-sub {
+        font-size: 11px;
+        color: #475569;
+        margin-top: 2px;
     }
-    .data-table th, .data-table td {
-        padding: 7px 10px !important;
-        font-size: 11px !important;
+    .doc-meta {
+        text-align: right;
+        font-size: 10.5px;
+        color: #334155;
+        line-height: 1.4;
     }
-    * {
+    .doc-section-title {
+        font-size: 11.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #0f172a;
+        margin: 14px 0 6px;
+        padding-bottom: 3px;
+        border-bottom: 1px solid #cbd5e1;
+    }
+    .doc-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 12px;
+        font-size: 10.5px;
+    }
+    .doc-table th, .doc-table td {
+        border: 1px solid #94a3b8;
+        padding: 5px 8px;
+        text-align: left;
+        vertical-align: top;
+    }
+    .doc-table th {
+        background: #f1f5f9 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        font-weight: 800;
+        color: #0f172a;
+        white-space: nowrap;
+    }
+    .doc-table tr {
+        page-break-inside: avoid;
+    }
+    .doc-table tfoot td {
+        background: #f8fafc !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-weight: 800;
     }
 }
 /* ===== INJECTED RESPONSIVE CSS ===== */
@@ -769,7 +811,7 @@ a.page-btn:hover {
             <div>
                 <h1 class="page-title">Laporan Analitik Sistem</h1>
                 <p class="report-meta">
-                    Data per {{ now()->format('d M Y, H:i') }} WIB &bull; Ringkasan Pengguna, Proyek &amp; Transaksi Escrow
+                    Data per {{ now()->format('d M Y, H:i') }} WIB &bull; Ringkasan Pengguna, Proyek &amp; Transaksi
                 </p>
             </div>
             <button class="btn pri no-print" onclick="window.print()">
@@ -1246,6 +1288,193 @@ a.page-btn:hover {
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- ===================== DOKUMEN LAPORAN KHUSUS CETAK (PRINT OUT) ===================== -->
+        <div class="print-document">
+            <!-- Kop Dokumen -->
+            <div class="doc-header">
+                <div>
+                    <div class="doc-title">Laporan Rekapitulasi Sistem — SkillConnect</div>
+                    <div class="doc-sub">Ringkasan Data Pengguna, Proyek &amp; Transaksi Pembayaran Escrow</div>
+                </div>
+                <div class="doc-meta">
+                    <div><strong>Tanggal Cetak:</strong> {{ now()->format('d/m/Y H:i') }} WIB</div>
+                    <div><strong>Dicetak Oleh:</strong> {{ auth()->check() ? auth()->user()->name : 'Administrator' }}</div>
+                </div>
+            </div>
+
+            <!-- I. Ringkasan Eksekutif -->
+            <div class="doc-section-title">I. Ringkasan Eksekutif</div>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th style="width: 28%;">Kategori Laporan</th>
+                        <th>Rincian Indikator</th>
+                        <th style="width: 26%; text-align: right;">Total / Nilai</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Data Pengguna &amp; Skill</strong></td>
+                        <td>{{ $totalMembers }} Member ({{ $pctMember }}%), {{ $totalCreators }} Creator ({{ $pctCreator }}%), {{ $totalAdmins }} Admin ({{ $pctAdmin }}%) &bull; {{ $totalUserSkills }} keahlian terdaftar</td>
+                        <td style="text-align: right;"><strong>{{ $totalUsers }} Pengguna</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Proyek</strong></td>
+                        <td>{{ $projectsMencariTim }} Mencari Tim, {{ $projectsBerjalan }} Berjalan, {{ $projectsSelesai }} Selesai &bull; {{ $totalProjectMembers }} anggota tim aktif</td>
+                        <td style="text-align: right;"><strong>{{ $totalProjects }} Proyek (Rp {{ number_format($totalProjectBudget, 0, ',', '.') }})</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Transaksi</strong></td>
+                        <td>{{ $trxLunas }} Lunas (Rp {{ number_format($nominalLunas, 0, ',', '.') }}), {{ $trxPending }} Pending (Rp {{ number_format($nominalPending, 0, ',', '.') }}), {{ $trxBatal }} Batal</td>
+                        <td style="text-align: right;"><strong>{{ $totalTransactions }} Transaksi (Rp {{ number_format($totalNominalTrx, 0, ',', '.') }})</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- II. Data Pengguna & Keahlian (Lengkap Tanpa Terpotong Pagination) -->
+            <div class="doc-section-title">II. Daftar Pengguna &amp; Keahlian ({{ $totalUsers }} Pengguna)</div>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th style="width: 32px; text-align: center;">No</th>
+                        <th style="width: 22%;">Nama Pengguna</th>
+                        <th style="width: 24%;">Alamat Email</th>
+                        <th style="width: 12%;">Peran</th>
+                        <th>Daftar Keahlian (Skill &amp; Tingkat)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $docUsers = $allUsers ?? $users; @endphp
+                    @forelse($docUsers as $idx => $u)
+                        <tr>
+                            <td style="text-align: center;">{{ $idx + 1 }}</td>
+                            <td><strong>{{ $u->name }}</strong></td>
+                            <td>{{ $u->email }}</td>
+                            <td>{{ ucfirst($u->role) }}</td>
+                            <td>
+                                @if($u->skills->isEmpty())
+                                    -
+                                @else
+                                    {{ $u->skills->map(fn($s) => $s->nama_skill . ' (' . $s->pivot->tingkat_keahlian . ')')->implode(', ') }}
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Belum ada data pengguna.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+            <!-- III. Data Proyek & Tim Pelaksana -->
+            <div class="doc-section-title">III. Daftar Proyek &amp; Tim Pelaksana ({{ $totalProjects }} Proyek)</div>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th style="width: 32px; text-align: center;">No</th>
+                        <th style="width: 24%;">Judul Proyek</th>
+                        <th style="width: 16%;">Creator</th>
+                        <th style="width: 15%;">Kategori</th>
+                        <th>Anggota Tim</th>
+                        <th style="width: 15%; text-align: right;">Anggaran</th>
+                        <th style="width: 12%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($projects as $idx => $project)
+                        @php
+                            $teamMembers = $project->members->filter(function ($m) use ($project) {
+                                return $m->pivot->peran !== 'Project Creator / Leader'
+                                    && $m->id !== $project->creator_id
+                                    && in_array($m->pivot->status_keanggotaan, ['Diterima', 'Pending']);
+                            });
+                        @endphp
+                        <tr>
+                            <td style="text-align: center;">{{ $idx + 1 }}</td>
+                            <td><strong>{{ $project->judul_project }}</strong></td>
+                            <td>{{ $project->creator->name ?? '-' }}</td>
+                            <td>{{ $project->kategori }}</td>
+                            <td>
+                                @if($teamMembers->isNotEmpty())
+                                    {{ $teamMembers->map(fn($m) => $m->name . ' (' . $m->pivot->status_keanggotaan . ')')->implode(', ') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">Rp {{ number_format($project->budget, 0, ',', '.') }}</td>
+                            <td>{{ $project->status_project }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Belum ada data proyek.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" style="text-align: right;">Total Nilai Anggaran Proyek</td>
+                        <td style="text-align: right; white-space: nowrap;">Rp {{ number_format($totalProjectBudget, 0, ',', '.') }}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- IV. Data Transaksi Pembayaran Proyek -->
+            <div class="doc-section-title">IV. Riwayat Transaksi Pembayaran Escrow ({{ $totalTransactions }} Transaksi)</div>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th style="width: 11%;">ID</th>
+                        <th style="width: 18%;">Pengirim (Creator)</th>
+                        <th style="width: 20%;">Penerima (Member)</th>
+                        <th>Proyek</th>
+                        <th style="width: 15%; text-align: right;">Nominal</th>
+                        <th style="width: 11%;">Status</th>
+                        <th style="width: 12%;">Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($transactions as $trx)
+                        @php
+                            $shortId = '#TRX-' . str_pad($trx->id, 3, '0', STR_PAD_LEFT);
+                            $senderName = $trx->user->name ?? ($trx->project->creator->name ?? 'Creator');
+                            $projectTitle = $trx->project->judul_project ?? 'Proyek';
+
+                            $recipientMembers = collect();
+                            if ($trx->project && $trx->project->members) {
+                                $recipientMembers = $trx->project->members->filter(function ($m) use ($trx) {
+                                    return $m->pivot->peran !== 'Project Creator / Leader'
+                                        && $m->id !== ($trx->project->creator_id ?? null)
+                                        && in_array($m->pivot->status_keanggotaan, ['Diterima', 'Pending']);
+                                });
+                            }
+                        @endphp
+                        <tr>
+                            <td style="font-family: monospace; font-weight: 700;">{{ $shortId }}</td>
+                            <td>{{ $senderName }}</td>
+                            <td>{{ $recipientMembers->isNotEmpty() ? $recipientMembers->pluck('name')->implode(', ') : 'Menunggu Tim' }}</td>
+                            <td>{{ $projectTitle }}</td>
+                            <td style="text-align: right; white-space: nowrap;">Rp {{ number_format($trx->jumlah_fee, 0, ',', '.') }}</td>
+                            <td>{{ ucfirst($trx->status_pembayaran) }}</td>
+                            <td style="white-space: nowrap;">{{ $trx->created_at ? $trx->created_at->format('d/m/Y') : '-' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Belum ada transaksi tercatat.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align: right;">Total Dana Escrow Lunas</td>
+                        <td style="text-align: right; white-space: nowrap;">Rp {{ number_format($nominalLunas, 0, ',', '.') }}</td>
+                        <td colspan="2">{{ $trxLunas }} Transaksi Lunas</td>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
     </main>
 
