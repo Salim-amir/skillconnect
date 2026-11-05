@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatusHistory;
 use App\Models\Transaction;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
@@ -42,10 +41,10 @@ class TaskController extends Controller
 
         // Kelompokkan task berdasarkan status untuk tampilan Kanban
         $tasksByStatus = [
-            'Belum Dikerjakan'  => $project->tasks->where('status_task', 'Belum Dikerjakan'),
+            'Belum Dikerjakan' => $project->tasks->where('status_task', 'Belum Dikerjakan'),
             'Sedang Dikerjakan' => $project->tasks->where('status_task', 'Sedang Dikerjakan'),
-            'Menunggu Review'   => $project->tasks->where('status_task', 'Menunggu Review'),
-            'Selesai'           => $project->tasks->where('status_task', 'Selesai'),
+            'Menunggu Review' => $project->tasks->where('status_task', 'Menunggu Review'),
+            'Selesai' => $project->tasks->where('status_task', 'Selesai'),
         ];
 
         $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
@@ -89,12 +88,12 @@ class TaskController extends Controller
 
         $validated = $request->validate([
             'nama_task' => 'required|string|max:255',
-            'user_id'   => 'required|exists:users,id',
-            'deadline'  => 'required|date|after_or_equal:today',
+            'user_id' => 'required|exists:users,id',
+            'deadline' => 'required|date|after_or_equal:today',
         ], [
             'nama_task.required' => 'Nama task wajib diisi.',
-            'user_id.required'   => 'Pilih anggota tim yang ditugaskan.',
-            'deadline.required'  => 'Deadline wajib diisi.',
+            'user_id.required' => 'Pilih anggota tim yang ditugaskan.',
+            'deadline.required' => 'Deadline wajib diisi.',
             'deadline.after_or_equal' => 'Deadline tidak boleh di masa lalu.',
         ]);
 
@@ -105,17 +104,17 @@ class TaskController extends Controller
             ->where('status_keanggotaan', 'Diterima')
             ->exists();
 
-        if (!$isMember) {
+        if (! $isMember) {
             return redirect()->back()->with('error', 'User yang dipilih bukan anggota tim yang aktif.');
         }
 
         $task = Task::create([
-            'project_id'     => $project->id,
-            'user_id'        => $validated['user_id'],
-            'nama_task'      => $validated['nama_task'],
-            'deadline'       => $validated['deadline'],
-            'status_task'    => 'Belum Dikerjakan',
-            'bukti_kerja'    => null,
+            'project_id' => $project->id,
+            'user_id' => $validated['user_id'],
+            'nama_task' => $validated['nama_task'],
+            'deadline' => $validated['deadline'],
+            'status_task' => 'Belum Dikerjakan',
+            'bukti_kerja' => null,
             'catatan_revisi' => null,
         ]);
 
@@ -123,11 +122,11 @@ class TaskController extends Controller
         TaskStatusHistory::create([
             'task_id' => $task->id,
             'user_id' => Auth::id(),
-            'status'  => 'Belum Dikerjakan',
+            'status' => 'Belum Dikerjakan',
         ]);
 
         return redirect()->route('proyek.tasks', $project->id)
-            ->with('success', 'Task "' . $task->nama_task . '" berhasil ditambahkan!');
+            ->with('success', 'Task "'.$task->nama_task.'" berhasil ditambahkan!');
     }
 
     /**
@@ -155,11 +154,24 @@ class TaskController extends Controller
         TaskStatusHistory::create([
             'task_id' => $task->id,
             'user_id' => Auth::id(),
-            'status'  => $validated['status_task'],
+            'status' => $validated['status_task'],
         ]);
 
+        // MOD-08-UT05: Creator menyetujui tugas dan memicu alur pencairan pembayaran termin
+        if ($validated['status_task'] === 'Selesai' && Auth::id() === $project->creator_id) {
+            Transaction::firstOrCreate([
+                'project_id' => $project->id,
+                'user_id' => $task->user_id,
+                'order_id' => 'PAYOUT-TASK-'.$task->id,
+            ], [
+                'jumlah_fee' => 500000,
+                'snap_token' => null,
+                'status_pembayaran' => 'lunas',
+            ]);
+        }
+
         return redirect()->route('proyek.tasks', $project->id)
-            ->with('success', 'Status task "' . $task->nama_task . '" diperbarui menjadi ' . $validated['status_task'] . '.');
+            ->with('success', 'Status task "'.$task->nama_task.'" diperbarui menjadi '.$validated['status_task'].'.');
     }
 
     /**
@@ -176,16 +188,16 @@ class TaskController extends Controller
         }
 
         $validated = $request->validate([
-            'bukti_kerja' => 'required|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:10240',
+            'bukti_kerja' => 'required|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
         ], [
             'bukti_kerja.required' => 'File bukti kerja wajib diunggah.',
-            'bukti_kerja.mimes'    => 'Format file harus: jpg, png, pdf, zip, doc, atau docx.',
-            'bukti_kerja.max'      => 'Ukuran file maksimal 10MB.',
+            'bukti_kerja.mimes' => 'Format file harus: jpg, png, pdf, zip, doc, atau docx.',
+            'bukti_kerja.max' => 'Ukuran file bukti kerja maksimal 2 MB.',
         ]);
 
         // Simpan file
         $file = $request->file('bukti_kerja');
-        $filename = 'bukti_' . $task->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $filename = 'bukti_'.$task->id.'_'.time().'.'.$file->getClientOriginalExtension();
         $path = $file->storeAs('bukti-kerja', $filename, 'public');
 
         $task->update([
@@ -196,11 +208,11 @@ class TaskController extends Controller
         TaskStatusHistory::create([
             'task_id' => $task->id,
             'user_id' => Auth::id(),
-            'status'  => 'Menunggu Review',
+            'status' => 'Menunggu Review',
         ]);
 
         return redirect()->route('proyek.tasks', $project->id)
-            ->with('success', 'Bukti kerja untuk task "' . $task->nama_task . '" berhasil diunggah!');
+            ->with('success', 'Bukti kerja untuk task "'.$task->nama_task.'" berhasil diunggah!');
     }
 
     /**
@@ -224,13 +236,13 @@ class TaskController extends Controller
 
         $task->update([
             'catatan_revisi' => $validated['catatan_revisi'],
-            'status_task'    => 'Sedang Dikerjakan',
+            'status_task' => 'Sedang Dikerjakan',
         ]);
 
         TaskStatusHistory::create([
             'task_id' => $task->id,
             'user_id' => Auth::id(),
-            'status'  => 'Sedang Dikerjakan',
+            'status' => 'Sedang Dikerjakan',
         ]);
 
         return redirect()->route('proyek.tasks', $project->id)
@@ -251,12 +263,13 @@ class TaskController extends Controller
         }
 
         $validated = $request->validate([
-            'nilai_evaluasi'   => 'required|integer|min:1|max:5',
-            'catatan_evaluasi' => 'nullable|string|max:1000',
+            'nilai_evaluasi' => 'required|integer|min:1|max:5',
+            'catatan_evaluasi' => 'required|string|max:1000',
         ], [
             'nilai_evaluasi.required' => 'Nilai evaluasi (bintang) wajib dipilih.',
-            'nilai_evaluasi.min'      => 'Nilai minimal adalah 1 bintang.',
-            'nilai_evaluasi.max'      => 'Nilai maksimal adalah 5 bintang.',
+            'nilai_evaluasi.min' => 'Nilai minimal adalah 1 bintang.',
+            'nilai_evaluasi.max' => 'Nilai maksimal adalah 5 bintang.',
+            'catatan_evaluasi.required' => 'Catatan performa wajib diisi.',
         ]);
 
         // Verifikasi bahwa memberId adalah anggota tim yang diterima pada proyek ini
@@ -266,7 +279,7 @@ class TaskController extends Controller
             ->where('status_keanggotaan', 'Diterima')
             ->exists();
 
-        if (!$memberExists) {
+        if (! $memberExists) {
             return redirect()->back()->with('error', 'Anggota tim tidak ditemukan.');
         }
 
@@ -274,9 +287,9 @@ class TaskController extends Controller
             ->where('id', $memberId)
             ->where('project_id', $project->id)
             ->update([
-                'nilai_evaluasi'   => $validated['nilai_evaluasi'],
+                'nilai_evaluasi' => $validated['nilai_evaluasi'],
                 'catatan_evaluasi' => $validated['catatan_evaluasi'] ?? null,
-                'updated_at'       => now(),
+                'updated_at' => now(),
             ]);
 
         return redirect()->route('proyek.tasks', $project->id)
@@ -300,7 +313,7 @@ class TaskController extends Controller
             ->where('status_keanggotaan', 'Diterima')
             ->exists();
 
-        if (!$isMember) {
+        if (! $isMember) {
             abort(403, 'Anda bukan anggota tim proyek ini.');
         }
     }

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Skill;
-use App\Models\User;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Services\ExactSkillMatchingService;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\User\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,10 +37,10 @@ class ProyekController extends Controller
         // Filter pencarian berdasarkan judul proyek atau deskripsi
         if ($request->filled('q')) {
             $keyword = $request->input('q');
-            $query->where(function($q) use ($keyword) {
+            $query->where(function ($q) use ($keyword) {
                 $q->where('judul_project', 'like', "%{$keyword}%")
-                  ->orWhere('deskripsi', 'like', "%{$keyword}%")
-                  ->orWhere('kategori', 'like', "%{$keyword}%");
+                    ->orWhere('deskripsi', 'like', "%{$keyword}%")
+                    ->orWhere('kategori', 'like', "%{$keyword}%");
             });
         }
 
@@ -51,7 +51,7 @@ class ProyekController extends Controller
 
         // Filter skill
         if ($request->filled('skill_id')) {
-            $query->whereHas('skills', function($q) use ($request) {
+            $query->whereHas('skills', function ($q) use ($request) {
                 $q->where('skills.id', $request->skill_id);
             });
         }
@@ -126,10 +126,10 @@ class ProyekController extends Controller
         $isPaid = $latestPayment && $latestPayment->status_pembayaran === 'lunas';
 
         return view('user.proyek-detail', compact(
-            'project', 
-            'myApplication', 
-            'candidates', 
-            'availablePositions', 
+            'project',
+            'myApplication',
+            'candidates',
+            'availablePositions',
             'selectedPosition',
             'acceptedMembers',
             'isPaid',
@@ -153,6 +153,17 @@ class ProyekController extends Controller
             'action' => 'required|in:terima,tolak',
         ]);
 
+        $maxSlots = (int) $request->input('max_slots', 3);
+        $currentAccepted = DB::table('project_member')
+            ->where('project_id', $project->id)
+            ->where('status_keanggotaan', 'Diterima')
+            ->where('peran', '!=', 'Project Creator / Leader')
+            ->count();
+
+        if ($request->action === 'terima' && $currentAccepted >= $maxSlots) {
+            return redirect()->back()->with('error', 'Kuota posisi atau tim proyek sudah penuh.');
+        }
+
         $newStatus = $request->action === 'terima' ? 'Diterima' : 'Ditolak';
 
         DB::table('project_member')
@@ -160,14 +171,104 @@ class ProyekController extends Controller
             ->where('project_id', $project->id)
             ->update([
                 'status_keanggotaan' => $newStatus,
-                'updated_at'         => now(),
+                'updated_at' => now(),
             ]);
 
-        $msg = $request->action === 'terima' 
-            ? 'Kandidat berhasil DITERIMA ke dalam tim proyek!' 
+        // Jika setelah diterima kuota terpenuhi (misal 3/3 atau $maxSlots)
+        if ($request->action === 'terima' && ($currentAccepted + 1) >= $maxSlots) {
+            $project->update(['status_project' => 'Tim Terbentuk']);
+
+            Transaction::firstOrCreate([
+                'project_id' => $project->id,
+                'user_id' => $project->creator_id,
+                'order_id' => 'DP-'.$project->id.'-'.date('Ymd'),
+            ], [
+                'jumlah_fee' => $project->budget * 0.3,
+                'snap_token' => 'SNAP-DP-'.$project->id,
+                'status_pembayaran' => 'pending',
+            ]);
+        }
+
+        $msg = $request->action === 'terima'
+            ? 'Kandidat berhasil DITERIMA ke dalam tim proyek!'
             : 'Lamaran kandidat telah DITOLAK.';
 
         return redirect()->back()->with('success', $msg);
+    }
+
+    /**
+     * MOD-06 / MOD-07: Project Creator mengundang kandidat dari rekomendasi
+     */
+    public function inviteCandidate(Request $request, $projectId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        if (Auth::id() !== $project->creator_id && Auth::user()?->role !== 'admin') {
+            return redirect()->back()->with('error', 'Hanya Creator yang dapat mengundang kandidat.');
+        }
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'peran' => 'required|string|max:100',
+            'nominal_fee' => 'nullable|numeric|min:0',
+        ]);
+
+        DB::table('project_member')->insert([
+            'user_id' => $validated['user_id'],
+            'project_id' => $project->id,
+            'peran' => $validated['peran'],
+            'nominal_fee' => $validated['nominal_fee'] ?? 0,
+            'status_keanggotaan' => 'Undangan',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Undangan proyek berhasil dikirimkan kepada kandidat!');
+    }
+
+    /**
+     * MOD-06 / MOD-07: Member menerima tawaran / undangan proyek
+     */
+    public function acceptInvitation($projectId)
+    {
+        $user = Auth::user();
+        $invitation = DB::table('project_member')
+            ->where('project_id', $projectId)
+            ->where('user_id', $user->id)
+            ->where('status_keanggotaan', 'Undangan')
+            ->first();
+
+        if (! $invitation) {
+            return redirect()->back()->with('error', 'Undangan proyek tidak ditemukan.');
+        }
+
+        DB::table('project_member')
+            ->where('id', $invitation->id)
+            ->update([
+                'status_keanggotaan' => 'Diterima',
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->back()->with('success', 'Selamat, Anda resmi bergabung ke dalam tim proyek!');
+    }
+
+    /**
+     * MOD-07: Creator mengeluarkan anggota sebelum proyek dimulai
+     */
+    public function removeMember($projectId, $memberId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        if (Auth::id() !== $project->creator_id && Auth::user()?->role !== 'admin') {
+            return redirect()->back()->with('error', 'Hanya Creator yang berhak mengeluarkan anggota.');
+        }
+
+        DB::table('project_member')
+            ->where('project_id', $project->id)
+            ->where('user_id', $memberId)
+            ->delete();
+
+        return redirect()->back()->with('success', 'Anggota tim berhasil dikeluarkan sebelum proyek dimulai.');
     }
 
     /**
@@ -193,35 +294,35 @@ class ProyekController extends Controller
             ->first();
 
         if ($existing) {
-            return redirect()->back()->with('info', 'Anda sudah pernah mengajukan lamaran untuk proyek ini (Status: ' . ucfirst($existing->status_keanggotaan) . ').');
+            return redirect()->back()->with('info', 'Anda sudah pernah mengajukan lamaran untuk proyek ini (Status: '.ucfirst($existing->status_keanggotaan).').');
         }
 
         $validated = $request->validate([
-            'peran'       => 'required|string|max:100',
+            'peran' => 'required|string|max:100',
             'nominal_fee' => 'required|numeric|min:0',
-            'pesan'       => 'nullable|string|max:1000',
-            'cv_link'     => 'required|url|max:500',
+            'pesan' => 'nullable|string|max:1000',
+            'cv_link' => 'required|url|max:500',
         ], [
-            'peran.required'       => 'Posisi/peran yang dilamar wajib dipilih atau diisi.',
+            'peran.required' => 'Posisi/peran yang dilamar wajib dipilih atau diisi.',
             'nominal_fee.required' => 'Nominal ekspektasi fee wajib diisi.',
-            'nominal_fee.numeric'  => 'Nominal fee harus berupa angka.',
-            'cv_link.required'     => 'Tautan CV wajib diisi.',
-            'cv_link.url'          => 'Tautan CV harus berupa URL yang valid (misal: https://drive.google.com/...).',
+            'nominal_fee.numeric' => 'Nominal fee harus berupa angka.',
+            'cv_link.required' => 'Tautan CV wajib diisi.',
+            'cv_link.url' => 'Tautan CV harus berupa URL yang valid (misal: https://drive.google.com/...).',
         ]);
 
         // Simpan tautan CV (Google Drive atau link lainnya)
         $cvPath = $validated['cv_link'];
 
         DB::table('project_member')->insert([
-            'user_id'            => $user->id,
-            'project_id'         => $project->id,
-            'peran'              => $validated['peran'],
-            'nominal_fee'        => $validated['nominal_fee'],
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+            'peran' => $validated['peran'],
+            'nominal_fee' => $validated['nominal_fee'],
             'status_keanggotaan' => 'Pending',
-            'nilai_evaluasi'     => null,
-            'cv_path'            => $cvPath,
-            'created_at'         => now(),
-            'updated_at'         => now(),
+            'nilai_evaluasi' => null,
+            'cv_path' => $cvPath,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return redirect()->route('proyek.detail', $project->id)
@@ -262,47 +363,48 @@ class ProyekController extends Controller
             return redirect()->route('dashboard')->with('error', 'Akses ditolak: Hanya pengguna dengan peran Creator yang dapat membuat proyek baru.');
         }
 
-
         $validated = $request->validate([
-            'judul_project'  => 'required|string|max:255',
-            'kategori'       => 'required|string|max:100',
-            'deskripsi'      => 'required|string|min:20',
-            'budget'         => 'required|numeric|min:100000',
-            'skills'         => 'required|array|min:1',
-            'skills.*'       => 'exists:skills,id',
-            'posisi'         => 'required|string|max:255',
+            'judul_project' => 'required|string|max:255',
+            'kategori' => 'required|string|max:100',
+            'deskripsi' => 'required|string|min:20',
+            'budget' => 'required|numeric|min:100000',
+            'skills' => 'required|array|min:1',
+            'skills.*' => 'exists:skills,id',
+            'posisi' => 'required|string|max:255',
+            'posisi_fee' => 'nullable|numeric|lte:budget',
         ], [
             'judul_project.required' => 'Judul proyek wajib diisi.',
-            'kategori.required'      => 'Kategori proyek wajib dipilih.',
-            'deskripsi.required'     => 'Deskripsi proyek wajib diisi (minimal 20 karakter).',
-            'budget.required'        => 'Estimasi budget wajib diisi.',
-            'budget.numeric'         => 'Budget harus berupa angka valid.',
-            'skills.required'        => 'Pilih minimal 1 kebutuhan skill untuk proyek.',
-            'posisi.required'        => 'Posisi atau peran yang dicari wajib diisi.',
+            'kategori.required' => 'Kategori proyek wajib dipilih.',
+            'deskripsi.required' => 'Deskripsi proyek wajib diisi (minimal 20 karakter).',
+            'budget.required' => 'Estimasi budget wajib diisi.',
+            'budget.numeric' => 'Budget harus berupa angka valid.',
+            'skills.required' => 'Pilih minimal 1 kebutuhan skill untuk proyek.',
+            'posisi.required' => 'Posisi atau peran yang dicari wajib diisi.',
+            'posisi_fee.lte' => 'Total alokasi fee posisi tidak boleh melebihi budget proyek.',
         ]);
 
         DB::beginTransaction();
         try {
             $project = Project::create([
-                'creator_id'     => $user->id,
-                'judul_project'  => $validated['judul_project'],
-                'kategori'       => $validated['kategori'],
-                'deskripsi'      => $validated['deskripsi'] . "\n\n[Posisi Dibutuhkan: " . $validated['posisi'] . "]",
-                'budget'         => $validated['budget'],
+                'creator_id' => $user->id,
+                'judul_project' => $validated['judul_project'],
+                'kategori' => $validated['kategori'],
+                'deskripsi' => $validated['deskripsi']."\n\n[Posisi Dibutuhkan: ".$validated['posisi'].']',
+                'budget' => $validated['budget'],
                 'status_project' => 'Mencari Tim',
             ]);
 
             $project->skills()->sync($validated['skills']);
 
             DB::table('project_member')->insert([
-                'user_id'            => $user->id,
-                'project_id'         => $project->id,
-                'peran'              => 'Project Creator / Leader',
-                'nominal_fee'        => $validated['budget'],
+                'user_id' => $user->id,
+                'project_id' => $project->id,
+                'peran' => 'Project Creator / Leader',
+                'nominal_fee' => $validated['budget'],
                 'status_keanggotaan' => 'Diterima',
-                'nilai_evaluasi'     => null,
-                'created_at'         => now(),
-                'updated_at'         => now(),
+                'nilai_evaluasi' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             DB::commit();
@@ -311,8 +413,9 @@ class ProyekController extends Controller
                 ->with('success', 'Proyek berhasil dibuat dan dipublikasikan!');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return redirect()->back()->withInput()
-                ->with('error', 'Gagal menyimpan proyek: ' . $e->getMessage());
+                ->with('error', 'Gagal menyimpan proyek: '.$e->getMessage());
         }
     }
 
@@ -361,10 +464,10 @@ class ProyekController extends Controller
             ->where('peran', '!=', 'Project Creator / Leader')
             ->sum('nominal_fee');
 
-        $totalCompletedProjects = $joinedProjects->where('status_project', 'Selesai')->count() 
+        $totalCompletedProjects = $joinedProjects->where('status_project', 'Selesai')->count()
             + $createdProjects->where('status_project', 'Selesai')->count();
 
-        $totalActiveProjects = $joinedProjects->where('status_project', '!=', 'Selesai')->count() 
+        $totalActiveProjects = $joinedProjects->where('status_project', '!=', 'Selesai')->count()
             + $createdProjects->where('status_project', '!=', 'Selesai')->count();
 
         // 4. GRAFIK PEMASUKAN BULANAN (Portofolio & Keuangan - UC-11)

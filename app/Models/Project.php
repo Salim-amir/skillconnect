@@ -26,14 +26,14 @@ class Project extends Model
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'project_skill')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     public function members()
     {
         return $this->belongsToMany(User::class, 'project_member')
-                    ->withPivot('id', 'peran', 'nominal_fee', 'status_keanggotaan', 'nilai_evaluasi')
-                    ->withTimestamps();
+            ->withPivot('id', 'peran', 'nominal_fee', 'status_keanggotaan', 'nilai_evaluasi')
+            ->withTimestamps();
     }
 
     public function tasks()

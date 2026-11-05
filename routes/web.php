@@ -1,16 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SocialiteController;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\PenggunaController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\User\ProfileSkillController;
 use App\Http\Controllers\User\ProyekController;
-use App\Models\User;
+use App\Http\Controllers\User\TaskController;
 use App\Models\Project;
 use App\Models\Transaction;
-use App\Http\Controllers\Admin\LaporanController;
-use App\Http\Controllers\User\TaskController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\DashboardController;
 
@@ -29,7 +27,8 @@ Route::get('/login', function () {
     session()->forget('url.intended');
     session()->reflash();
     $role = request('role');
-    return redirect('/' . ($role ? '?role=' . $role : '') . '#masuk');
+
+    return redirect('/'.($role ? '?role='.$role : '').'#masuk');
 })->name('login');
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -42,7 +41,8 @@ Route::get('/register', function () {
     session()->forget('url.intended');
     session()->reflash();
     $role = request('role');
-    return redirect('/' . ($role ? '?role=' . $role : '') . '#daftar');
+
+    return redirect('/'.($role ? '?role='.$role : '').'#daftar');
 })->name('register');
 
 // Proses POST register diarahkan ke AuthController::register
@@ -61,20 +61,20 @@ Route::get('/forgot-password', function () {
 
 Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
 
-Route::get('/reset-password', function (\Illuminate\Http\Request $request) {
+Route::get('/reset-password', function (Request $request) {
     if ($request->filled('token')) {
         return redirect()->route('password.reset', [
             'token' => $request->token,
             'email' => $request->email,
         ]);
     }
+
     return redirect()->route('password.request');
 });
 
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
 
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
-
 
 // ===================== SHARED AUTH ROUTES =====================
 
@@ -85,7 +85,6 @@ Route::middleware('auth')->group(function () {
 
 });
 
-
 // ===================== ADMIN ROUTES =====================
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -95,16 +94,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         return view('admin.pengguna', compact('users'));
     })->name('pengguna');
 
-    Route::post('/pengguna',            [PenggunaController::class, 'store'])->name('pengguna.store');
-    Route::put('/pengguna/{id}',        [PenggunaController::class, 'update'])->name('pengguna.update');
-    Route::delete('/pengguna/{id}',     [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
+    Route::post('/pengguna', [PenggunaController::class, 'store'])->name('pengguna.store');
+    Route::put('/pengguna/{id}', [PenggunaController::class, 'update'])->name('pengguna.update');
+    Route::delete('/pengguna/{id}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
 
     Route::get('/proyek', function () {
         $projects = Project::with('creator')->latest()->get();
-        $totalProjects   = $projects->count();
-        $mencariTim      = $projects->where('status_project', 'Mencari Tim')->count();
-        $berjalan        = $projects->where('status_project', 'Berjalan')->count();
-        $selesai         = $projects->where('status_project', 'Selesai')->count();
+        $totalProjects = $projects->count();
+        $mencariTim = $projects->where('status_project', 'Mencari Tim')->count();
+        $berjalan = $projects->where('status_project', 'Berjalan')->count();
+        $selesai = $projects->where('status_project', 'Selesai')->count();
+
         return view('admin.proyek', compact('projects', 'totalProjects', 'mencariTim', 'berjalan', 'selesai'));
     })->name('proyek');
 
@@ -134,35 +134,37 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 });
 
-
 // ===================== USER ROUTES =====================
 
 Route::middleware('auth')->group(function () {
 
     // Kelola Profile & Skill
-    Route::get('/profile-skill',                            [ProfileSkillController::class, 'index'])->name('profile.skill');
-    Route::post('/profile-skill',                           [ProfileSkillController::class, 'update'])->name('profile.skill.update');
-    Route::post('/profile-skill/add-skill',                 [ProfileSkillController::class, 'addSkill'])->name('profile.skill.add');
-    Route::delete('/profile-skill/remove-skill/{skillId}',  [ProfileSkillController::class, 'removeSkill'])->name('profile.skill.remove');
+    Route::get('/profile-skill', [ProfileSkillController::class, 'index'])->name('profile.skill');
+    Route::post('/profile-skill', [ProfileSkillController::class, 'update'])->name('profile.skill.update');
+    Route::post('/profile-skill/add-skill', [ProfileSkillController::class, 'addSkill'])->name('profile.skill.add');
+    Route::delete('/profile-skill/remove-skill/{skillId}', [ProfileSkillController::class, 'removeSkill'])->name('profile.skill.remove');
 
     // Proyek & Kandidat
-    Route::get('/proyek',                                   [ProyekController::class, 'index'])->name('proyek');
-    Route::get('/proyek/buat',                              [ProyekController::class, 'create'])->name('proyek.create');
-    Route::post('/proyek/buat',                             [ProyekController::class, 'store'])->name('proyek.store');
-    Route::get('/proyek/riwayat',                           [ProyekController::class, 'riwayat'])->name('proyek.riwayat');
-    Route::get('/proyek/{id}',                              [ProyekController::class, 'show'])->name('proyek.detail');
-    Route::post('/proyek/{id}/apply',                       [ProyekController::class, 'apply'])->name('proyek.apply');
-    Route::post('/proyek/{id}/kandidat/{applicationId}',    [ProyekController::class, 'updateCandidateStatus'])->name('proyek.kandidat.status');
+    Route::get('/proyek', [ProyekController::class, 'index'])->name('proyek');
+    Route::get('/proyek/buat', [ProyekController::class, 'create'])->name('proyek.create');
+    Route::post('/proyek/buat', [ProyekController::class, 'store'])->name('proyek.store');
+    Route::get('/proyek/riwayat', [ProyekController::class, 'riwayat'])->name('proyek.riwayat');
+    Route::get('/proyek/{id}', [ProyekController::class, 'show'])->name('proyek.detail');
+    Route::post('/proyek/{id}/apply', [ProyekController::class, 'apply'])->name('proyek.apply');
+    Route::post('/proyek/{id}/kandidat/{applicationId}', [ProyekController::class, 'updateCandidateStatus'])->name('proyek.kandidat.status');
+    Route::post('/proyek/{id}/undang', [ProyekController::class, 'inviteCandidate'])->name('proyek.undang');
+    Route::post('/proyek/{id}/terima-undangan', [ProyekController::class, 'acceptInvitation'])->name('proyek.terima.undangan');
+    Route::delete('/proyek/{id}/anggota/{memberId}', [ProyekController::class, 'removeMember'])->name('proyek.anggota.remove');
 
     // MOD-08: Task Board & Upload Bukti Kerja
-    Route::get('/proyek/{id}/tasks',                        [TaskController::class, 'index'])->name('proyek.tasks');
-    Route::post('/proyek/{id}/tasks',                       [TaskController::class, 'store'])->name('proyek.tasks.store');
-    Route::put('/proyek/{id}/tasks/{taskId}/status',        [TaskController::class, 'updateStatus'])->name('proyek.tasks.status');
-    Route::post('/proyek/{id}/tasks/{taskId}/bukti',        [TaskController::class, 'uploadBukti'])->name('proyek.tasks.bukti');
-    Route::post('/proyek/{id}/tasks/{taskId}/revisi',       [TaskController::class, 'addRevision'])->name('proyek.tasks.revisi');
+    Route::get('/proyek/{id}/tasks', [TaskController::class, 'index'])->name('proyek.tasks');
+    Route::post('/proyek/{id}/tasks', [TaskController::class, 'store'])->name('proyek.tasks.store');
+    Route::put('/proyek/{id}/tasks/{taskId}/status', [TaskController::class, 'updateStatus'])->name('proyek.tasks.status');
+    Route::post('/proyek/{id}/tasks/{taskId}/bukti', [TaskController::class, 'uploadBukti'])->name('proyek.tasks.bukti');
+    Route::post('/proyek/{id}/tasks/{taskId}/revisi', [TaskController::class, 'addRevision'])->name('proyek.tasks.revisi');
 
     // MOD-09: Evaluasi Anggota Tim oleh Creator
-    Route::post('/proyek/{id}/evaluasi/{memberId}',         [TaskController::class, 'evaluateMember'])->name('proyek.evaluasi');
+    Route::post('/proyek/{id}/evaluasi/{memberId}', [TaskController::class, 'evaluateMember'])->name('proyek.evaluasi');
 
     // Integrasi Pembayaran Dana Proyek via Midtrans (Full Escrow Opsi A)
     Route::post('/proyek/{id}/bayar',                       [PaymentController::class, 'initiate'])->name('proyek.bayar');
