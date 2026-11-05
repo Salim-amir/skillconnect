@@ -215,6 +215,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 }
 .badge.admin { background: #e5ebff; color: #2b3a8f; }
 .badge.member { background: #f4e5ff; color: #7b4fe8; }
+.badge.creator { background: #e5ffe5; color: #008000; }
 
 .btn {
     display: inline-block;
@@ -397,57 +398,91 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     color: #b00009;
 }
 .nav-item.logout:hover svg { color: #b00009; }
+
+/* ===== PAGINATION ===== */
+.pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 24px;
+    border-top: 1.5px solid #edf0ff;
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: #8f9bd8;
+    font-weight: 600;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    min-width: 36px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #d6d9fb;
+    background: #fff;
+    color: #4b5686;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    transition: .2s;
+}
+
+a.page-btn:hover {
+    background: #f4f6ff;
+    color: #1c2766;
+}
+
+.page-btn.active {
+    background: linear-gradient(90deg,#2b3a8f,#7b6cf6);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 6px 16px -8px rgba(123,108,246,.7);
+}
+
+.page-btn.disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+/* ===== INJECTED RESPONSIVE CSS ===== */
+
+@media(max-width: 992px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+    .top-bar { display: none !important; }
+    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .grid-content { grid-template-columns: 1fr !important; }
+    .filter-bar { flex-direction: column !important; align-items: stretch !important; }
+}
+@media(max-width: 600px) {
+    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: 1fr !important; }
+    .search-box, .btn { width: 100% !important; }
+}
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a class="brand" href="/" aria-label="SkillConnect">
-                <svg viewBox="0 0 64 32" fill="none">
-                  <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#4d6bff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient></defs>
-                  <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C52 5 38 5 32 16C26 27 12 27 12 16Z" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
-                </svg>
-                <span>SKILL CONNECT</span>
-            </a>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                Dashboard
-            </a>
-            
-            @if(auth()->check() && auth()->user()->role === 'admin')
-                <a href="/pengguna" class="nav-item active">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    Pengguna
-                </a>
-                <a href="/admin/proyek" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                    Proyek
-                </a>
-                <a href="/transaksi" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                    Transaksi
-                </a>
-                <a href="/laporan" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Laporan
-                </a>
-            @endif
-        </nav>
-
-        <div class="sidebar-footer">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="nav-item logout">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Log Out
-                </button>
-            </form>
-        </div>
-    </aside>
+    @include('shared.sidebar')
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
@@ -464,7 +499,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
         <div class="page-header">
             <h1 class="page-title">Kelola Pengguna</h1>
-            <button type="button" class="btn pri" onclick="openCreateModal()">+ Tambah Pengguna</button>
+            {{-- <button type="button" class="btn pri" onclick="openCreateModal()">+ Tambah Pengguna</button> --}}
         </div>
 
         @if(session('success'))
@@ -497,14 +532,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($users as $user)
+                        @foreach($users as $i => $user)
                         <tr>
-                            <td style="color: #8f9bd8; font-weight: 600;">#{{ $loop->iteration }}</td>
+                            <td style="color: #8f9bd8; font-weight: 600;">#{{ $users->firstItem() + $i }}</td>
                             <td style="font-weight: 700; color: #1c2766;">{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
                                 @if($user->role === 'admin')
                                     <span class="badge admin">Admin</span>
+                                @elseif($user->role === 'creator')
+                                    <span class="badge creator">Creator</span>
                                 @else
                                     <span class="badge member">Member</span>
                                 @endif
@@ -516,7 +553,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                     data-id="{{ $user->id }}"
                                     data-name="{{ $user->name }}"
                                     data-email="{{ $user->email }}"
-                                    data-role="{{ $user->role }}">Edit</button>
+                                    data-role="{{ $user->role }}">Edit Role</button>
                                 <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
                                     style="display:inline;"
                                     onsubmit="return confirm('Yakin ingin menghapus pengguna {{ addslashes($user->name) }}? Tindakan ini tidak dapat dibatalkan.');">
@@ -530,6 +567,35 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </tbody>
                 </table>
             </div>
+
+            @if($users->hasPages())
+            <div class="pagination-bar">
+                <div class="pagination-info">
+                    Menampilkan {{ $users->firstItem() }}&ndash;{{ $users->lastItem() }} dari {{ $users->total() }} pengguna
+                </div>
+                <div class="pagination-controls">
+                    @if($users->onFirstPage())
+                        <span class="page-btn disabled">&laquo; Sebelumnya</span>
+                    @else
+                        <a href="{{ $users->previousPageUrl() }}" class="page-btn">&laquo; Sebelumnya</a>
+                    @endif
+
+                    @for($p = 1; $p <= $users->lastPage(); $p++)
+                        @if($p == $users->currentPage())
+                            <span class="page-btn active">{{ $p }}</span>
+                        @else
+                            <a href="{{ $users->url($p) }}" class="page-btn">{{ $p }}</a>
+                        @endif
+                    @endfor
+
+                    @if($users->hasMorePages())
+                        <a href="{{ $users->nextPageUrl() }}" class="page-btn">Berikutnya &raquo;</a>
+                    @else
+                        <span class="page-btn disabled">Berikutnya &raquo;</span>
+                    @endif
+                </div>
+            </div>
+            @endif
         </div>
 
     </main>
@@ -548,28 +614,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <input type="hidden" name="_form" value="edit">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="edit_name">Nama Lengkap</label>
-                        <input type="text" id="edit_name" name="name" value="{{ old('name') }}" required>
-                        @error('name') <span class="form-error">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_email">Alamat Email</label>
-                        <input type="email" id="edit_email" name="email" value="{{ old('email') }}" required>
-                        @error('email') <span class="form-error">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="form-group">
                         <label for="edit_role">Role</label>
                         <select id="edit_role" name="role" required>
                             <option value="member">Member</option>
+                            <option value="creator">Creator</option>
                             <option value="admin">Admin</option>
                         </select>
                         @error('role') <span class="form-error">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_password">Password Baru</label>
-                        <input type="password" id="edit_password" name="password" autocomplete="new-password">
-                        <span class="form-hint">Kosongkan jika tidak ingin mengubah password.</span>
-                        @error('password') <span class="form-error">{{ $message }}</span> @enderror
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -605,6 +656,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         <label for="create_role">Role</label>
                         <select id="create_role" name="role" required>
                             <option value="member" {{ old('role') === 'member' ? 'selected' : '' }}>Member</option>
+                            <option value="creator" {{ old('role') === 'creator' ? 'selected' : '' }}>Creator</option>
                             <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                         @error('role') <span class="form-error">{{ $message }}</span> @enderror
@@ -633,8 +685,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         // ===== MODAL EDIT =====
         function openEditModal(button) {
             const id    = button.getAttribute('data-id');
-            const name  = button.getAttribute('data-name');
-            const email = button.getAttribute('data-email');
             const role  = button.getAttribute('data-role');
 
             // Set action form ke route update
@@ -642,10 +692,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             document.getElementById('edit_id').value = id;
 
             // Isi nilai form
-            document.getElementById('edit_name').value = name;
-            document.getElementById('edit_email').value = email;
             document.getElementById('edit_role').value = role;
-            document.getElementById('edit_password').value = '';
 
             // Hapus pesan error lama (jika ada)
             document.querySelectorAll('#editForm .form-error').forEach(el => el.remove());

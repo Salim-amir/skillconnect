@@ -462,84 +462,47 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
 @media(max-width: 992px) {
     .filter-form { grid-template-columns: 1fr; }
-    .main-content { margin-left: 0; padding: 20px; }
-    .sidebar { display: none; }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+}
+
+@media(max-width: 600px) {
+    .project-grid { grid-template-columns: 1fr !important; }
+    .filter-card { padding: 16px; }
+    .project-card { padding: 18px; }
+    .card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .card-footer a {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
 }
 </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a class="brand" href="/" aria-label="SkillConnect">
-                <svg viewBox="0 0 64 32" fill="none">
-                  <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#4d6bff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient></defs>
-                  <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C52 5 38 5 32 16C26 27 12 27 12 16Z" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
-                </svg>
-                <span>SKILL CONNECT</span>
-            </a>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                Dashboard
-            </a>
-            @if(auth()->check() && auth()->user()->role === 'admin')
-                <!-- MENU UNTUK ADMIN -->
-                <a href="/pengguna" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    Pengguna
-                </a>
-                <a href="/proyek" class="nav-item active">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                    Proyek
-                </a>
-                <a href="/transaksi" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                    Transaksi
-                </a>
-                <a href="/laporan" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Laporan
-                </a>
-            @else
-                <!-- MENU UNTUK USER MEMBER / CREATOR -->
-                <a href="{{ route('profile.skill') }}" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    Profil & Skill
-                </a>
-                <a href="{{ route('proyek') }}" class="nav-item active">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                    Cari Proyek
-                </a>
-                <a href="{{ route('proyek.create') }}" class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                    Buat Proyek
-                </a>
-            @endif
-        </nav>
-
-        <div class="sidebar-footer">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn-logout">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Keluar Akun
-                </button>
-            </form>
-        </div>
-    </aside>
+    <!-- SHARED UNIFIED SIDEBAR -->
+    @include('shared.sidebar')
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="top-breadcrumb">
-                @if(auth()->check() && auth()->user()->role === 'admin')
+                @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'creator'))
                     SkillConnect / <span>Kelola Proyek</span>
                 @else
-                    SkillConnect / <span>Eksplorasi & Gabung Proyek</span>
+                    SkillConnect / <span>Eksplorasi Proyek</span>
                 @endif
             </div>
             <div class="user-profile">
@@ -697,13 +660,20 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         {{-- ===================== USER: CARD GRID EKSPLORASI ===================== --}}
         <div class="page-header">
             <div>
-                <h1 class="page-title">Eksplorasi Daftar Proyek</h1>
-                <p class="page-desc">Temukan proyek kolaborasi yang sesuai dengan keahlian Anda, kirim proposal, dan bergabung dengan tim.</p>
+                @if(auth()->check() && auth()->user()->role === 'creator')
+                    <h1 class="page-title">Kelola Proyek</h1>
+                    <p class="page-desc">Kelola proyek Anda, seleksi talenta anggota tim, dan pantau progres pengerjaan.</p>
+                @else
+                    <h1 class="page-title">Eksplorasi Daftar Proyek</h1>
+                    <p class="page-desc">Temukan proyek kolaborasi yang sesuai dengan keahlian Anda, kirim proposal, dan bergabung dengan tim.</p>
+                @endif
             </div>
-            <a href="{{ route('proyek.create') }}" class="btn pri">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                Buat Proyek Baru
-            </a>
+            @if(auth()->check() && auth()->user()->role === 'creator')
+                <a href="{{ route('proyek.create') }}" class="btn pri">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                    Buat Proyek Baru
+                </a>
+            @endif
         </div>
 
         <!-- FILTER & SEARCH -->
@@ -773,7 +743,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         </div>
 
                         <div>
-                            @if(in_array($p->id, $userAppliedProjectIds))
+                            @if(auth()->check() && auth()->id() === $p->creator_id)
+                                <a href="{{ route('proyek.detail', $p->id) }}" class="btn pri" style="padding: 8px 16px; font-size: 13.5px;">
+                                    Kelola Proyek →
+                                </a>
+                            @elseif(auth()->check() && auth()->user()->role === 'creator')
+                                <a href="{{ route('proyek.detail', $p->id) }}" class="btn outline" style="padding: 8px 16px; font-size: 13.5px;">
+                                    Lihat Detail
+                                </a>
+                            @elseif(in_array($p->id, $userAppliedProjectIds))
                                 <span class="applied-badge">
                                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                                     Sudah Melamar
@@ -789,9 +767,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             @empty
                 <div class="empty-state">
                     <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    <h3>Belum Ada Proyek yang Ditemukan</h3>
-                    <p>Coba gunakan kata kunci pencarian yang lain atau jadilah yang pertama membuat proyek baru!</p>
-                    <a href="{{ route('proyek.create') }}" class="btn pri">+ Buat Proyek Baru Sekarang</a>
+                    @if(auth()->check() && auth()->user()->role === 'creator')
+                        <h3>Belum Ada Proyek yang Dibuat</h3>
+                        <p>Anda belum memiliki proyek. Buat proyek baru dan mulai rekrut talenta terbaik untuk tim Anda!</p>
+                        <a href="{{ route('proyek.create') }}" class="btn pri">Buat Proyek Baru Sekarang</a>
+                    @else
+                        <h3>Belum Ada Proyek yang Ditemukan</h3>
+                        <p>Coba gunakan kata kunci pencarian yang lain atau periksa kembali nanti.</p>
+                    @endif
                 </div>
             @endforelse
         </div>

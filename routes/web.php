@@ -9,9 +9,8 @@ use App\Http\Controllers\User\ProyekController;
 use App\Http\Controllers\User\TaskController;
 use App\Models\Project;
 use App\Models\Transaction;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\DashboardController;
 
 // ===================== PUBLIC / GUEST ROUTES =====================
 
@@ -82,38 +81,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 Route::middleware('auth')->group(function () {
 
     // Dashboard Sentral: Otomatis membagi tampilan Admin / Creator / Member
-    Route::get('/dashboard', function () {
-        /** @var User $currentUser */
-        $currentUser = auth()->user();
-
-        // Pengecekan otomatis role admin
-        if (strtolower($currentUser->name) === 'admin' || str_contains(strtolower($currentUser->email), 'admin')) {
-            if ($currentUser->role !== 'admin') {
-                User::where('id', $currentUser->id)->update(['role' => 'admin']);
-                $currentUser->role = 'admin';
-            }
-        }
-
-        // 1. Tampilan Admin Dashboard
-        if ($currentUser->role === 'admin') {
-            $totalUsers = User::count();
-            $totalProjects = Project::count();
-            $totalCompleted = Project::where('status_project', 'Selesai')->count();
-            $latestUsers = User::latest()->take(5)->get();
-            $totalFee = Transaction::where('status_pembayaran', 'lunas')->sum('jumlah_fee');
-            $totalTransaksi = Transaction::count();
-
-            return view('admin.dashboard', compact('totalUsers', 'totalProjects', 'totalCompleted', 'latestUsers', 'totalFee', 'totalTransaksi'));
-        }
-
-        // 2. Tampilan Dashboard Creator
-        if ($currentUser->role === 'creator') {
-            return view('user.dashboard', ['role' => 'creator']);
-        }
-
-        // 3. Tampilan Dashboard Member (Default untuk role 'member' atau 'user')
-        return view('user.dashboard', ['role' => 'member']);
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 });
 
@@ -122,8 +90,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/pengguna', function () {
-        $users = User::all();
-
+        $users = User::paginate(8)->withQueryString();
         return view('admin.pengguna', compact('users'));
     })->name('pengguna');
 
@@ -142,7 +109,25 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     })->name('proyek');
 
     Route::get('/transaksi', function () {
-        return view('admin.transaksi');
+        $allTransactions = Transaction::with(['project.members', 'user'])->latest()->get();
+        $totalTransactions = $allTransactions->count();
+        $totalLunas        = $allTransactions->where('status_pembayaran', 'lunas')->count();
+        $totalPending      = $allTransactions->where('status_pembayaran', 'pending')->count();
+        $totalBatal        = $allTransactions->whereNotIn('status_pembayaran', ['lunas', 'pending'])->count();
+        $nominalLunas      = $allTransactions->where('status_pembayaran', 'lunas')->sum('jumlah_fee');
+        $nominalPending    = $allTransactions->where('status_pembayaran', 'pending')->sum('jumlah_fee');
+        $transactions      = Transaction::with(['project.members', 'user'])->latest()->paginate(8)->withQueryString();
+
+        return view('admin.transaksi', compact(
+            'transactions',
+            'allTransactions',
+            'totalTransactions',
+            'totalLunas',
+            'totalPending',
+            'totalBatal',
+            'nominalLunas',
+            'nominalPending'
+        ));
     })->name('transaksi');
 
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
@@ -181,4 +166,72 @@ Route::middleware('auth')->group(function () {
     // MOD-09: Evaluasi Anggota Tim oleh Creator
     Route::post('/proyek/{id}/evaluasi/{memberId}', [TaskController::class, 'evaluateMember'])->name('proyek.evaluasi');
 
+    // Integrasi Pembayaran Dana Proyek via Midtrans (Full Escrow Opsi A)
+    Route::post('/proyek/{id}/bayar',                       [PaymentController::class, 'initiate'])->name('proyek.bayar');
+    Route::get('/proyek/{id}/bayar/status',                 [PaymentController::class, 'checkStatus'])->name('proyek.bayar.status');
+    Route::post('/proyek/{id}/bayar/sync',                  [PaymentController::class, 'syncStatus'])->name('proyek.bayar.sync');
+
+    // Penyelesaian Proyek & Pencairan Fee Escrow ke Member
+    Route::post('/proyek/{id}/selesaikan',                  [ProyekController::class, 'completeProject'])->name('proyek.selesaikan');
+
 });
+
+// Webhook Midtrans (HTTP Notification dari server Midtrans)
+Route::post('/midtrans/callback', [PaymentController::class, 'webhook'])->name('midtrans.webhook');
+
+// ===================== ROOT ALIAS: /pengguna =====================
+// Halaman http://127.0.0.1:8000/pengguna menampilkan data seluruh pengguna
+// (nama, role, dan alamat email) beserta aksi CRUD.
+
+Route::middleware(['auth', 'admin'])->group(function () {
+
+    Route::get('/pengguna', function () {
+        $users = User::paginate(8)->withQueryString();
+        return view('admin.pengguna', compact('users'));
+    })->name('pengguna');
+
+    Route::post('/pengguna',            [PenggunaController::class, 'store'])->name('pengguna.store');
+    Route::put('/pengguna/{id}',       [PenggunaController::class, 'update'])->name('pengguna.update');
+    Route::delete('/pengguna/{id}',    [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
+
+});
+
+// Fallback penyajian file bukti kerja (jika storage:link belum dibuat di sistem operasi Windows)
+Route::get('/storage/bukti-kerja/{filename}', function ($filename) {
+    $path = storage_path('app/public/bukti-kerja/' . $filename);
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+})->name('storage.bukti');
+
+// ===================== ROOT ALIAS: /laporan =====================
+// Halaman http://127.0.0.1:8000/laporan menampilkan laporan data pengguna
+// (beserta skill) dan data proyek (berjalan, selesai, dan berhasil).
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+});
+
+// ===================== ROOT ALIAS: /transaksi =====================
+Route::middleware(['auth', 'admin'])->get('/transaksi', function () {
+    $allTransactions = Transaction::with(['project.members', 'user'])->latest()->get();
+    $totalTransactions = $allTransactions->count();
+    $totalLunas        = $allTransactions->where('status_pembayaran', 'lunas')->count();
+    $totalPending      = $allTransactions->where('status_pembayaran', 'pending')->count();
+    $totalBatal        = $allTransactions->whereNotIn('status_pembayaran', ['lunas', 'pending'])->count();
+    $nominalLunas      = $allTransactions->where('status_pembayaran', 'lunas')->sum('jumlah_fee');
+    $nominalPending    = $allTransactions->where('status_pembayaran', 'pending')->sum('jumlah_fee');
+    $transactions      = Transaction::with(['project.members', 'user'])->latest()->paginate(8)->withQueryString();
+
+    return view('admin.transaksi', compact(
+        'transactions',
+        'allTransactions',
+        'totalTransactions',
+        'totalLunas',
+        'totalPending',
+        'totalBatal',
+        'nominalLunas',
+        'nominalPending'
+    ));
+})->name('transaksi');

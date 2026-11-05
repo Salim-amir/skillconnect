@@ -41,32 +41,13 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
-    public function calculateProgress(): float
+    public function transactions()
     {
-        $total = $this->tasks()->count();
-        if ($total === 0) {
-            return 0.0;
-        }
-        $completed = $this->tasks()->where('status_task', 'Selesai')->count();
-
-        return round(($completed / $total) * 100, 2);
+        return $this->hasMany(Transaction::class);
     }
 
-    public function getTaskStatistics(): array
+    public function latestTransaction()
     {
-        $total = $this->tasks()->count();
-        $todo = $this->tasks()->where('status_task', 'Belum Dikerjakan')->count();
-        $inProgress = $this->tasks()->where('status_task', 'Sedang Dikerjakan')->count();
-        $review = $this->tasks()->where('status_task', 'Menunggu Review')->count();
-        $done = $this->tasks()->where('status_task', 'Selesai')->count();
-
-        return [
-            'total' => $total,
-            'todo' => $todo,
-            'in_progress' => $inProgress,
-            'review' => $review,
-            'done' => $done,
-            'percentage' => $this->calculateProgress(),
-        ];
+        return $this->hasOne(Transaction::class)->latestOfMany();
     }
 }

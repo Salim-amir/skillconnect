@@ -17,7 +17,7 @@ class PenggunaController extends Controller
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users,email',
-            'role'     => 'required|in:admin,member',
+            'role'     => 'required|in:admin,member,creator',
             'password' => 'required|string|min:8',
         ], [
             'name.required'      => 'Nama wajib diisi.',
@@ -49,33 +49,17 @@ class PenggunaController extends Controller
         $user = User::findOrFail($id);
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'role'     => 'required|in:admin,member',
-            'password' => 'nullable|string|min:8',
+            'role' => 'required|in:admin,member,creator',
         ], [
-            'name.required'  => 'Nama wajib diisi.',
-            'name.max'       => 'Nama maksimal 255 karakter.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email'    => 'Format email tidak valid.',
-            'email.unique'   => 'Email ini sudah terdaftar.',
-            'role.required'  => 'Role wajib dipilih.',
-            'role.in'        => 'Role tidak valid.',
-            'password.min'   => 'Password minimal harus 8 karakter.',
+            'role.required' => 'Role wajib dipilih.',
+            'role.in'       => 'Role tidak valid.',
         ]);
 
-        $user->name  = $validated['name'];
-        $user->email = $validated['email'];
-        $user->role  = $validated['role'];
-
-        // Password hanya diubah jika diisi
-        if (!empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
-        }
-
+        // Admin hanya boleh mengubah role pengguna
+        $user->role = $validated['role'];
         $user->save();
 
-        return redirect()->route('admin.pengguna')->with('success', 'Data pengguna berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Role pengguna berhasil diperbarui.');
     }
 
     /**

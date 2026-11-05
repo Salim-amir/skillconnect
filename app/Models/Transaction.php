@@ -18,11 +18,21 @@ class Transaction extends Model
         'status_pembayaran',
     ];
 
+    protected $casts = [
+        'jumlah_fee' => 'decimal:2',
+    ];
+
+    /**
+     * Relasi ke Proyek yang dibayar
+     */
     public function project()
     {
         return $this->belongsTo(Project::class);
     }
 
+    /**
+     * Relasi ke User pembayar (Creator)
+     */
     public function user()
     {
         return $this->belongsTo(User::class);

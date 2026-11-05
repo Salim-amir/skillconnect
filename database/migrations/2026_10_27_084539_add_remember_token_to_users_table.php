@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->rememberToken();
+            // Cek apakah kolom remember_token belum ada sebelum menambahkan
+            if (!Schema::hasColumn('users', 'remember_token')) {
+                $table->rememberToken();
+            }
         });
     }
 
@@ -22,7 +25,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropRememberToken();
+            // Cek apakah kolom remember_token ada sebelum menghapusnya
+            if (Schema::hasColumn('users', 'remember_token')) {
+                $table->dropRememberToken();
+            }
         });
     }
 };

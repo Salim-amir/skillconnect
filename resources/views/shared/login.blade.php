@@ -452,6 +452,10 @@ a { color: inherit; text-decoration: none; }
   .auth-container { justify-content: center; padding: 90px 4vw 40px; }
   .card-panel { max-width: 440px; }
 }
+@media (max-width: 480px) {
+  .auth-container { padding: 76px 14px 30px; }
+  .card-panel { padding: 24px 16px; border-radius: 20px; }
+}
 </style>
 </head>
 <body>

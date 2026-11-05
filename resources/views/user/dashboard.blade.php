@@ -212,9 +212,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
 .grid-content {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     margin-bottom: 24px;
+}
+
+.card.full-width {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+    .grid-content {
+        grid-template-columns: 1fr;
+    }
+    .grid-stats {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Task & List Items */
@@ -290,27 +303,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     color: #1c2766;
 }
 
-/* Chart Placeholder */
-.chart-placeholder {
-    width: 100%;
-    height: 220px;
-    background: repeating-linear-gradient(
-        45deg,
-        #f4f6ff,
-        #f4f6ff 10px,
-        #ffffff 10px,
-        #ffffff 20px
-    );
-    border: 1.5px dashed #d6d9fb;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #8f9bd8;
-    font-weight: 600;
-    font-family: 'Fredoka', sans-serif;
-}
-
 /* ===== Toast Notification ===== */
 .toast-notification {
     position: fixed;
@@ -328,12 +320,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     box-shadow: 0 10px 40px -8px rgba(124, 140, 248, 0.45);
     opacity: 0;
     animation: toastSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-               toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) 3s forwards;
+               toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) 3.5s forwards;
     display: flex;
     align-items: center;
     gap: 8px;
     text-align: center;
     letter-spacing: 0.3px;
+    pointer-events: none;
+}
+.toast-notification.toast-error {
+    background: linear-gradient(135deg, #f87171, #f43f5e);
+    box-shadow: 0 10px 40px -8px rgba(248, 113, 113, 0.45);
 }
 
 @keyframes toastSlideUp {
@@ -345,55 +342,52 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     0% { opacity: 1; transform: translateX(-50%) translateY(0); }
     100% { opacity: 0; transform: translateX(-50%) translateY(100px); }
 }
+
+@media(max-width: 992px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .top-bar { display: none !important; }
+    .grid-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 600px) {
+    .grid-stats { grid-template-columns: 1fr; }
+}
+/* ===== INJECTED RESPONSIVE CSS ===== */
+
+@media(max-width: 992px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+        padding-top: 76px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+    .top-bar { display: none !important; }
+    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .grid-content { grid-template-columns: 1fr !important; }
+    .filter-bar { flex-direction: column !important; align-items: stretch !important; }
+}
+@media(max-width: 600px) {
+    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: 1fr !important; }
+    .search-box, .btn { width: 100% !important; }
+}
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a class="brand" href="/" aria-label="SkillConnect">
-                <svg viewBox="0 0 64 32" fill="none">
-                  <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#4d6bff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient></defs>
-                  <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C52 5 38 5 32 16C26 27 12 27 12 16Z" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
-                </svg>
-                <span>SKILL CONNECT</span>
-            </a>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-item active">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                Dashboard
-            </a>
-            <!-- MENU UNTUK USER (MEMBER / CREATOR) -->
-            <a href="{{ route('profile.skill') }}" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                Profil & Skill
-            </a>
-            <a href="{{ route('proyek') }}" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                Cari Proyek
-            </a>
-            <a href="{{ route('proyek.create') }}" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                Buat Proyek
-            </a>
-            <a href="{{ route('proyek.riwayat') }}" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Portofolio & Fee
-            </a>
-        </nav>
-
-        <div style="padding: 20px 16px; border-top: 1.5px solid #f0f2ff; margin-top: auto;">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" style="width: 100%; padding: 12px; background: #fff; border: 1.5px solid #f0e0e5; color: #d80044; border-radius: 10px; font-weight: 700; cursor: pointer; transition: .2s; font-family: 'Nunito', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Keluar Akun
-                </button>
-            </form>
-        </div>
-    </aside>
+    @include('shared.sidebar')
 
 
     <!-- MAIN CONTENT -->
@@ -403,17 +397,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             <div class="user-profile">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Nama Pengguna' }}</div>
-                    <div class="role">Project Creator & Member</div>
+                    <div class="role">
+                        @if(auth()->check() && auth()->user()->role === 'creator')
+                            Project Creator
+                        @elseif(auth()->check() && auth()->user()->role === 'member')
+                            Project Member
+                        @else
+                            {{ ucfirst(auth()->user()->role ?? 'User') }}
+                        @endif
+                    </div>
                 </div>
                 <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}</div>
             </div>
         </header>
 
-        @if(session('success'))
-            <div class="toast-notification" id="toastNotif">
-                {{ session('success') }} 🎉
-            </div>
-        @endif
+        {{-- Toast notifications are rendered as fixed bottom popups --}}
 
         <!-- ===================== USER DASHBOARD ===================== -->
         <h1 class="page-title">Dashboard Pengguna</h1>
@@ -434,15 +432,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             </div>
         </div>
 
-        <!-- 2 MIDDLE CARDS (CHART & TASKS) -->
+        <!-- DASHBOARD CARDS GRID -->
         <div class="grid-content">
-            <div class="card">
-                <div class="card-title">Grafik Pemasukan</div>
-                <div class="chart-placeholder">
-                    [ Area Chart Pemasukan ]
-                </div>
-            </div>
             
+            <!-- Tugas Mendekati Deadline -->
             <div class="card">
                 <div class="card-title">Tugas Mendekati Deadline</div>
                 <div class="task-list">
@@ -469,58 +462,98 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 2 BOTTOM CARDS (INCOME DETAILS & INVITATIONS) -->
-        <div class="grid-content">
+            <!-- Status Pendaftaran Proyek -->
             <div class="card">
-                <div class="card-title">Rincian Pemasukan Terakhir</div>
-                <div class="income-list">
-                    <div class="list-item">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div class="card-title" style="margin-bottom: 0;">Status Pendaftaran Proyek</div>
+                    <a href="{{ route('proyek') }}" style="font-size: 13px; font-weight: 700; color: #7b6cf6; text-decoration: none;">Cari Proyek &rarr;</a>
+                </div>
+                <div class="application-list">
+                    @if(isset($myApplications) && $myApplications->count() > 0)
+                        @foreach($myApplications as $app)
+                            <div class="list-item">
+                                <div class="task-info">
+                                    <h4>{{ $app->judul_project }}</h4>
+                                    <p>Creator: {{ $app->creator_name ?? 'Project Creator' }} &bull; Posisi: {{ $app->peran }}</p>
+                                </div>
+                                <div>
+                                    @if($app->status_keanggotaan === 'Diterima')
+                                        <span class="badge success">Diterima</span>
+                                    @elseif($app->status_keanggotaan === 'Ditolak')
+                                        <span class="badge danger">Ditolak</span>
+                                    @else
+                                        <span class="badge warning">{{ $app->status_keanggotaan ?? 'Menunggu Review' }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="list-item">
+                            <div class="task-info">
+                                <h4>Pengembangan Sistem ERP Berbasis Web</h4>
+                                <p>Creator: PT Teknologi Maju &bull; Posisi: Backend Developer (Laravel)</p>
+                            </div>
+                            <span class="badge warning">Menunggu Review</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="task-info">
+                                <h4>Aplikasi Booking Futsal</h4>
+                                <p>Creator: Budi Santoso &bull; Posisi: UI/UX Designer</p>
+                            </div>
+                            <span class="badge success">Diterima</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="task-info">
+                                <h4>Platform E-Commerce Fashion</h4>
+                                <p>Creator: Toko Busana &bull; Posisi: Frontend Developer</p>
+                            </div>
+                            <span class="badge warning">Menunggu Review</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Rincian Pemasukan Terakhir (Full Width) -->
+            <div class="card full-width">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <div class="card-title" style="margin-bottom: 0;">Rincian Pemasukan Terakhir</div>
+                    <a href="{{ route('proyek.riwayat') }}" style="font-size: 13px; font-weight: 700; color: #7b6cf6; text-decoration: none;">Lihat Portofolio & Fee &rarr;</a>
+                </div>
+                <div class="income-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+                    <div class="list-item" style="margin-bottom: 0;">
                         <div class="task-info">
                             <h4>Pembayaran Termin 2 (Final)</h4>
                             <p>Proyek: Redesign Website Perusahaan</p>
                         </div>
-                        <div style="font-weight: 700; color: #008000;">+ Rp 1.500.000</div>
+                        <div style="font-weight: 700; color: #008000; font-size: 15px;">+ Rp 1.500.000</div>
                     </div>
-                    <div class="list-item">
+                    <div class="list-item" style="margin-bottom: 0;">
                         <div class="task-info">
                             <h4>Pembayaran Termin 1 (DP)</h4>
                             <p>Proyek: Aplikasi Mobile E-Learning</p>
                         </div>
-                        <div style="font-weight: 700; color: #008000;">+ Rp 2.000.000</div>
+                        <div style="font-weight: 700; color: #008000; font-size: 15px;">+ Rp 2.000.000</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="card">
-                <div class="card-title">Undangan Proyek</div>
-                <div class="invite-list">
-                    <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-                        <div class="task-info">
-                            <h4>Pengembangan Sistem ERP Berbasis Web</h4>
-                            <p>Creator: PT Teknologi Maju • Butuh role: Backend Developer (Laravel)</p>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-sm pri">Terima</button>
-                            <button class="btn-sm ghost">Tolak</button>
-                        </div>
-                    </div>
-                    <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-                        <div class="task-info">
-                            <h4>Aplikasi Booking Futsal</h4>
-                            <p>Creator: Budi Santoso • Butuh role: UI/UX Designer</p>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-sm pri">Terima</button>
-                            <button class="btn-sm ghost">Tolak</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
     </main>
+
+    @if(session('success'))
+        <div class="toast-notification" id="toastNotif">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="toast-notification toast-error" id="toastNotif">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ session('error') }}
+        </div>
+    @endif
 
 <script>
     // Auto-remove toast dari DOM setelah animasi selesai
@@ -528,7 +561,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     if (toast) {
         setTimeout(() => {
             toast.remove();
-        }, 3500);
+        }, 4000);
     }
 </script>
 </body>
