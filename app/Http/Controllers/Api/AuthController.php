@@ -4,64 +4,90 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use Illuminate\Contracts\Auth\CanResetPassword;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role'     => 'required|in:member,creator',
+            'role' => 'required|in:member,creator',
         ], [
-            'name.required'      => 'Nama wajib diisi.',
-            'name.max'           => 'Nama maksimal 255 karakter.',
-            'email.required'     => 'Email wajib diisi.',
-            'email.email'        => 'Format email tidak valid.',
-            'email.unique'       => 'Email ini sudah terdaftar.',
-            'password.required'  => 'Password wajib diisi.',
-            'password.min'       => 'Password minimal harus 8 karakter.',
+            'name.required' => 'Nama wajib diisi.',
+            'name.max' => 'Nama maksimal 255 karakter.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email ini sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal harus 8 karakter.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
-            'role.required'      => 'Pilih peran akun Anda.',
-            'role.in'            => 'Peran yang dipilih tidak valid.',
+            'role.required' => 'Pilih peran akun Anda.',
+            'role.in' => 'Peran yang dipilih tidak valid.',
         ]);
 
-        User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => $request->role, // Menyimpan role 'member' atau 'creator' secara dinamis
+            'role' => $request->role, // Menyimpan role 'member' atau 'creator' secara dinamis
         ]);
+
+        if ($request->expectsJson()) {
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Registrasi berhasil',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user,
+            ], 201);
+        }
 
         // Hapus memori intended URL agar murni mengarah ke halaman login
-        $request->session()->forget('url.intended');
+        if ($request->hasSession()) {
+            $request->session()->forget('url.intended');
+        }
 
-        return redirect('/?role=' . $request->role . '#masuk')->with('success', 'Registrasi berhasil! Silakan masuk dengan akun Anda.');
+        return redirect('/?role='.$request->role.'#masuk')->with('success', 'Registrasi berhasil! Silakan masuk dengan akun Anda.');
     }
 
     public function login(Request $request)
     {
         $request->validate([
-            'email'      => 'required|email',
-            'password'   => 'required',
+            'email' => 'required|email',
+            'password' => 'required',
             'login_role' => 'nullable|in:member,creator,admin',
         ], [
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
         // Autentikasi kredensial email & password
         if (Auth::attempt($request->only('email', 'password'))) {
             $user = Auth::user();
+
+            if ($request->expectsJson()) {
+                $token = $user->createToken('auth_token')->plainTextToken;
+
+                return response()->json([
+                    'message' => 'Login berhasil',
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
+                    'user' => $user,
+                ], 200);
+            }
+
             $requestedRole = $request->input('login_role', 'member');
 
             // Pengecekan kesesuaian role akun
@@ -82,22 +108,32 @@ class AuthController extends Controller
                     $request->session()->invalidate();
                     $request->session()->regenerateToken();
 
-                    return redirect('/?role=' . $requestedRole . '#masuk')
-                        ->withErrors(['email' => 'Akun ini terdaftar sebagai ' . ucfirst($user->role) . '. Pilih jenis akun yang sesuai.'])
+                    return redirect('/?role='.$requestedRole.'#masuk')
+                        ->withErrors(['email' => 'Akun ini terdaftar sebagai '.ucfirst($user->role).'. Pilih jenis akun yang sesuai.'])
                         ->with('error', 'Pilihan jenis akun tidak sesuai dengan peran Anda.')
                         ->withInput($request->only('email', 'login_role'));
                 }
             }
 
             $request->session()->regenerate();
+
             return redirect()->intended('/dashboard')->with('success', 'Login berhasil! Selamat datang kembali.');
         }
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Email atau kata sandi yang Anda masukkan salah.',
+            ], 401);
+        }
+
         // Hapus intended URL agar tidak terjebak loop saat login gagal
-        $request->session()->forget('url.intended');
+        if ($request->hasSession()) {
+            $request->session()->forget('url.intended');
+        }
 
         $requestedRole = $request->input('login_role', 'member');
-        return redirect('/' . ($requestedRole ? '?role=' . $requestedRole : '') . '#masuk')
+
+        return redirect('/'.($requestedRole ? '?role='.$requestedRole : '').'#masuk')
             ->withErrors(['email' => 'Email atau kata sandi yang Anda masukkan salah.'])
             ->with('error', 'Email atau kata sandi salah. Silakan coba lagi.')
             ->withInput($request->only('email', 'login_role'));
@@ -105,10 +141,24 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        if ($request->user() && method_exists($request->user(), 'currentAccessToken') && $request->user()->currentAccessToken()) {
+            $request->user()->currentAccessToken()->delete();
+        }
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+        }
+
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Anda telah berhasil keluar.',
+            ], 200);
+        }
 
         return redirect('/#masuk')->with('success', 'Anda telah berhasil keluar.');
     }
@@ -119,13 +169,13 @@ class AuthController extends Controller
             'email' => 'required|email',
         ], [
             'email.required' => 'Alamat email wajib diisi.',
-            'email.email'    => 'Format email tidak valid.',
+            'email.email' => 'Format email tidak valid.',
         ]);
 
         /** @var User|null $user */
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return redirect('/#lupa-sandi')
                 ->withErrors(['email' => 'Alamat email ini tidak terdaftar di sistem kami.'])
                 ->withInput($request->only('email', 'is_forgot'));
@@ -140,10 +190,10 @@ class AuthController extends Controller
         try {
             $user->sendPasswordResetNotification($token);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Gagal mengirim email reset password: ' . $e->getMessage());
+            Log::error('Gagal mengirim email reset password: '.$e->getMessage());
             if (config('mail.default') !== 'log') {
                 return redirect('/#lupa-sandi')
-                    ->withErrors(['email' => 'Gagal mengirim email via SMTP: ' . $e->getMessage()])
+                    ->withErrors(['email' => 'Gagal mengirim email via SMTP: '.$e->getMessage()])
                     ->withInput($request->only('email', 'is_forgot'));
             }
         }
@@ -164,15 +214,15 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'token'    => 'required',
-            'email'    => 'required|email',
+            'token' => 'required',
+            'email' => 'required|email',
             'password' => 'required|string|min:8|confirmed',
         ], [
-            'token.required'     => 'Token pemulihan kata sandi tidak valid.',
-            'email.required'     => 'Email wajib diisi.',
-            'email.email'        => 'Format email tidak valid.',
-            'password.required'  => 'Kata sandi baru wajib diisi.',
-            'password.min'       => 'Kata sandi minimal 8 karakter.',
+            'token.required' => 'Token pemulihan kata sandi tidak valid.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'password.required' => 'Kata sandi baru wajib diisi.',
+            'password.min' => 'Kata sandi minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         ]);
 

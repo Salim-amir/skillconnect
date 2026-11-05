@@ -59,8 +59,8 @@ class User extends Authenticatable
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'user_skill')
-                    ->withPivot('id', 'tingkat_keahlian')
-                    ->withTimestamps();
+            ->withPivot('id', 'tingkat_keahlian')
+            ->withTimestamps();
     }
 
     public function createdProjects()
@@ -71,7 +71,15 @@ class User extends Authenticatable
     public function joinedProjects()
     {
         return $this->belongsToMany(Project::class, 'project_member')
-                    ->withPivot('id', 'peran', 'nominal_fee', 'status_keanggotaan', 'nilai_evaluasi')
-                    ->withTimestamps();
+            ->withPivot('id', 'peran', 'nominal_fee', 'status_keanggotaan', 'nilai_evaluasi', 'catatan_evaluasi')
+            ->withTimestamps();
+    }
+
+    public function getVerifiedProjects()
+    {
+        return $this->joinedProjects()
+            ->where('projects.status_project', 'Selesai')
+            ->wherePivot('status_keanggotaan', 'Diterima')
+            ->get();
     }
 }
