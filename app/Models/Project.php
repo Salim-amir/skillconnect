@@ -50,4 +50,43 @@ class Project extends Model
     {
         return $this->hasOne(Transaction::class)->latestOfMany();
     }
+
+    /**
+     * Menghitung statistik tugas proyek berdasarkan status task.
+     *
+     * @return array<string, int|float>
+     */
+    public function getTaskStatistics(): array
+    {
+        $total = $this->tasks()->count();
+        $done = $this->tasks()->where('status_task', 'Selesai')->count();
+        $inProgress = $this->tasks()->where('status_task', 'Sedang Dikerjakan')->count();
+        $todo = $this->tasks()->where('status_task', 'Belum Dikerjakan')->count();
+        $review = $this->tasks()->where('status_task', 'Menunggu Review')->count();
+        $percentage = $total > 0 ? round(($done / $total) * 100, 1) : 0.0;
+
+        return [
+            'total' => $total,
+            'done' => $done,
+            'in_progress' => $inProgress,
+            'todo' => $todo,
+            'review' => $review,
+            'percentage' => $percentage,
+        ];
+    }
+
+    /**
+     * Menghitung persentase progres proyek berdasarkan task yang selesai.
+     */
+    public function calculateProgress(): float
+    {
+        $total = $this->tasks()->count();
+        if ($total === 0) {
+            return 0.0;
+        }
+
+        $done = $this->tasks()->where('status_task', 'Selesai')->count();
+
+        return round(($done / $total) * 100, 1);
+    }
 }
