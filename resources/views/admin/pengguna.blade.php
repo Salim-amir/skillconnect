@@ -626,9 +626,36 @@ a.page-btn:hover {
     opacity: .45;
     cursor: not-allowed;
 }
-/* ===== INJECTED RESPONSIVE CSS ===== */
+/* ===== INJECTED RESPONSIVE CSS (NO HORIZONTAL SLIDE / MOBILE FRIENDLY) ===== */
+.table-responsive {
+    width: 100%;
+    overflow-x: hidden;
+}
 
-@media(max-width: 992px) {
+.action-buttons {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.action-link.view,
+.action-link.edit {
+    margin-right: 0;
+}
+
+@media (max-width: 1150px) {
+    .data-table th,
+    .data-table td {
+        padding: 13px 14px;
+        font-size: 13.5px;
+    }
+    .data-table td[data-label="Alamat Email"] {
+        word-break: break-all;
+    }
+}
+
+@media (max-width: 992px) {
     .main-content {
         margin-left: 0 !important;
         padding: 16px !important;
@@ -638,18 +665,173 @@ a.page-btn:hover {
         overflow-x: hidden !important;
     }
     .top-bar { display: none !important; }
-    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    .grid-content { grid-template-columns: 1fr !important; }
-    .filter-bar { flex-direction: column !important; align-items: stretch !important; }
+    .page-header {
+        margin-bottom: 16px;
+    }
+    .page-title {
+        font-size: 22px;
+    }
 }
-@media(max-width: 600px) {
-    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: 1fr !important; }
-    .search-box, .btn { width: 100% !important; }
-}
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+
+@media (max-width: 768px) {
+    .main-content > .card {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+    .data-table,
+    .data-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table tbody tr {
+        display: block;
+        background: #ffffff;
+        border: 1.5px solid #e0e3fa;
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 20px -14px rgba(80, 70, 200, 0.2);
+    }
+
+    .data-table tbody tr:hover td {
+        background: transparent;
+    }
+
+    .data-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 0;
+        border-bottom: 1px dashed #edf0ff;
+        text-align: right;
+        font-size: 13.5px;
+        word-break: break-word;
+    }
+
+    .data-table tbody td::before {
+        content: attr(data-label);
+        font-family: 'Fredoka', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #8f9bd8;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .data-table tbody td[data-label="Aksi"] {
+        border-bottom: none;
+        padding-top: 12px;
+        padding-bottom: 2px;
+    }
+
+    .action-buttons {
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .action-link.view {
+        padding: 6px 14px;
+        font-size: 12px;
+    }
+
+    .action-link.edit,
+    .action-link.delete {
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 12.5px;
+    }
+
+    .action-link.edit {
+        background: #eef0ff;
+    }
+
+    .action-link.delete {
+        background: #fdecec;
+    }
+
+    .pagination-bar {
+        background: #ffffff;
+        border: 1.5px solid #e0e3fa;
+        border-radius: 14px;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 14px 12px;
+        gap: 10px;
+    }
+
+    .pagination-controls {
+        justify-content: center;
+    }
+
+    .page-btn {
+        min-width: 32px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .modal-overlay {
+        padding: 12px;
+    }
+
+    .profile-modal-wrapper .card,
+    .modal {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .profile-modal-wrapper .card {
+        padding: 20px 18px;
+    }
+
+    .card-header-styled {
+        padding-bottom: 14px;
+        margin-bottom: 16px;
+    }
+
+    .card-header-styled h2 {
+        font-size: 16px;
+        gap: 6px;
+    }
+
+    .big-avatar {
+        width: 72px;
+        height: 72px;
+        font-size: 30px;
+        margin-bottom: 10px;
+    }
+
+    .profile-hero {
+        padding: 12px 0;
+        margin-bottom: 16px;
+    }
+
+    .profile-hero h3 {
+        font-size: 18px;
+    }
+
+    .profile-hero .email-badge {
+        font-size: 12.5px;
+        word-break: break-all;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 16px 18px;
+    }
 }
 
 </style>
@@ -709,10 +891,10 @@ a.page-btn:hover {
                     <tbody>
                         @foreach($users as $i => $user)
                         <tr>
-                            <td style="color: #8f9bd8; font-weight: 600;">#{{ $users->firstItem() + $i }}</td>
-                            <td style="font-weight: 700; color: #1c2766;">{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>
+                            <td data-label="ID" style="color: #8f9bd8; font-weight: 600;">#{{ $users->firstItem() + $i }}</td>
+                            <td data-label="Nama Lengkap" style="font-weight: 700; color: #1c2766;">{{ $user->name }}</td>
+                            <td data-label="Alamat Email">{{ $user->email }}</td>
+                            <td data-label="Role">
                                 @if($user->role === 'admin')
                                     <span class="badge admin">Admin</span>
                                 @elseif($user->role === 'creator')
@@ -721,8 +903,8 @@ a.page-btn:hover {
                                     <span class="badge member">Member</span>
                                 @endif
                             </td>
-                            <td style="color: #8f9bd8;">{{ $user->created_at->format('d M Y') }}</td>
-                            <td>
+                            <td data-label="Bergabung" style="color: #8f9bd8;">{{ $user->created_at->format('d M Y') }}</td>
+                            <td data-label="Aksi">
                                 @php
                                     $userSkillsData = $user->skills->map(function ($s) {
                                         return [
@@ -731,28 +913,30 @@ a.page-btn:hover {
                                         ];
                                     })->values();
                                 @endphp
-                                <button type="button" class="action-link view"
-                                    onclick="openViewModal(this)"
-                                    data-name="{{ $user->name }}"
-                                    data-email="{{ $user->email }}"
-                                    data-role="{{ $user->role }}"
-                                    data-foto="{{ $user->foto_profil ? asset('storage/' . $user->foto_profil) : '' }}"
-                                    data-cv="{{ $user->cv_path ?? '' }}"
-                                    data-portofolio="{{ $user->portofolio ?? '' }}"
-                                    data-skills='@json($userSkillsData)'>View</button>
-                                <button type="button" class="action-link edit"
-                                    onclick="openEditModal(this)"
-                                    data-id="{{ $user->id }}"
-                                    data-name="{{ $user->name }}"
-                                    data-email="{{ $user->email }}"
-                                    data-role="{{ $user->role }}">Edit Role</button>
-                                <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
-                                    style="display:inline;"
-                                    onsubmit="return confirm('Yakin ingin menghapus pengguna {{ addslashes($user->name) }}? Tindakan ini tidak dapat dibatalkan.');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="action-link delete">Hapus</button>
-                                </form>
+                                <div class="action-buttons">
+                                    <button type="button" class="action-link view"
+                                        onclick="openViewModal(this)"
+                                        data-name="{{ $user->name }}"
+                                        data-email="{{ $user->email }}"
+                                        data-role="{{ $user->role }}"
+                                        data-foto="{{ $user->foto_profil ? asset('storage/' . $user->foto_profil) : '' }}"
+                                        data-cv="{{ $user->cv_path ?? '' }}"
+                                        data-portofolio="{{ $user->portofolio ?? '' }}"
+                                        data-skills='@json($userSkillsData)'>View</button>
+                                    <button type="button" class="action-link edit"
+                                        onclick="openEditModal(this)"
+                                        data-id="{{ $user->id }}"
+                                        data-name="{{ $user->name }}"
+                                        data-email="{{ $user->email }}"
+                                        data-role="{{ $user->role }}">Edit Role</button>
+                                    <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
+                                        style="display:inline;"
+                                        onsubmit="return confirm('Yakin ingin menghapus pengguna {{ addslashes($user->name) }}? Tindakan ini tidak dapat dibatalkan.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="action-link delete">Hapus</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @endforeach
