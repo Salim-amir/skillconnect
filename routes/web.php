@@ -12,6 +12,8 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\DashboardController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 // ===================== PUBLIC / GUEST ROUTES =====================
 
@@ -94,7 +96,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/pengguna', function () {
-        $users = User::paginate(8)->withQueryString();
+        $users = User::with('skills')->paginate(8)->withQueryString();
         return view('admin.pengguna', compact('users'));
     })->name('pengguna');
 
@@ -190,7 +192,7 @@ Route::post('/midtrans/callback', [PaymentController::class, 'webhook'])->name('
 Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/pengguna', function () {
-        $users = User::paginate(8)->withQueryString();
+        $users = User::with('skills')->paginate(8)->withQueryString();
         return view('admin.pengguna', compact('users'));
     })->name('pengguna');
 

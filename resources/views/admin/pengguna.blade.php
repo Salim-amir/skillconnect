@@ -273,10 +273,163 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     padding: 0;
     font-family: 'Nunito', sans-serif;
 }
+.action-link.view { color: #7b6cf6; margin-right: 12px; }
+.action-link.view:hover { text-decoration: underline; }
 .action-link.edit { color: #2b3a8f; margin-right: 12px; }
 .action-link.edit:hover { text-decoration: underline; }
 .action-link.delete { color: #d8000c; }
 .action-link.delete:hover { text-decoration: underline; }
+
+/* ===== PROFILE PREVIEW CARD IN MODAL ===== */
+.profile-modal-wrapper {
+    width: 100%;
+    max-width: 520px;
+    animation: pop .2s ease;
+    position: relative;
+}
+.profile-modal-wrapper .card {
+    padding: 32px;
+    box-shadow: 0 30px 60px -20px rgba(80,70,200,.5);
+}
+.card-header-styled {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f0f2ff;
+    padding-bottom: 18px;
+    margin-bottom: 24px;
+    gap: 12px;
+}
+.card-header-styled h2 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px;
+    color: #1c2766;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.role-pill {
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 800;
+    background: #eef0ff;
+    color: #4f5fe0;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.profile-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1.5px dashed #e0e3fa;
+    margin-bottom: 24px;
+}
+.big-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 42px;
+    box-shadow: 0 8px 25px rgba(123,108,246,.35);
+    margin-bottom: 16px;
+    border: 4px solid #fff;
+    overflow: hidden;
+}
+.big-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.profile-hero h3 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 22px;
+    color: #1c2766;
+    margin-bottom: 4px;
+}
+.profile-hero .email-badge {
+    font-size: 14px;
+    color: #7b6cf6;
+    background: #f4f6ff;
+    padding: 4px 14px;
+    border-radius: 99px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+.info-row {
+    margin-bottom: 18px;
+}
+.info-row label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #8f9bd8;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 4px;
+}
+.info-row .val {
+    font-size: 15px;
+    color: #2b3a8f;
+    font-weight: 600;
+    word-break: break-all;
+}
+.link-portfolio {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #7b6cf6;
+    background: #f4f1ff;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    border: 1px solid #e2dcff;
+    transition: .2s;
+}
+.link-portfolio:hover {
+    background: #7b6cf6;
+    color: #fff;
+}
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+.skill-tag {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #d6d9fb;
+    border-radius: 12px;
+    padding: 8px 14px;
+    gap: 10px;
+    box-shadow: 0 4px 10px -6px rgba(80,70,200,.15);
+}
+.skill-tag .skill-name {
+    font-weight: 700;
+    color: #1c2766;
+    font-size: 14px;
+}
+.skill-tag .level-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+.level-Beginner { background: #eef0ff; color: #5a6696; }
+.level-Intermediate { background: #e5ffe5; color: #198754; }
+.level-Advanced { background: #ffe5f1; color: #d63384; }
 
 /* ===== MODAL ===== */
 .modal-overlay {
@@ -549,6 +702,23 @@ a.page-btn:hover {
                             </td>
                             <td style="color: #8f9bd8;">{{ $user->created_at->format('d M Y') }}</td>
                             <td>
+                                @php
+                                    $userSkillsData = $user->skills->map(function ($s) {
+                                        return [
+                                            'nama_skill' => $s->nama_skill,
+                                            'tingkat_keahlian' => $s->pivot->tingkat_keahlian ?? 'Beginner',
+                                        ];
+                                    })->values();
+                                @endphp
+                                <button type="button" class="action-link view"
+                                    onclick="openViewModal(this)"
+                                    data-name="{{ $user->name }}"
+                                    data-email="{{ $user->email }}"
+                                    data-role="{{ $user->role }}"
+                                    data-foto="{{ $user->foto_profil ? asset('storage/' . $user->foto_profil) : '' }}"
+                                    data-cv="{{ $user->cv_path ?? '' }}"
+                                    data-portofolio="{{ $user->portofolio ?? '' }}"
+                                    data-skills='@json($userSkillsData)'>View</button>
                                 <button type="button" class="action-link edit"
                                     onclick="openEditModal(this)"
                                     data-id="{{ $user->id }}"
@@ -601,11 +771,60 @@ a.page-btn:hover {
 
     </main>
 
+    <!-- ===== MODAL VIEW PROFIL PENGGUNA ===== -->
+    <div class="modal-overlay" id="viewModal" onclick="if(event.target === this) closeViewModal();">
+        <div class="profile-modal-wrapper" role="dialog" aria-modal="true" aria-labelledby="viewModalTitle">
+            <div class="card">
+                <div class="card-header-styled">
+                    <h2 id="viewModalTitle">
+                        <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Pratinjau Profil Anda
+                    </h2>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="role-pill" id="view_role">member</span>
+                        <button type="button" class="modal-close" onclick="closeViewModal()" aria-label="Tutup">&times;</button>
+                    </div>
+                </div>
+
+                <div class="profile-hero">
+                    <div class="big-avatar" id="view_avatar">U</div>
+                    <h3 id="view_name">Nama Pengguna</h3>
+                    <div class="email-badge" id="view_email">email@skillconnect.com</div>
+                </div>
+
+                <div class="info-row">
+                    <label>Tautan CV</label>
+                    <div id="view_cv_container">
+                        <div class="val" style="color: #9aa2cc; font-style: italic; font-size: 14px;">
+                            Belum ada tautan CV.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label>Tautan Bukti Portofolio</label>
+                    <div id="view_portofolio_container">
+                        <div class="val" style="color: #9aa2cc; font-style: italic;">Belum ada tautan portofolio.</div>
+                    </div>
+                </div>
+
+                <div class="info-row" style="margin-top: 24px;">
+                    <label id="view_skills_label">Skill Terverifikasi (0)</label>
+                    <div class="skills-container" id="view_skills_container">
+                        <p style="color: #9aa2cc; font-size: 14px; font-style: italic;">
+                            Belum ada keahlian yang ditambahkan. Gunakan formulir di sebelah untuk memilih skill.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== MODAL EDIT PENGGUNA ===== -->
     <div class="modal-overlay" id="editModal" onclick="if(event.target === this) closeEditModal();">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
             <div class="modal-header">
-                <h2 class="modal-title" id="editModalTitle">Edit Pengguna : user ID {{ $user->id }}</h2>
+                <h2 class="modal-title" id="editModalTitle">Edit Pengguna : user ID {{ $user->id ?? '' }}</h2>
                 <button type="button" class="modal-close" onclick="closeEditModal()" aria-label="Tutup">&times;</button>
             </div>
             <form id="editForm" method="POST" action="">
@@ -678,10 +897,92 @@ a.page-btn:hover {
     </div>
 
     <script>
+        const viewModal = document.getElementById('viewModal');
         const editModal = document.getElementById('editModal');
         const editForm = document.getElementById('editForm');
         const createModal = document.getElementById('createModal');
         const createForm = document.getElementById('createForm');
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ===== MODAL VIEW PROFIL =====
+        function openViewModal(button) {
+            const name       = button.getAttribute('data-name') || 'Pengguna';
+            const email      = button.getAttribute('data-email') || '-';
+            const role       = button.getAttribute('data-role') || 'member';
+            const foto       = button.getAttribute('data-foto') || '';
+            const cv         = button.getAttribute('data-cv') || '';
+            const portofolio = button.getAttribute('data-portofolio') || '';
+            let skills       = [];
+
+            try {
+                skills = JSON.parse(button.getAttribute('data-skills') || '[]');
+            } catch (err) {
+                skills = [];
+            }
+
+            document.getElementById('view_role').textContent = role;
+            document.getElementById('view_name').textContent = name;
+            document.getElementById('view_email').textContent = email;
+
+            const avatarEl = document.getElementById('view_avatar');
+            if (foto) {
+                avatarEl.innerHTML = '<img src="' + escapeHtml(foto) + '" alt="' + escapeHtml(name) + '">';
+            } else {
+                avatarEl.textContent = name.charAt(0).toUpperCase();
+            }
+
+            const cvContainer = document.getElementById('view_cv_container');
+            if (cv) {
+                cvContainer.innerHTML = '<a href="' + escapeHtml(cv) + '" target="_blank" class="link-portfolio" style="background: #eef0ff; color: #2b3a8f; border-color: #d6d9fb;">' +
+                    '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>' +
+                    'Lihat Dokumen CV</a>';
+            } else {
+                cvContainer.innerHTML = '<div class="val" style="color: #9aa2cc; font-style: italic; font-size: 14px;">Belum ada tautan CV.</div>';
+            }
+
+            const portofolioContainer = document.getElementById('view_portofolio_container');
+            if (portofolio) {
+                portofolioContainer.innerHTML = '<a href="' + escapeHtml(portofolio) + '" target="_blank" class="link-portfolio">' +
+                    '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>' +
+                    'Buka Tautan Portofolio</a>';
+            } else {
+                portofolioContainer.innerHTML = '<div class="val" style="color: #9aa2cc; font-style: italic;">Belum ada tautan portofolio.</div>';
+            }
+
+            const skillsLabel = document.getElementById('view_skills_label');
+            const skillsContainer = document.getElementById('view_skills_container');
+            skillsLabel.textContent = 'Skill Terverifikasi (' + skills.length + ')';
+
+            if (skills.length > 0) {
+                skillsContainer.innerHTML = skills.map(function (skill) {
+                    const level = skill.tingkat_keahlian || 'Beginner';
+                    return '<div class="skill-tag">' +
+                        '<span class="skill-name">' + escapeHtml(skill.nama_skill) + '</span>' +
+                        '<span class="level-badge level-' + escapeHtml(level) + '">' + escapeHtml(level) + '</span>' +
+                        '</div>';
+                }).join('');
+            } else {
+                skillsContainer.innerHTML = '<p style="color: #9aa2cc; font-size: 14px; font-style: italic;">' +
+                    'Belum ada keahlian yang ditambahkan. Gunakan formulir di sebelah untuk memilih skill.' +
+                    '</p>';
+            }
+
+            viewModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewModal() {
+            viewModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
 
         // ===== MODAL EDIT =====
         function openEditModal(button) {
@@ -691,6 +992,7 @@ a.page-btn:hover {
             // Set action form ke route update
             editForm.action = '/pengguna/' + id;
             document.getElementById('edit_id').value = id;
+            document.getElementById('editModalTitle').textContent = 'Edit Pengguna : user ID ' + id;
 
             // Isi nilai form
             document.getElementById('edit_role').value = role;
@@ -727,6 +1029,9 @@ a.page-btn:hover {
         // Tutup modal aktif dengan tombol ESC
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
+                if (viewModal.classList.contains('active')) {
+                    closeViewModal();
+                }
                 if (editModal.classList.contains('active')) {
                     closeEditModal();
                 }
