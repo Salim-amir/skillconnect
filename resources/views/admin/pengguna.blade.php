@@ -273,8 +273,29 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     padding: 0;
     font-family: 'Nunito', sans-serif;
 }
-.action-link.view { color: #7b6cf6; margin-right: 12px; }
-.action-link.view:hover { text-decoration: underline; }
+.action-link.view {
+    background: linear-gradient(135deg, #4f6ef7, #38bdf8);
+    color: #ffffff;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    line-height: 1.3;
+    margin-right: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 3px 8px rgba(79, 110, 247, 0.25);
+    transition: all .2s ease;
+}
+.action-link.view:hover {
+    background: linear-gradient(135deg, #3b5bdb, #0ea5e9);
+    color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(79, 110, 247, 0.35);
+}
 .action-link.edit { color: #2b3a8f; margin-right: 12px; }
 .action-link.edit:hover { text-decoration: underline; }
 .action-link.delete { color: #d8000c; }
