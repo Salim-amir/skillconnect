@@ -9,6 +9,7 @@ use App\Http\Controllers\User\ProyekController;
 use App\Http\Controllers\User\TaskController;
 use App\Models\Project;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\DashboardController;
 
