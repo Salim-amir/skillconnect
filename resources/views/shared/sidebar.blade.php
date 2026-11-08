@@ -1,6 +1,38 @@
 <style>
 /* ===== UNIFIED SIDEBAR CSS ===== */
-.sidebar {
+/* ===== Clickable Topbar User Profile ===== */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none !important;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 28px;
+    transition: all 0.2s ease;
+}
+.user-profile:hover {
+    background: rgba(123, 108, 246, 0.08);
+    transform: translateY(-1px);
+}
+.user-profile:hover .avatar {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(123, 108, 246, 0.45);
+}
+.user-profile .avatar {
+    transition: all 0.2s ease;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.user-profile .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+    .sidebar {
     width: 280px;
     background: #fff;
     border-right: 1.5px solid #e0e3fa;
@@ -209,7 +241,7 @@
     .mobile-top-bar {
         display: flex;
     }
-    .sidebar {
+        .sidebar {
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
@@ -378,9 +410,13 @@
         </svg>
         <span style="font-family:'Fredoka',sans-serif; font-size:16px; font-weight:700; background:linear-gradient(90deg, #1c2766, #7b6cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">SKILL CONNECT</span>
     </a>
-    <div class="mobile-user-avatar">
-        {{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}
-    </div>
+    <a href="{{ route('profile.skill') }}" class="mobile-user-avatar" title="Kelola Profil" style="text-decoration:none; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+        @if(auth()->check() && auth()->user()->foto_profil)
+            <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+        @else
+            {{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}
+        @endif
+    </a>
 </header>
 
 <!-- BACKDROP OVERLAY UNTUK MOBILE DRAWER -->
@@ -450,10 +486,6 @@
             <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                 Dashboard
-            </a>
-            <a href="{{ route('profile.skill') }}" class="nav-item {{ request()->routeIs('profile.skill') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                Profil & Keahlian
             </a>
             <a href="{{ route('proyek') }}" class="nav-item {{ request()->routeIs('proyek') || request()->routeIs('proyek.detail') || request()->routeIs('proyek.tasks') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>

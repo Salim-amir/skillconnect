@@ -559,13 +559,19 @@ button { font-family: inherit; }
                 <h1 class="page-title">Dashboard Member</h1>
                 <p style="font-size: 13.5px; color: #64748b; margin-top: 4px;">Pantau tugas, proyek aktif, dan status lamaran kolaborasimu.</p>
             </div>
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ auth()->user()->name }}</div>
                     <span class="role-badge">Member</span>
                 </div>
-                <div class="avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
-            </div>
+                <div class="avatar">
+                    @if(auth()->user()->foto_profil)
+                        <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
         {{-- Toast notifications are rendered as fixed bottom popups --}}

@@ -367,7 +367,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             <div class="top-breadcrumb">
                 SkillConnect / <span>Portofolio & Fee</span>
             </div>
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ $user->name }}</div>
                     <div class="role">
@@ -380,8 +380,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         @endif
                     </div>
                 </div>
-                <div class="avatar">{{ substr($user->name, 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if($user->foto_profil)
+                        <img src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}">
+                    @else
+                        {{ substr($user->name, 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
         <div class="page-header">

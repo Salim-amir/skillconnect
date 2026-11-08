@@ -590,13 +590,19 @@ button { font-family: inherit; }
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                     Buat Proyek Baru
                 </a>
-                <div class="user-profile">
+                <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                     <div class="user-info">
                         <div class="name">{{ auth()->user()->name }}</div>
                         <span class="role-badge">Creator</span>
                     </div>
-                    <div class="avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
-                </div>
+                    <div class="avatar">
+                        @if(auth()->user()->foto_profil)
+                            <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
+                    </div>
+                </a>
             </div>
         </header>
 

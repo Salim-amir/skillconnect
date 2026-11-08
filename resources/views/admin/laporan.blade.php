@@ -797,13 +797,19 @@ a.page-btn:hover {
     <main class="main-content">
         <!-- TOP BAR -->
         <header class="top-bar">
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Nama Admin' }}</div>
                     <div class="role">Administrator</div>
                 </div>
-                <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'A', 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if(auth()->check() && auth()->user()->foto_profil)
+                        <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ substr(auth()->check() ? auth()->user()->name : 'A', 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
         <!-- PAGE HEADER -->
