@@ -62,13 +62,6 @@ class SocialiteController extends Controller
                 if (!$user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
-
-                // Validasi role pengguna lama (Admin dikecualikan)
-                if ($user->role !== 'admin' && $user->role !== $targetRole) {
-                    $roleLabel = ucfirst($user->role);
-                    return redirect()->route('login')
-                        ->with('error', 'Akun Google ini terdaftar sebagai ' . $roleLabel . '. Silakan pilih jenis akun ' . $roleLabel . '.');
-                }
             }
 
             Auth::login($user);
