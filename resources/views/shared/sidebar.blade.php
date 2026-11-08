@@ -371,7 +371,7 @@
     <button type="button" class="mobile-toggle-btn" onclick="toggleMobileSidebar()" aria-label="Buka Menu">
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
-    <a class="brand" href="/" aria-label="SkillConnect" style="text-decoration:none; display:flex; align-items:center; gap:8px;">
+    <a class="brand" href="{{ route('dashboard') }}" aria-label="SkillConnect" style="text-decoration:none; display:flex; align-items:center; gap:8px;">
         <svg viewBox="0 0 64 32" fill="none" style="width:36px; height:18px;">
           <defs><linearGradient id="sb_g_mob" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4d6bff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient></defs>
           <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C52 5 38 5 32 16C26 27 12 27 12 16Z" stroke="url(#sb_g_mob)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -389,7 +389,7 @@
 <!-- SIDEBAR -->
 <aside class="sidebar">
     <div class="sidebar-header">
-        <a class="brand" href="/" aria-label="SkillConnect">
+        <a class="brand" href="{{ route('dashboard') }}" aria-label="SkillConnect">
             <svg viewBox="0 0 64 32" fill="none">
               <defs><linearGradient id="sb_g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4d6bff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient></defs>
               <path d="M12 16C12 5 26 5 32 16C38 27 52 27 52 16C52 5 38 5 32 16C26 27 12 27 12 16Z" stroke="url(#sb_g)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
