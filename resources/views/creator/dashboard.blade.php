@@ -778,27 +778,6 @@ button { font-family: inherit; }
         </div>
     </main>
 
-    @if(session('success'))
-        <div class="toast-notification" id="toastNotif">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="toast-notification toast-error" id="toastNotif">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            {{ session('error') }}
-        </div>
-    @endif
 
-<script>
-    // Auto-remove toast dari DOM setelah animasi selesai
-    const toast = document.getElementById('toastNotif');
-    if (toast) {
-        setTimeout(() => {
-            toast.remove();
-        }, 4000);
-    }
-</script>
 </body>
 </html>

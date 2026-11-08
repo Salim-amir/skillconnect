@@ -32,6 +32,50 @@
     object-fit: cover;
     border-radius: 50%;
 }
+
+/* ===== GLOBAL FLOATING TOAST POPUP ===== */
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+    padding: 16px 28px;
+    border-radius: 16px;
+    font-size: 14.5px;
+    font-weight: 700;
+    font-family: 'Nunito', system-ui, sans-serif;
+    z-index: 999999;
+    box-shadow: 0 12px 36px -6px rgba(79, 70, 229, 0.45);
+    opacity: 0;
+    animation: toastSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+               toastSlideDown 0.4s cubic-bezier(0.55, 0, 1, 0.45) 3.5s forwards;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    max-width: 90vw;
+    pointer-events: auto;
+    cursor: pointer;
+}
+.toast-notification.toast-error {
+    background: linear-gradient(135deg, #e11d48, #f43f5e);
+    box-shadow: 0 12px 36px -6px rgba(225, 29, 72, 0.45);
+}
+.toast-notification svg {
+    flex-shrink: 0;
+}
+
+@keyframes toastSlideUp {
+    0% { opacity: 0; transform: translateX(-50%) translateY(100px); }
+    100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes toastSlideDown {
+    0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(100px); }
+}
     .sidebar {
     width: 280px;
     background: #fff;
@@ -574,4 +618,43 @@ document.addEventListener('keydown', function(e) {
         closeLogoutModal();
     }
 });
+
+// Auto remove global toast notification
+document.addEventListener('DOMContentLoaded', function() {
+    const globalToast = document.getElementById('globalToastNotif');
+    if (globalToast) {
+        setTimeout(function() {
+            if (globalToast && globalToast.parentNode) {
+                globalToast.remove();
+            }
+        }, 4000);
+    }
+});
 </script>
+
+<!-- GLOBAL FLOATING TOAST POPUP NOTIFICATION -->
+@if(session('success'))
+    <div class="toast-notification" id="globalToastNotif" onclick="this.remove()" title="Klik untuk menutup">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>{{ session('success') }}</span>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="toast-notification toast-error" id="globalToastNotif" onclick="this.remove()" title="Klik untuk menutup">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>{{ session('error') }}</span>
+    </div>
+@elseif($errors->any())
+    <div class="toast-notification toast-error" id="globalToastNotif" onclick="this.remove()" title="Klik untuk menutup">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>{{ $errors->first() }}</span>
+    </div>
+@endif
+
+@if(session('info'))
+    <div class="toast-notification" id="globalToastNotif" onclick="this.remove()" title="Klik untuk menutup">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>{{ session('info') }}</span>
+    </div>
+@endif

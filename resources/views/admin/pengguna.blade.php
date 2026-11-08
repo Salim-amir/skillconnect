@@ -508,12 +508,7 @@ a.page-btn:hover {
             {{-- <button type="button" class="btn pri" onclick="openCreateModal()">+ Tambah Pengguna</button> --}}
         </div>
 
-        @if(session('success'))
-            <div class="alert success">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="alert error">{{ session('error') }}</div>
-        @endif
+
         @if($errors->any() && !old('_edit_id') && old('_form') !== 'create')
             <div class="alert error">
                 <ul style="margin-left: 18px;">
