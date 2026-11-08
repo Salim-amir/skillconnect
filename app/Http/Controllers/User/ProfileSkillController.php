@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileSkillController extends Controller
 {
@@ -45,12 +46,14 @@ class ProfileSkillController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
+        $isCreator = ($user->role === 'creator');
 
         // Validasi input, format tautan, dan kelengkapan data sesuai diagram
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
-            'cv_link'     => 'required|url|max:500',
+            'cv_link'     => $isCreator ? 'nullable|url|max:500' : 'required|url|max:500',
             'portofolio'  => 'nullable|url|max:255',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'skill_id'    => 'nullable|array',
             'skill_id.*'  => 'nullable|exists:skills,id',
             'level'       => 'nullable|array',
@@ -62,20 +65,32 @@ class ProfileSkillController extends Controller
             'cv_link.required' => 'Tautan CV wajib diisi.',
             'cv_link.url'      => 'Link CV harus berupa URL yang valid (misal: https://drive.google.com/...).',
             'portofolio.url'   => 'Tautan bukti portofolio harus berupa URL yang valid (misal: https://github.com/username).',
+            'foto_profil.image'=> 'File foto profil harus berupa gambar.',
+            'foto_profil.mimes'=> 'Format foto profil harus JPG, JPEG, PNG, atau WEBP.',
+            'foto_profil.max'  => 'Ukuran foto profil maksimal 2MB.',
             'level.*.in'       => 'Tingkat keahlian harus Beginner, Intermediate, atau Advanced.',
         ]);
 
         DB::beginTransaction();
         try {
-            // Simpan link CV yang selalu wajib diisi
-            $cvPath = $validated['cv_link'];
-
-            // 1. Perbarui data pada tabel users (name, cv_path, portofolio)
-            $user->update([
+            // Data pembaruan user
+            $updateData = [
                 'name'       => $validated['name'],
-                'cv_path'    => $cvPath,
+                'cv_path'    => $validated['cv_link'] ?? $user->cv_path,
                 'portofolio' => $validated['portofolio'] ?? null,
-            ]);
+            ];
+
+            // 1. Simpan foto profil jika ada unggahan baru
+            if ($request->hasFile('foto_profil')) {
+                if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+                    Storage::disk('public')->delete($user->foto_profil);
+                }
+                $path = $request->file('foto_profil')->store('avatars', 'public');
+                $updateData['foto_profil'] = $path;
+            }
+
+            // Perbarui data pada tabel users (name, cv_path, portofolio, foto_profil)
+            $user->update($updateData);
 
             // 2. Jika user menambahkan custom skill baru
             if (!empty($validated['custom_skill'])) {

@@ -488,13 +488,19 @@ a.page-btn:hover {
     <main class="main-content">
         <!-- TOP BAR -->
         <header class="top-bar">
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Nama Pengguna' }}</div>
                     <div class="role">Administrator</div>
                 </div>
-                <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if(auth()->check() && auth()->user()->foto_profil)
+                        <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
         <div class="page-header">
@@ -502,12 +508,7 @@ a.page-btn:hover {
             {{-- <button type="button" class="btn pri" onclick="openCreateModal()">+ Tambah Pengguna</button> --}}
         </div>
 
-        @if(session('success'))
-            <div class="alert success">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="alert error">{{ session('error') }}</div>
-        @endif
+
         @if($errors->any() && !old('_edit_id') && old('_form') !== 'create')
             <div class="alert error">
                 <ul style="margin-left: 18px;">

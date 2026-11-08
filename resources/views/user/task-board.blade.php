@@ -735,26 +735,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             <div class="top-breadcrumb">
                 SkillConnect / <a href="{{ route('proyek') }}">Proyek</a> / <a href="{{ route('proyek.detail', $project->id) }}">{{ $project->judul_project }}</a> / <span>Task Board</span>
             </div>
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Tamu' }}</div>
                     <div class="role">{{ auth()->check() ? ucfirst(auth()->user()->role) : 'Guest' }}</div>
                 </div>
-                <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if(auth()->check() && auth()->user()->foto_profil)
+                        <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
-        <!-- FLASH NOTIFICATION -->
-        @if(session('success'))
-            <div class="alert alert-success">
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger">
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
+
 
         <!-- TASK BOARD HEADER -->
         <div class="task-board-header">

@@ -394,7 +394,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     <main class="main-content">
         <!-- TOP BAR -->
         <header class="top-bar">
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Nama Pengguna' }}</div>
                     <div class="role">
@@ -407,8 +407,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         @endif
                     </div>
                 </div>
-                <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if(auth()->check() && auth()->user()->foto_profil)
+                        <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
         {{-- Toast notifications are rendered as fixed bottom popups --}}
@@ -542,27 +548,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
     </main>
 
-    @if(session('success'))
-        <div class="toast-notification" id="toastNotif">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="toast-notification toast-error" id="toastNotif">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            {{ session('error') }}
-        </div>
-    @endif
 
-<script>
-    // Auto-remove toast dari DOM setelah animasi selesai
-    const toast = document.getElementById('toastNotif');
-    if (toast) {
-        setTimeout(() => {
-            toast.remove();
-        }, 4000);
-    }
-</script>
 </body>
 </html>

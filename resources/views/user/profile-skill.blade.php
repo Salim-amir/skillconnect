@@ -734,35 +734,17 @@ textarea.form-control {
                         @endif
                     </div>
                 </div>
-                <div class="avatar">{{ substr($user->name, 0, 1) }}</div>
+                <div class="avatar">
+                    @if($user->foto_profil)
+                        <img src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}">
+                    @else
+                        {{ substr($user->name, 0, 1) }}
+                    @endif
+                </div>
             </div>
         </header>
 
-        <!-- FLASH NOTIFICATION -->
-        @if(session('success'))
-            <div class="alert alert-success">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
-        @if($errors->any())
-            <div class="alert alert-danger">
-                <div>
-                    <strong>Perhatian!</strong>
-                    <ul style="margin-top: 4px; padding-left: 20px;">
-                        @foreach($errors->all() as $err)
-                            <li>{{ $err }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        @endif
+
 
         <div class="page-header">
             <div>
@@ -784,7 +766,13 @@ textarea.form-control {
                 </div>
 
                 <div class="profile-hero">
-                    <div class="big-avatar">{{ substr($user->name, 0, 1) }}</div>
+                    @if($user->foto_profil)
+                        <div class="big-avatar" style="padding: 0; overflow: hidden;">
+                            <img src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        </div>
+                    @else
+                        <div class="big-avatar">{{ substr($user->name, 0, 1) }}</div>
+                    @endif
                     <h3>{{ $user->name }}</h3>
                     <div class="email-badge">{{ $user->email }}</div>
                 </div>
@@ -880,8 +868,26 @@ textarea.form-control {
                 </div>
 
                 <!-- FORM UTAMA EDIT PROFIL & PORTOFOLIO -->
-                <form action="{{ route('profile.skill.update') }}" method="POST">
+                <form action="{{ route('profile.skill.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+
+                    <div class="form-group">
+                        <label for="foto_profil">Foto Profil</label>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div id="preview-avatar-box" style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2.5px solid #7b6cf6; box-shadow: 0 4px 12px rgba(123,108,246,0.25);">
+                                @if($user->foto_profil)
+                                    <img id="avatar-preview-img" src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                @else
+                                    <span id="avatar-preview-initial" style="font-family: 'Fredoka', sans-serif; font-size: 22px; font-weight: 700; color: #7b6cf6;">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                                    <img id="avatar-preview-img" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                @endif
+                            </div>
+                            <div style="flex: 1;">
+                                <input type="file" id="foto_profil" name="foto_profil" accept="image/png, image/jpeg, image/jpg, image/webp" class="form-control" style="padding: 9px 12px; font-size: 13.5px;" onchange="previewAvatar(this)">
+                                <div class="hint" style="margin-top: 4px;">Pilih foto baru (JPG, PNG, atau WEBP, maks. 2MB).</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label for="name">Nama Lengkap <span class="req">*</span></label>
@@ -891,7 +897,7 @@ textarea.form-control {
                     {{-- CV Link Section --}}
                     <div class="form-group" id="cv-upload-section">
                         <label for="cv_link">
-                            Tautan CV (Google Drive) <span class="req">*</span>
+                            Tautan CV (Google Drive) @if($user->role !== 'creator')<span class="req">*</span>@else<span style="font-size: 12px; color: #64748b; font-weight: normal;">(Opsional untuk Creator)</span>@endif
                         </label>
 
                         {{-- Input link Google Drive --}}
@@ -904,7 +910,7 @@ textarea.form-control {
                                 style="border:none; outline:none; background:transparent; flex:1; padding:0;"
                                 value="{{ old('cv_link', $user->cv_path) }}"
                                 placeholder="https://drive.google.com/file/d/..."
-                                required>
+                                @if($user->role !== 'creator') required @endif>
                         </div>
 
                         {{-- Peringatan akses publik --}}
@@ -959,5 +965,30 @@ textarea.form-control {
 
 
 
+<script>
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Ukuran foto terlalu besar! Maksimal 2MB.');
+            input.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const previewImg = document.getElementById('avatar-preview-img');
+            const initialSpan = document.getElementById('avatar-preview-initial');
+            if (previewImg) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            }
+            if (initialSpan) {
+                initialSpan.style.display = 'none';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+</script>
 </body>
 </html>

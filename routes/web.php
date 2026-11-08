@@ -15,6 +15,9 @@ use App\Http\Controllers\DashboardController;
 // ===================== PUBLIC / GUEST ROUTES =====================
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
     return view('shared.welcome');
 })->name('welcome');
 
