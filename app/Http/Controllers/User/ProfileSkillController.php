@@ -46,6 +46,44 @@ class ProfileSkillController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
+
+        // 1. KHUSUS ROLE ADMIN: Hanya mengelola Username (Nama) dan Foto Profil
+        if ($user->role === 'admin') {
+            $validated = $request->validate([
+                'name'        => 'required|string|max:255',
+                'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            ], [
+                'name.required'     => 'Username / Nama Administrator wajib diisi.',
+                'foto_profil.image' => 'File foto profil harus berupa gambar.',
+                'foto_profil.mimes' => 'Format foto profil harus JPG, JPEG, PNG, atau WEBP.',
+                'foto_profil.max'   => 'Ukuran foto profil maksimal 2MB.',
+            ]);
+
+            DB::beginTransaction();
+            try {
+                $updateData = [
+                    'name' => $validated['name'],
+                ];
+
+                if ($request->hasFile('foto_profil')) {
+                    if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+                        Storage::disk('public')->delete($user->foto_profil);
+                    }
+                    $path = $request->file('foto_profil')->store('avatars', 'public');
+                    $updateData['foto_profil'] = $path;
+                }
+
+                $user->update($updateData);
+                DB::commit();
+
+                return redirect()->route('profile.skill')->with('success', 'Profil administrator berhasil diperbarui!');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return redirect()->back()->withInput()->with('error', 'Gagal menyimpan perubahan: ' . $e->getMessage());
+            }
+        }
+
+        // 2. UNTUK ROLE CREATOR & MEMBER
         $isCreator = ($user->role === 'creator');
 
         // Validasi input, format tautan, dan kelengkapan data sesuai diagram
@@ -132,6 +170,10 @@ class ProfileSkillController extends Controller
     public function addSkill(Request $request)
     {
         $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            return redirect()->route('profile.skill')->with('error', 'Administrator tidak mengelola master skill pribadi.');
+        }
 
         $request->validate([
             'skill_id'         => 'required|exists:skills,id',

@@ -719,13 +719,15 @@ textarea.form-control {
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="top-breadcrumb">
-                SkillConnect / <span>Profil & Kelola Skill</span>
+                SkillConnect / <span>@if($user->role === 'admin') Profil Administrator @else Profil & Kelola Skill @endif</span>
             </div>
             <div class="user-profile">
                 <div class="user-info">
                     <div class="name">{{ $user->name }}</div>
                     <div class="role">
-                        @if($user->role === 'creator')
+                        @if($user->role === 'admin')
+                            Administrator
+                        @elseif($user->role === 'creator')
                             Project Creator
                         @elseif($user->role === 'member')
                             Project Member
@@ -734,147 +736,183 @@ textarea.form-control {
                         @endif
                     </div>
                 </div>
-                <div class="avatar">
+                <div class="avatar" style="overflow: hidden;">
                     @if($user->foto_profil)
-                        <img src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}">
+                        <img id="top-bar-avatar-img" src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                     @else
-                        {{ substr($user->name, 0, 1) }}
+                        <span id="top-bar-avatar-initial">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                        <img id="top-bar-avatar-img" src="" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover; display: none;">
                     @endif
                 </div>
             </div>
         </header>
 
-
-
         <div class="page-header">
             <div>
-                <h1 class="page-title">Kelola Profil & Skill</h1>
-                <p class="page-desc">Lengkapi identitas, tambahkan master skill & bukti portofolio untuk meningkatkan peluang proyek.</p>
+                @if($user->role === 'admin')
+                    <h1 class="page-title">Kelola Profil Administrator</h1>
+                    <p class="page-desc">Kelola foto profil dan username akun administrator Anda.</p>
+                @else
+                    <h1 class="page-title">Kelola Profil & Skill</h1>
+                    <p class="page-desc">Lengkapi identitas, tambahkan master skill & bukti portofolio untuk meningkatkan peluang proyek.</p>
+                @endif
             </div>
         </div>
 
         <div class="profile-grid">
             
-            <!-- KOLOM KIRI: PREVIEW TAMPILAN PROFIL & SKILL AKTIF -->
+            <!-- KOLOM KIRI: PREVIEW TAMPILAN PROFIL -->
             <div class="card">
                 <div class="card-header-styled">
                     <h2>
                         <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Pratinjau Profil Anda
                     </h2>
-                    <span class="role-pill">{{ $user->role }}</span>
+                    <span class="role-pill">{{ strtoupper($user->role) }}</span>
                 </div>
 
                 <div class="profile-hero">
-                    @if($user->foto_profil)
-                        <div class="big-avatar" style="padding: 0; overflow: hidden;">
-                            <img src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                        </div>
-                    @else
-                        <div class="big-avatar">{{ substr($user->name, 0, 1) }}</div>
-                    @endif
-                    <h3>{{ $user->name }}</h3>
+                    <div class="big-avatar" id="big-avatar-box" style="padding: 0; overflow: hidden; margin: 0 auto 14px; cursor: pointer;" onclick="document.getElementById('foto_profil').click()" title="Klik untuk pilih foto baru">
+                        @if($user->foto_profil)
+                            <img id="big-avatar-img" src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        @else
+                            <span id="big-avatar-initial" style="font-family: 'Fredoka', sans-serif; font-size: 36px; font-weight: 700; color: #fff;">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                            <img id="big-avatar-img" src="" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none;">
+                        @endif
+                    </div>
+                    <h3 id="preview-profile-name">{{ $user->name }}</h3>
                     <div class="email-badge">{{ $user->email }}</div>
                 </div>
 
-                <div class="info-row">
-                    <label>Tautan CV</label>
-                    @if($user->cv_path)
-                        <a href="{{ $user->cv_path }}" target="_blank" rel="noopener noreferrer" class="link-portfolio">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                            {{ $user->cv_path }}
-                        </a>
-                    @else
-                        <div class="val" style="color: #9aa2cc; font-style: italic; font-size: 14px;">
-                            Belum ada tautan CV.
+                @if($user->role === 'admin')
+                    <!-- INFORMASI KHUSUS AKUN ADMINISTRATOR -->
+                    <div class="info-row">
+                        <label>Tipe Hak Akses</label>
+                        <div class="val" style="display: flex; align-items: center; gap: 8px;">
+                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                            <strong style="color: #1c2766;">Administrator Sistem (Super Admin)</strong>
                         </div>
-                    @endif
-                </div>
-
-                <div class="info-row">
-                    <label>Tautan Bukti Portofolio</label>
-                    @if($user->portofolio)
-                        <a href="{{ $user->portofolio }}" target="_blank" rel="noopener noreferrer" class="link-portfolio">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                            {{ $user->portofolio }}
-                        </a>
-                    @else
-                        <div class="val" style="color: #9aa2cc; font-style: italic;">Belum ada tautan portofolio.</div>
-                    @endif
-                </div>
-
-                <div class="info-row" style="margin-top: 24px;">
-                    <label>Skill Terverifikasi ({{ $userSkills->count() }})</label>
-                    <div class="skills-container">
-                        @forelse($userSkills as $skill)
-                            <div class="skill-tag">
-                                <span class="skill-name">{{ $skill->nama_skill }}</span>
-                                <span class="level-badge level-{{ $skill->pivot->tingkat_keahlian }}">
-                                    {{ $skill->pivot->tingkat_keahlian }}
-                                </span>
-                                <form action="{{ route('profile.skill.remove', $skill->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Hapus skill {{ $skill->nama_skill }}?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-remove-skill" title="Hapus skill">
-                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </button>
-                                </form>
-                            </div>
-                        @empty
-                            <p style="color: #9aa2cc; font-size: 14px; font-style: italic;">
-                                Belum ada keahlian yang ditambahkan. Gunakan formulir di sebelah untuk memilih skill.
-                            </p>
-                        @endforelse
                     </div>
-                </div>
+
+                    <div class="info-row">
+                        <label>Status Akun</label>
+                        <div class="val" style="color: #059669; font-weight: 700;">
+                            Aktif Terverifikasi
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <label>Cakupan Hak Akses</label>
+                        <div class="val" style="font-size: 13.5px; color: #4b5686; line-height: 1.6;">
+                            Kelola pengguna, pantau seluruh proyek, rekapitulasi transaksi, dan laporan sistem.
+                        </div>
+                    </div>
+                @else
+                    <div class="info-row">
+                        <label>Tautan CV</label>
+                        @if($user->cv_path)
+                            <a href="{{ $user->cv_path }}" target="_blank" rel="noopener noreferrer" class="link-portfolio">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                {{ $user->cv_path }}
+                            </a>
+                        @else
+                            <div class="val" style="color: #9aa2cc; font-style: italic; font-size: 14px;">
+                                Belum ada tautan CV.
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="info-row">
+                        <label>Tautan Bukti Portofolio</label>
+                        @if($user->portofolio)
+                            <a href="{{ $user->portofolio }}" target="_blank" rel="noopener noreferrer" class="link-portfolio">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                {{ $user->portofolio }}
+                            </a>
+                        @else
+                            <div class="val" style="color: #9aa2cc; font-style: italic;">Belum ada tautan portofolio.</div>
+                        @endif
+                    </div>
+
+                    <div class="info-row" style="margin-top: 24px;">
+                        <label>Skill Terverifikasi ({{ $userSkills->count() }})</label>
+                        <div class="skills-container">
+                            @forelse($userSkills as $skill)
+                                <div class="skill-tag">
+                                    <span class="skill-name">{{ $skill->nama_skill }}</span>
+                                    <span class="level-badge level-{{ $skill->pivot->tingkat_keahlian }}">
+                                        {{ $skill->pivot->tingkat_keahlian }}
+                                    </span>
+                                    <form action="{{ route('profile.skill.remove', $skill->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Hapus skill {{ $skill->nama_skill }}?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-remove-skill" title="Hapus skill">
+                                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            @empty
+                                <p style="color: #9aa2cc; font-size: 14px; font-style: italic;">
+                                    Belum ada keahlian yang ditambahkan. Gunakan formulir di sebelah untuk memilih skill.
+                                </p>
+                            @endforelse
+                        </div>
+                    </div>
+                @endif
             </div>
 
-            <!-- KOLOM KANAN: FORMULIR EDIT PROFIL & SKILL (AD-02) -->
+            <!-- KOLOM KANAN: FORMULIR EDIT PROFIL -->
             <div class="card">
                 <div class="card-header-styled">
                     <h2>
                         <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        Edit Identitas & Master Skill
+                        @if($user->role === 'admin')
+                            Edit Profil Administrator
+                        @else
+                            Edit Identitas & Master Skill
+                        @endif
                     </h2>
                 </div>
 
-                <!-- BOX TAMBAH CEPAT MASTER SKILL -->
-                <div class="skill-adder-box">
-                    <h4>
-                        <svg width="18" height="18" fill="none" stroke="#2b3a8f" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        Tambah Master Skill Baru ke Profil
-                    </h4>
-                    <form action="{{ route('profile.skill.add') }}" method="POST" class="skill-adder-grid">
-                        @csrf
-                        <div>
-                            <select name="skill_id" class="form-control" required>
-                                <option value="" disabled selected>-- Pilih Master Skill --</option>
-                                @foreach($masterSkills as $ms)
-                                    <option value="{{ $ms->id }}">{{ $ms->nama_skill }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <select name="tingkat_keahlian" class="form-control" required>
-                                <option value="Beginner">Beginner</option>
-                                <option value="Intermediate" selected>Intermediate</option>
-                                <option value="Advanced">Advanced</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn pri" style="padding: 12px 18px;">
-                            + Tambah
-                        </button>
-                    </form>
-                </div>
+                @if($user->role !== 'admin')
+                    <!-- BOX TAMBAH CEPAT MASTER SKILL (HANYA UNTUK MEMBER / CREATOR) -->
+                    <div class="skill-adder-box">
+                        <h4>
+                            <svg width="18" height="18" fill="none" stroke="#2b3a8f" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            Tambah Master Skill Baru ke Profil
+                        </h4>
+                        <form action="{{ route('profile.skill.add') }}" method="POST" class="skill-adder-grid">
+                            @csrf
+                            <div>
+                                <select name="skill_id" class="form-control" required>
+                                    <option value="" disabled selected>-- Pilih Master Skill --</option>
+                                    @foreach($masterSkills as $ms)
+                                        <option value="{{ $ms->id }}">{{ $ms->nama_skill }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <select name="tingkat_keahlian" class="form-control" required>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate" selected>Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn pri" style="padding: 12px 18px;">
+                                + Tambah
+                            </button>
+                        </form>
+                    </div>
+                @endif
 
-                <!-- FORM UTAMA EDIT PROFIL & PORTOFOLIO -->
+                <!-- FORM UTAMA EDIT PROFIL -->
                 <form action="{{ route('profile.skill.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="form-group">
                         <label for="foto_profil">Foto Profil</label>
                         <div style="display: flex; align-items: center; gap: 16px;">
-                            <div id="preview-avatar-box" style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2.5px solid #7b6cf6; box-shadow: 0 4px 12px rgba(123,108,246,0.25);">
+                            <div id="preview-avatar-box" style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2.5px solid #7b6cf6; box-shadow: 0 4px 12px rgba(123,108,246,0.25); cursor: pointer;" onclick="document.getElementById('foto_profil').click()" title="Klik untuk pilih foto">
                                 @if($user->foto_profil)
                                     <img id="avatar-preview-img" src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                 @else
@@ -890,66 +928,77 @@ textarea.form-control {
                     </div>
 
                     <div class="form-group">
-                        <label for="name">Nama Lengkap <span class="req">*</span></label>
-                        <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $user->name) }}" required placeholder="Contoh: Budi Pratama">
-                    </div>
-
-                    {{-- CV Link Section --}}
-                    <div class="form-group" id="cv-upload-section">
-                        <label for="cv_link">
-                            Tautan CV (Google Drive) @if($user->role !== 'creator')<span class="req">*</span>@else<span style="font-size: 12px; color: #64748b; font-weight: normal;">(Opsional untuk Creator)</span>@endif
+                        <label for="name">
+                            @if($user->role === 'admin')
+                                Username / Nama Administrator <span class="req">*</span>
+                            @else
+                                Nama Lengkap <span class="req">*</span>
+                            @endif
                         </label>
+                        <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $user->name) }}" required placeholder="Contoh: Admin SkillConnect" oninput="const el = document.getElementById('preview-profile-name'); if(el) el.innerText = this.value || '{{ $user->name }}'">
+                        @if($user->role === 'admin')
+                            <div class="hint" style="margin-top: 4px;">Username ini akan ditampilkan pada sistem dan header panel Administrator.</div>
+                        @endif
+                    </div>
 
-                        {{-- Input link Google Drive --}}
-                        <div class="cv-link-input-wrap">
-                            <div class="cv-link-icon">
-                                <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    @if($user->role !== 'admin')
+                        {{-- CV Link Section --}}
+                        <div class="form-group" id="cv-upload-section">
+                            <label for="cv_link">
+                                Tautan CV (Google Drive) @if($user->role !== 'creator')<span class="req">*</span>@else<span style="font-size: 12px; color: #64748b; font-weight: normal;">(Opsional untuk Creator)</span>@endif
+                            </label>
+
+                            {{-- Input link Google Drive --}}
+                            <div class="cv-link-input-wrap">
+                                <div class="cv-link-icon">
+                                    <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                </div>
+                                <input type="url" id="cv_link" name="cv_link"
+                                    class="form-control"
+                                    style="border:none; outline:none; background:transparent; flex:1; padding:0;"
+                                    value="{{ old('cv_link', $user->cv_path) }}"
+                                    placeholder="https://drive.google.com/file/d/..."
+                                    @if($user->role !== 'creator') required @endif>
                             </div>
-                            <input type="url" id="cv_link" name="cv_link"
-                                class="form-control"
-                                style="border:none; outline:none; background:transparent; flex:1; padding:0;"
-                                value="{{ old('cv_link', $user->cv_path) }}"
-                                placeholder="https://drive.google.com/file/d/..."
-                                @if($user->role !== 'creator') required @endif>
+
+                            {{-- Peringatan akses publik --}}
+                            <div class="cv-link-notice" style="margin-top: 10px;">
+                                <svg width="16" height="16" fill="none" stroke="#b45309" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                                </svg>
+                                <span>
+                                    <strong>Penting:</strong> Pastikan Tautan Google Drive Anda sudah diatur agar
+                                    <strong>dapat diakses oleh semua orang</strong> (Anyone with the link → Viewer),
+                                    sehingga Project Creator dapat membuka CV Anda.
+                                </span>
+                            </div>
+
+                            <div class="hint" style="margin-top: 8px;">
+                                Tautan CV ini akan ditampilkan di profil Anda dan dapat dilihat oleh Project Creator.
+                            </div>
                         </div>
 
-                        {{-- Peringatan akses publik --}}
-                        <div class="cv-link-notice" style="margin-top: 10px;">
-                            <svg width="16" height="16" fill="none" stroke="#b45309" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
-                            </svg>
-                            <span>
-                                <strong>Penting:</strong> Pastikan Tautan Google Drive Anda sudah diatur agar
-                                <strong>dapat diakses oleh semua orang</strong> (Anyone with the link → Viewer),
-                                sehingga Project Creator dapat membuka CV Anda.
-                            </span>
+                        <div class="form-group">
+                            <label for="portofolio">Tautan Bukti Portofolio <span class="req">*</span></label>
+                            <input type="url" id="portofolio" name="portofolio" class="form-control" value="{{ old('portofolio', $user->portofolio) }}" placeholder="https://github.com/username atau https://behance.net/username">
+                            <div class="hint">Harus format tautan URL valid (misal: GitHub, Figma, Dribbble, atau Website Personal).</div>
                         </div>
 
-                        <div class="hint" style="margin-top: 8px;">
-                            Tautan CV ini akan ditampilkan di profil Anda dan dapat dilihat oleh Project Creator.
+                        <div class="form-group" style="margin-top: 24px;">
+                            <label>Atau Tambah Custom Skill Khusus (Opsional):</label>
+                            <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px;">
+                                <input type="text" name="custom_skill" class="form-control" placeholder="Nama skill baru...">
+                                <select name="custom_level" class="form-control">
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate" selected>Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="portofolio">Tautan Bukti Portofolio <span class="req">*</span></label>
-                        <input type="url" id="portofolio" name="portofolio" class="form-control" value="{{ old('portofolio', $user->portofolio) }}" placeholder="https://github.com/username atau https://behance.net/username">
-                        <div class="hint">Harus format tautan URL valid (misal: GitHub, Figma, Dribbble, atau Website Personal).</div>
-                    </div>
-
-                    <div class="form-group" style="margin-top: 24px;">
-                        <label>Atau Tambah Custom Skill Khusus (Opsional):</label>
-                        <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px;">
-                            <input type="text" name="custom_skill" class="form-control" placeholder="Nama skill baru...">
-                            <select name="custom_level" class="form-control">
-                                <option value="Beginner">Beginner</option>
-                                <option value="Intermediate" selected>Intermediate</option>
-                                <option value="Advanced">Advanced</option>
-                            </select>
-                        </div>
-                    </div>
+                    @endif
 
                     <div style="margin-top: 32px; display: flex; justify-content: flex-end; gap: 14px;">
-                        <a href="{{ route('dashboard') }}" class="btn outline">Batal</a>
+                        <a href="{{ $user->role === 'admin' ? '/admin/dashboard' : route('dashboard') }}" class="btn outline">Batal</a>
                         <button type="submit" class="btn pri">
                             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
                             Simpan Perubahan
@@ -976,6 +1025,7 @@ function previewAvatar(input) {
         }
         const reader = new FileReader();
         reader.onload = function(e) {
+            // 1. Preview pada form edit foto
             const previewImg = document.getElementById('avatar-preview-img');
             const initialSpan = document.getElementById('avatar-preview-initial');
             if (previewImg) {
@@ -984,6 +1034,28 @@ function previewAvatar(input) {
             }
             if (initialSpan) {
                 initialSpan.style.display = 'none';
+            }
+
+            // 2. Preview pada kartu profil besar di sisi kiri
+            const bigImg = document.getElementById('big-avatar-img');
+            const bigInitial = document.getElementById('big-avatar-initial');
+            if (bigImg) {
+                bigImg.src = e.target.result;
+                bigImg.style.display = 'block';
+            }
+            if (bigInitial) {
+                bigInitial.style.display = 'none';
+            }
+
+            // 3. Preview pada avatar di top bar header
+            const topImg = document.getElementById('top-bar-avatar-img');
+            const topInitial = document.getElementById('top-bar-avatar-initial');
+            if (topImg) {
+                topImg.src = e.target.result;
+                topImg.style.display = 'block';
+            }
+            if (topInitial) {
+                topInitial.style.display = 'none';
             }
         };
         reader.readAsDataURL(file);
