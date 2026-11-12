@@ -151,27 +151,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 .top-breadcrumb a:hover { color: var(--secondary); }
 .top-breadcrumb span { color: var(--ink); font-weight: 700; }
 
-.user-profile { display: flex; align-items: center; gap: 12px; }
-.user-info { text-align: right; }
-.user-info .name { font-weight: 700; font-size: 14.5px; color: var(--ink); line-height: 1.2; }
-.user-info .role { font-size: 12px; color: var(--mute); font-weight: 600; }
-
-.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(123,108,246,.4);
-    border: 2px solid #fff;
-}
-
 /* Alerts */
 .alert {
     padding: 14px 20px;
