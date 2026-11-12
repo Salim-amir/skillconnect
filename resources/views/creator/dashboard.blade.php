@@ -168,48 +168,6 @@ button { font-family: inherit; }
     color: #1c2766;
 }
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #7b6cf6, #c26bf0);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(194,107,240,.35);
-    border: 2px solid #fff;
-}
-
-.user-info {
-    text-align: right;
-}
-.user-info .name {
-    font-weight: 700;
-    color: #1c2766;
-    font-size: 14.5px;
-    line-height: 1.2;
-}
-.user-info .role-badge {
-    display: inline-block;
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    background: rgba(123,108,246,0.14);
-    color: #5b21b6;
-    font-weight: 700;
-    margin-top: 3px;
-}
-
 /* Welcome Banner */
 .welcome-banner {
     background: linear-gradient(135deg, #1e295f 0%, #2b3a8f 55%, #7b6cf6 100%);
@@ -593,7 +551,7 @@ button { font-family: inherit; }
                 <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                     <div class="user-info">
                         <div class="name">{{ auth()->user()->name }}</div>
-                        <span class="role-badge">Creator</span>
+                        <span class="role">Project Creator</span>
                     </div>
                     <div class="avatar">
                         @if(auth()->user()->foto_profil)

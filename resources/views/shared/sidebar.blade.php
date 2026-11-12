@@ -20,17 +20,102 @@
     box-shadow: 0 6px 16px rgba(123, 108, 246, 0.45);
 }
 .user-profile .avatar {
-    transition: all 0.2s ease;
-    overflow: hidden;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(123,108,246,.4);
+    border: 2px solid #fff;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    flex-shrink: 0;
 }
 .user-profile .avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
+}
+/* Topbar user info text (name + role) */
+.user-profile .user-info {
+    text-align: right;
+}
+.user-profile .user-info .name {
+    font-weight: 700;
+    color: #1c2766;
+    font-size: 14.5px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.user-profile .user-info .role {
+    font-size: 12px;
+    color: #7b6cf6;
+    font-weight: 600;
+    white-space: nowrap;
+}
+/* Legacy .role-badge di-override jadi konsisten dengan .role */
+.user-profile .user-info .role-badge {
+    display: inline;
+    font-size: 12px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    color: #7b6cf6;
+    font-weight: 600;
+    margin-top: 0;
+}
+/* Global .avatar standalone (di luar .user-profile) tetap sama */
+.avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(123,108,246,.4);
+    border: 2px solid #fff;
+    overflow: hidden;
+}
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+/* Global .user-info override for topbar consistency */
+.top-bar .user-info {
+    text-align: right;
+}
+.top-bar .user-info .name {
+    font-weight: 700;
+    color: #1c2766;
+    font-size: 14.5px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.top-bar .user-info .role,
+.top-bar .user-info .role-badge {
+    font-size: 12px;
+    color: #7b6cf6;
+    font-weight: 600;
+    white-space: nowrap;
+    display: block;
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
 }
 
 /* ===== GLOBAL FLOATING TOAST POPUP ===== */
