@@ -123,6 +123,47 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     margin-bottom: 30px;
 }
 
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.user-info {
+    text-align: right;
+}
+.user-info .name {
+    font-weight: 700;
+    color: #1c2766;
+    font-size: 15px;
+    line-height: 1.2;
+}
+.user-info .role {
+    font-size: 12px;
+    color: #7b6cf6;
+    font-weight: 600;
+}
+.avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(123,108,246,.4);
+    border: 2px solid #fff;
+    overflow: hidden;
+}
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* ===== PAGE CONTENT ===== */
 .page-header {
     display: flex;
@@ -181,7 +222,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 .badge.creator { background: #e5ffe5; color: #008000; }
 
 .btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     padding: 10px 20px;
     border-radius: 10px;
     font-weight: 700;
@@ -201,11 +245,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     box-shadow: 0 12px 24px -8px rgba(123,108,246,.8);
 }
 .btn.danger {
-    background: #d8000c;
+    background: linear-gradient(90deg, #e0244d, #d8000c);
     color: #fff;
+    box-shadow: 0 8px 20px -8px rgba(216, 0, 12, 0.55);
 }
 .btn.danger:hover {
-    background: #b00009;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px rgba(216, 0, 12, 0.7);
 }
 .btn.ghost {
     background: #eef0ff;
@@ -222,9 +268,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     margin-bottom: 20px;
     font-weight: 700;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.alert.success { background: #e6f7ed; color: #127345; border: 1px solid #b7e4c7; }
-.alert.error { background: #fdecec; color: #b00009; border: 1px solid #f5b5b5; }
+.alert.success { background: #e6f7ed; color: #127345; border: 1.5px solid #b7e4c7; }
+.alert.error { background: #fdecec; color: #b00009; border: 1.5px solid #f5b5b5; }
 
 /* ===== ACTION LINKS ===== */
 .action-link {
@@ -473,6 +522,29 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     gap: 12px;
 }
 
+/* Delete Modal Icon Styling */
+.delete-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #fdecec;
+    color: #d8000c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    border: 2px solid #f5b5b5;
+}
+.delete-user-highlight {
+    display: inline-block;
+    background: #f4f6ff;
+    color: #1c2766;
+    font-weight: 800;
+    padding: 2px 10px;
+    border-radius: 8px;
+    border: 1px solid #d6d9fb;
+}
+
 /* ===== FORM ===== */
 .form-group {
     margin-bottom: 18px;
@@ -589,7 +661,8 @@ a.page-btn:hover {
     opacity: .45;
     cursor: not-allowed;
 }
-/* ===== INJECTED RESPONSIVE CSS (NO HORIZONTAL SLIDE / MOBILE FRIENDLY) ===== */
+
+/* ===== INJECTED RESPONSIVE CSS ===== */
 .table-responsive {
     width: 100%;
     overflow-x: hidden;
@@ -796,7 +869,6 @@ a.page-btn:hover {
         padding: 16px 18px;
     }
 }
-
 </style>
 </head>
 <body>
@@ -827,6 +899,19 @@ a.page-btn:hover {
             {{-- <button type="button" class="btn pri" onclick="openCreateModal()">+ Tambah Pengguna</button> --}}
         </div>
 
+        @if(session('success'))
+            <div class="alert success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert error">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
 
         @if($errors->any() && !old('_edit_id') && old('_form') !== 'create')
             <div class="alert error">
@@ -892,13 +977,12 @@ a.page-btn:hover {
                                         data-name="{{ $user->name }}"
                                         data-email="{{ $user->email }}"
                                         data-role="{{ $user->role }}">Edit Role</button>
-                                    <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
-                                        style="display:inline;"
-                                        onsubmit="return confirm('Yakin ingin menghapus pengguna {{ addslashes($user->name) }}? Tindakan ini tidak dapat dibatalkan.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="action-link delete">Hapus</button>
-                                    </form>
+                                    <button type="button" class="action-link delete"
+                                        onclick="openDeleteModal(this)"
+                                        data-id="{{ $user->id }}"
+                                        data-name="{{ $user->name }}"
+                                        data-email="{{ $user->email }}"
+                                        data-url="{{ route('pengguna.destroy', $user->id) }}">Hapus</button>
                                 </div>
                             </td>
                         </tr>
@@ -946,7 +1030,7 @@ a.page-btn:hover {
                 <div class="card-header-styled">
                     <h2 id="viewModalTitle">
                         <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Pratinjau Profil Anda
+                        Pratinjau Profil Pengguna
                     </h2>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span class="role-pill" id="view_role">member</span>
@@ -980,7 +1064,7 @@ a.page-btn:hover {
                     <label id="view_skills_label">Skill Terverifikasi (0)</label>
                     <div class="skills-container" id="view_skills_container">
                         <p style="color: #9aa2cc; font-size: 14px; font-style: italic;">
-                            Belum ada keahlian yang ditambahkan. Gunakan formulir di sebelah untuk memilih skill.
+                            Belum ada keahlian yang ditambahkan.
                         </p>
                     </div>
                 </div>
@@ -992,7 +1076,7 @@ a.page-btn:hover {
     <div class="modal-overlay" id="editModal" onclick="if(event.target === this) closeEditModal();">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
             <div class="modal-header">
-                <h2 class="modal-title" id="editModalTitle">Edit Pengguna : user ID {{ $user->id ?? '' }}</h2>
+                <h2 class="modal-title" id="editModalTitle">Edit Pengguna</h2>
                 <button type="button" class="modal-close" onclick="closeEditModal()" aria-label="Tutup">&times;</button>
             </div>
             <form id="editForm" method="POST" action="">
@@ -1014,6 +1098,46 @@ a.page-btn:hover {
                 <div class="modal-footer">
                     <button type="button" class="btn ghost" onclick="closeEditModal()">Batal</button>
                     <button type="submit" class="btn pri">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL KONFIRMASI HAPUS PENGGUNA ===== -->
+    <div class="modal-overlay" id="deleteModal" onclick="if(event.target === this) closeDeleteModal();">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+            <div class="modal-header">
+                <h2 class="modal-title" id="deleteModalTitle">Konfirmasi Hapus Pengguna</h2>
+                <button type="button" class="modal-close" onclick="closeDeleteModal()" aria-label="Tutup">&times;</button>
+            </div>
+            <form id="deleteForm" method="POST" action="">
+                @csrf
+                @method('DELETE')
+                <div class="modal-body" style="text-align: center;">
+                    <div class="delete-icon-box">
+                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                    <p style="font-size: 15px; color: #1c2766; font-weight: 600; margin-bottom: 8px;">
+                        Apakah Anda yakin ingin menghapus akun pengguna ini?
+                    </p>
+                    <div style="margin-bottom: 12px;">
+                        <span class="delete-user-highlight" id="delete_user_name">Nama Pengguna</span>
+                        <div style="font-size: 12.5px; color: #8f9bd8; font-weight: 600; margin-top: 4px;" id="delete_user_email">email@example.com</div>
+                    </div>
+                    <p style="font-size: 13px; color: #d8000c; font-weight: 600; background: #fdecec; padding: 10px 14px; border-radius: 10px; border: 1px solid #f5b5b5;">
+                        Tindakan ini permanen dan seluruh data terkait pengguna tersebut tidak dapat dipulihkan.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn ghost" onclick="closeDeleteModal()">Batal</button>
+                    <button type="submit" class="btn danger">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Ya, Hapus Pengguna
+                    </button>
                 </div>
             </form>
         </div>
@@ -1065,11 +1189,13 @@ a.page-btn:hover {
     </div>
 
     <script>
-        const viewModal = document.getElementById('viewModal');
-        const editModal = document.getElementById('editModal');
-        const editForm = document.getElementById('editForm');
+        const viewModal   = document.getElementById('viewModal');
+        const editModal   = document.getElementById('editModal');
+        const editForm    = document.getElementById('editForm');
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteForm  = document.getElementById('deleteForm');
         const createModal = document.getElementById('createModal');
-        const createForm = document.getElementById('createForm');
+        const createForm  = document.getElementById('createForm');
 
         function escapeHtml(str) {
             return String(str ?? '')
@@ -1139,7 +1265,7 @@ a.page-btn:hover {
                 }).join('');
             } else {
                 skillsContainer.innerHTML = '<p style="color: #9aa2cc; font-size: 14px; font-style: italic;">' +
-                    'Belum ada keahlian yang ditambahkan. Gunakan formulir di sebelah untuk memilih skill.' +
+                    'Belum ada keahlian yang ditambahkan.' +
                     '</p>';
             }
 
@@ -1154,18 +1280,14 @@ a.page-btn:hover {
 
         // ===== MODAL EDIT =====
         function openEditModal(button) {
-            const id    = button.getAttribute('data-id');
-            const role  = button.getAttribute('data-role');
+            const id   = button.getAttribute('data-id');
+            const role = button.getAttribute('data-role');
 
-            // Set action form ke route update
             editForm.action = '/pengguna/' + id;
             document.getElementById('edit_id').value = id;
             document.getElementById('editModalTitle').textContent = 'Edit Pengguna : user ID ' + id;
-
-            // Isi nilai form
             document.getElementById('edit_role').value = role;
 
-            // Hapus pesan error lama (jika ada)
             document.querySelectorAll('#editForm .form-error').forEach(el => el.remove());
 
             editModal.classList.add('active');
@@ -1177,12 +1299,28 @@ a.page-btn:hover {
             document.body.style.overflow = '';
         }
 
+        // ===== MODAL KONFIRMASI HAPUS =====
+        function openDeleteModal(button) {
+            const name  = button.getAttribute('data-name') || 'Pengguna';
+            const email = button.getAttribute('data-email') || '';
+            const url   = button.getAttribute('data-url');
+
+            deleteForm.action = url;
+            document.getElementById('delete_user_name').textContent = name;
+            document.getElementById('delete_user_email').textContent = email;
+
+            deleteModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            deleteModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
         // ===== MODAL TAMBAH =====
         function openCreateModal() {
-            // Reset form ke kondisi bersih
             createForm.reset();
-
-            // Hapus pesan error lama (jika ada)
             document.querySelectorAll('#createForm .form-error').forEach(el => el.remove());
 
             createModal.classList.add('active');
@@ -1197,24 +1335,19 @@ a.page-btn:hover {
         // Tutup modal aktif dengan tombol ESC
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
-                if (viewModal.classList.contains('active')) {
-                    closeViewModal();
-                }
-                if (editModal.classList.contains('active')) {
-                    closeEditModal();
-                }
-                if (createModal.classList.contains('active')) {
-                    closeCreateModal();
-                }
+                if (viewModal.classList.contains('active')) closeViewModal();
+                if (editModal.classList.contains('active')) closeEditModal();
+                if (deleteModal.classList.contains('active')) closeDeleteModal();
+                if (createModal.classList.contains('active')) closeCreateModal();
             }
         });
 
-        // Jika ada error validasi setelah submit, buka kembali modal yang sesuai
+        // Buka kembali modal jika terjadi error validasi
         @if($errors->any())
             @if(old('_form') === 'create')
                 createModal.classList.add('active');
                 document.body.style.overflow = 'hidden';
-            @else
+            @elseif(old('_edit_id'))
                 editForm.action = '/pengguna/' + document.getElementById('edit_id').value;
                 editModal.classList.add('active');
                 document.body.style.overflow = 'hidden';
