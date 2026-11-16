@@ -409,21 +409,26 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <div class="history-section">
             <div class="tabs-nav">
                 @if($user->role === 'creator')
-                    <button type="button" class="tab-btn active" onclick="switchTab('created')">
+                    <button type="button" class="tab-btn active" style="cursor: default;">
                         Proyek yang Dibuat (Creator) • {{ $createdProjects->count() }}
                     </button>
-                    <button type="button" class="tab-btn" onclick="switchTab('joined')">
+                @elseif($user->role === 'member')
+                    <button type="button" class="tab-btn active" style="cursor: default;">
                         Proyek yang Diikuti (Member) • {{ $joinedProjects->count() }}
                     </button>
                 @else
-                    <button type="button" class="tab-btn active" style="cursor: default;">
+                    <button type="button" class="tab-btn active" onclick="switchTab('created')">
+                        Proyek yang Dibuat • {{ $createdProjects->count() }}
+                    </button>
+                    <button type="button" class="tab-btn" onclick="switchTab('joined')">
                         Proyek yang Diikuti • {{ $joinedProjects->count() }}
                     </button>
                 @endif
             </div>
 
-            <!-- TAB 1: PROYEK YANG DIIKUTI (TANPA ADA FEE) -->
-            <div id="tab-joined" @if($user->role === 'creator') style="display: none;" @endif>
+            @if($user->role !== 'creator')
+            <!-- TAB 1: PROYEK YANG DIIKUTI (HANYA UNTUK MEMBER / NON-CREATOR) -->
+            <div id="tab-joined" @if($user->role !== 'member') style="display: none;" @endif>
                 <table class="history-table">
                     <thead>
                         <tr>
@@ -461,6 +466,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </tbody>
                 </table>
             </div>
+            @endif
 
             @if($user->role !== 'member')
             <!-- TAB 2: PROYEK YANG DIBUAT SENDIRI (HANYA UNTUK CREATOR / NON-MEMBER) -->
