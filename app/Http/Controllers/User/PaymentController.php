@@ -22,6 +22,14 @@ class PaymentController extends Controller
         Config::$isProduction = config('midtrans.is_production', false);
         Config::$isSanitized = config('midtrans.is_sanitized', true);
         Config::$is3ds = config('midtrans.is_3ds', true);
+
+        // Pada environment Windows / local sandbox tanpa CA bundle di php.ini,
+        // bypass verifikasi SSL cURL agar tidak gagal dengan error "unable to get local issuer certificate"
+        if (!config('midtrans.is_production', false)) {
+            Config::$curlOptions[CURLOPT_SSL_VERIFYPEER] = false;
+            Config::$curlOptions[CURLOPT_SSL_VERIFYHOST] = 0;
+            Config::$curlOptions[CURLOPT_HTTPHEADER] = [];
+        }
     }
 
     /**
