@@ -1906,7 +1906,7 @@
             <div class="cands">
                 <div class="cand">
                     <div class="av">A</div>
-                    <div class="ci"><b>Kandidat A</b><span class="ck on">Laravel</span><span
+                    <div class="ci"><b>Ratu Darhama Vellicia</b><span class="ck on">Laravel</span><span
                             class="ck on">React</span><span class="ck on">MySQL</span>
                         <div class="bar" style="--w:100%"><i></i></div>
                     </div>
@@ -1914,7 +1914,7 @@
                 </div>
                 <div class="cand">
                     <div class="av">B</div>
-                    <div class="ci"><b>Kandidat B</b><span class="ck on">Laravel</span><span
+                    <div class="ci"><b>Tafzi Hallavi</b><span class="ck on">Laravel</span><span
                             class="ck on">React</span><span class="ck">MySQL</span>
                         <div class="bar" style="--w:67%"><i></i></div>
                     </div>
@@ -1922,7 +1922,7 @@
                 </div>
                 <div class="cand">
                     <div class="av">C</div>
-                    <div class="ci"><b>Kandidat C</b><span class="ck on">Laravel</span><span
+                    <div class="ci"><b>Isabella Zizy Vellicia</b><span class="ck on">Laravel</span><span
                             class="ck">React</span><span class="ck">MySQL</span>
                         <div class="bar" style="--w:33%"><i></i></div>
                     </div>
