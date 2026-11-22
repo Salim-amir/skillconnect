@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\PenggunaController;
 use App\Http\Controllers\Api\AuthController;

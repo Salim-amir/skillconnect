@@ -554,6 +554,7 @@ a.page-btn:hover {
                                     data-name="{{ $user->name }}"
                                     data-email="{{ $user->email }}"
                                     data-role="{{ $user->role }}">Edit Role</button>
+                                @if($user->id !== Auth::id())
                                 <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
                                     style="display:inline;"
                                     onsubmit="return confirm('Yakin ingin menghapus pengguna {{ addslashes($user->name) }}? Tindakan ini tidak dapat dibatalkan.');">
@@ -561,6 +562,7 @@ a.page-btn:hover {
                                     @method('DELETE')
                                     <button type="submit" class="action-link delete">Hapus</button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                         @endforeach
