@@ -951,7 +951,27 @@ a.page-btn:hover {
                                     <span class="badge member">Member</span>
                                 @endif
                             </td>
-                            <td data-label="Bergabung" style="color: #8f9bd8;">{{ $user->created_at->format('d M Y') }}</td>
+                            <td style="color: #8f9bd8;">{{ $user->created_at->format('d M Y') }}</td>
+                            <td>
+                                <button type="button" class="action-link edit"
+                                    onclick="openEditModal(this)"
+                                    data-id="{{ $user->id }}"
+                                    data-name="{{ $user->name }}"
+                                    data-email="{{ $user->email }}"
+                                    data-role="{{ $user->role }}">Edit Role</button>
+                                @if($user->id !== Auth::id())
+                                <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('Yakin ingin menghapus pengguna {{ addslashes($user->name) }}? Tindakan ini tidak dapat dibatalkan.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="action-link delete">Hapus</button>
+                                </form>
+                                @endif
+                            
+                            <td data-label="Bergabung" style="color: #8f9bd8;">
+                                {{ $user->created_at->format('d M Y') }}
+                            </td>
                             <td data-label="Aksi">
                                 @php
                                     $userSkillsData = $user->skills->map(function ($s) {
@@ -961,6 +981,7 @@ a.page-btn:hover {
                                         ];
                                     })->values();
                                 @endphp
+
                                 <div class="action-buttons">
                                     <button type="button" class="action-link view"
                                         onclick="openViewModal(this)"
@@ -971,18 +992,22 @@ a.page-btn:hover {
                                         data-cv="{{ $user->cv_path ?? '' }}"
                                         data-portofolio="{{ $user->portofolio ?? '' }}"
                                         data-skills='@json($userSkillsData)'>View</button>
+
                                     <button type="button" class="action-link edit"
                                         onclick="openEditModal(this)"
                                         data-id="{{ $user->id }}"
                                         data-name="{{ $user->name }}"
                                         data-email="{{ $user->email }}"
                                         data-role="{{ $user->role }}">Edit Role</button>
-                                    <button type="button" class="action-link delete"
-                                        onclick="openDeleteModal(this)"
-                                        data-id="{{ $user->id }}"
-                                        data-name="{{ $user->name }}"
-                                        data-email="{{ $user->email }}"
-                                        data-url="{{ route('pengguna.destroy', $user->id) }}">Hapus</button>
+
+                                    @if(strtolower($user->role) !== 'admin' && $user->id !== Auth::id())
+                                        <button type="button" class="action-link delete"
+                                            onclick="openDeleteModal(this)"
+                                            data-id="{{ $user->id }}"
+                                            data-name="{{ $user->name }}"
+                                            data-email="{{ $user->email }}"
+                                            data-url="{{ route('pengguna.destroy', $user->id) }}">Hapus</button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
