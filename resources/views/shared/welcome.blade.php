@@ -2609,6 +2609,13 @@
                 tabs.classList.toggle('r', isR);
                 tL.classList.toggle('on', !isR && !isF);
                 tR.classList.toggle('on', isR);
+                // Sembunyikan tombol Admin saat tab Daftar aktif, atur grid 50:50
+                var btnAdminRole = document.getElementById('rtAdmin');
+                var roleSwitch2 = document.getElementById('roleSwitch');
+                if (btnAdminRole) btnAdminRole.style.display = isR ? 'none' : '';
+                if (roleSwitch2) roleSwitch2.style.gridTemplateColumns = isR ? '1fr 1fr' : '1fr 1fr 1fr';
+                // Jika tab Daftar aktif dan role saat ini Admin, paksa kembali ke Member
+                if (isR && currentRole === 'admin') setRole('member');
                 if (fR && isR) fR.scrollTop = 0;
                 if (fF && isF) fF.scrollTop = 0;
                 [].forEach.call(card.querySelectorAll('.js-msg'), function(e) {
