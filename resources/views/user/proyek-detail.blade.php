@@ -817,6 +817,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                         <input type="url" name="cv_link" required
                                             style="border: none; outline: none; background: transparent; flex: 1; font-size: 14px; color: #1c2766;"
                                             placeholder="https://drive.google.com/file/d/..."
+                                            pattern="https://(drive|docs)\.google\.com/.*"
+                                            title="Harus berupa tautan Google Drive (https://drive.google.com/...)"
                                             value="{{ old('cv_link', auth()->user()->cv_path) }}">
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px; background: #fff8e1; border: 1.5px solid #ffe082; border-radius: 10px; padding: 10px 14px; margin-top: 10px; font-size: 13px; color: #795400;">

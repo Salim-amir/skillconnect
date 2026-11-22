@@ -921,6 +921,8 @@ textarea.form-control {
                                     style="border:none; outline:none; background:transparent; flex:1; padding:0;"
                                     value="{{ old('cv_link', $user->cv_path) }}"
                                     placeholder="https://drive.google.com/file/d/..."
+                                    pattern="https://(drive|docs)\.google\.com/.*"
+                                    title="Harus berupa tautan Google Drive (https://drive.google.com/...)"
                                     @if($user->role !== 'creator') required @endif>
                             </div>
 
