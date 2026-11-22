@@ -408,6 +408,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <!-- TABEL RIWAYAT PROYEK BERSIH (TANPA KOLOM FEE) -->
         <div class="history-section">
             <div class="tabs-nav">
+            <div class="tabs-nav">
                 @if($user->role === 'creator')
                     <button type="button" class="tab-btn active" style="cursor: default;">
                         Proyek yang Dibuat (Creator) • {{ $createdProjects->count() }}
@@ -436,7 +437,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                             <th>Kategori</th>
                             <th>Pembuat Proyek</th>
                             <th>Peran / Posisi</th>
-                            <th>Status Proyek</th>
+                            <th>Status Lamaran</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -448,9 +449,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 <td>{{ $jp->creator_name }}</td>
                                 <td><span style="font-weight: 700; color: #7b6cf6;">{{ $jp->user_role }}</span></td>
                                 <td>
-                                    <span class="status-badge status-{{ str_replace(' ', '-', $jp->status_project) }}">
-                                        {{ $jp->status_project }}
-                                    </span>
+                                    @if($jp->status_keanggotaan === 'Diterima')
+                                        <span class="status-badge" style="background: #e8f9ee; color: #0d8239; border: 1.5px solid #b6edc8;">
+                                            Diterima
+                                        </span>
+                                    @elseif($jp->status_keanggotaan === 'Pending')
+                                        <span class="status-badge" style="background: #fff8e1; color: #b45309; border: 1.5px solid #ffe082;">
+                                            Pending
+                                        </span>
+                                    @elseif($jp->status_keanggotaan === 'Ditolak')
+                                        <span class="status-badge" style="background: #fee2e2; color: #b91c1c; border: 1.5px solid #fecaca;">
+                                            Ditolak
+                                        </span>
+                                    @else
+                                        <span class="status-badge">{{ $jp->status_keanggotaan }}</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <a href="{{ route('proyek.detail', $jp->id) }}" class="btn-detail">Lihat Rincian</a>

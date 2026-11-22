@@ -670,6 +670,80 @@ textarea.form-control {
     .form-group-row { flex-direction: column; }
     .profile-avatar-wrap { flex-direction: column; text-align: center; }
 }
+
+/* Center Warning Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 39, 102, 0.45);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+.modal-overlay.active {
+    display: flex;
+}
+.modal-center-card {
+    background: #ffffff;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 440px;
+    padding: 30px 28px 24px;
+    text-align: center;
+    box-shadow: 0 25px 60px -15px rgba(28, 39, 102, 0.35);
+    animation: modalPop .25s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid #edf0ff;
+}
+@keyframes modalPop {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.modal-icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #fdecec;
+    color: #cf113b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    border: 2px solid #fec0cc;
+}
+.modal-title-custom {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+}
+.modal-desc-custom {
+    font-size: 14px;
+    color: var(--mute);
+    line-height: 1.5;
+    margin-bottom: 22px;
+}
+.modal-btn-confirm {
+    width: 100%;
+    padding: 12px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(90deg, #2b3a8f, #7b6cf6);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px -4px rgba(123, 108, 246, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.modal-btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -4px rgba(123, 108, 246, 0.65);
+}
 </style>
 </head>
 <body>
@@ -721,6 +795,28 @@ textarea.form-control {
                 @endif
             </div>
         </div>
+
+        {{-- Notifikasi Sukses / Error --}}
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error') || $errors->any())
+            <div class="alert alert-danger">
+                @if (session('error'))
+                    <div>{{ session('error') }}</div>
+                @endif
+                @if ($errors->any())
+                    <ul style="margin-left: 18px; margin-top: {{ session('error') ? '6px' : '0' }};">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        @endif
 
         <div class="profile-grid">
             
@@ -837,36 +933,10 @@ textarea.form-control {
                     </h2>
                 </div>
 
-                @if($user->role !== 'admin')
-                    <!-- BOX TAMBAH CEPAT MASTER SKILL (HANYA UNTUK MEMBER / CREATOR) -->
-                    <div class="skill-adder-box">
-                        <h4>
-                            <svg width="18" height="18" fill="none" stroke="#2b3a8f" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                            Tambah Master Skill Baru ke Profil
-                        </h4>
-                        <form action="{{ route('profile.skill.add') }}" method="POST" class="skill-adder-grid">
-                            @csrf
-                            <div>
-                                <select name="skill_id" class="form-control" required>
-                                    <option value="" disabled selected>-- Pilih Master Skill --</option>
-                                    @foreach($masterSkills as $ms)
-                                        <option value="{{ $ms->id }}">{{ $ms->nama_skill }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <select name="tingkat_keahlian" class="form-control" required>
-                                    <option value="Beginner">Beginner</option>
-                                    <option value="Intermediate" selected>Intermediate</option>
-                                    <option value="Advanced">Advanced</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn pri" style="padding: 12px 18px;">
-                                + Tambah
-                            </button>
-                        </form>
-                    </div>
-                @endif
+                <!-- Form tersembunyi untuk submit Tambah Master Skill -->
+                <form id="addSkillForm" action="{{ route('profile.skill.add') }}" method="POST" style="display:none;">
+                    @csrf
+                </form>
 
                 <!-- FORM UTAMA EDIT PROFIL -->
                 <form action="{{ route('profile.skill.update') }}" method="POST" enctype="multipart/form-data">
@@ -886,6 +956,10 @@ textarea.form-control {
                             <div style="flex: 1;">
                                 <input type="file" id="foto_profil" name="foto_profil" accept="image/png, image/jpeg, image/jpg, image/webp" class="form-control" style="padding: 9px 12px; font-size: 13.5px;" onchange="previewAvatar(this)">
                                 <div class="hint" style="margin-top: 4px;">Pilih foto baru (JPG, PNG, atau WEBP, maks. 2MB).</div>
+                                <div id="foto_profil_error" style="color: #cf113b; font-size: 13px; font-weight: 700; margin-top: 6px; display: none;"></div>
+                                @error('foto_profil')
+                                    <div style="color: #cf113b; font-size: 13px; font-weight: 700; margin-top: 6px;">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -949,8 +1023,46 @@ textarea.form-control {
                             <div class="hint">Harus format tautan URL valid (misal: GitHub, Figma, Dribbble, atau Website Personal).</div>
                         </div>
 
-                        <div class="form-group" style="margin-top: 24px;">
-                            <label>Atau Tambah Custom Skill Khusus (Opsional):</label>
+                    <!-- SEKSI PENGELOLAAN SKILL (MASTER SKILL & CUSTOM SKILL BERDAMPINGAN ATAS-BAWAH) -->
+                    <div style="margin-top: 28px; padding-top: 20px; border-top: 1.5px dashed #d6d9fb;">
+                        <label style="font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="18" height="18" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Keahlian & Spesialisasi (Skills)
+                        </label>
+
+                        <!-- 1. TAMBAH MASTER SKILL (ATAS) -->
+                        <div class="skill-adder-box" style="margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; margin-bottom: 10px;">
+                                <svg width="16" height="16" fill="none" stroke="#2b3a8f" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                Tambah Master Skill ke Profil
+                            </h4>
+                            <div class="skill-adder-grid">
+                                <div>
+                                    <select name="skill_id" form="addSkillForm" class="form-control" required>
+                                        <option value="" disabled selected>-- Pilih Master Skill --</option>
+                                        @foreach($masterSkills as $ms)
+                                            <option value="{{ $ms->id }}">{{ $ms->nama_skill }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <select name="tingkat_keahlian" form="addSkillForm" class="form-control" required>
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate" selected>Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                    </select>
+                                </div>
+                                <button type="submit" form="addSkillForm" class="btn pri" style="padding: 12px 18px;">
+                                    + Tambah
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. TAMBAH CUSTOM SKILL (BAWAH) -->
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 13.5px; font-weight: 700; color: #4b5686; margin-bottom: 6px; display: block;">
+                                Atau Tambah Custom Skill Khusus (Opsional):
+                            </label>
                             <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px;">
                                 <input type="text" name="custom_skill" class="form-control" placeholder="Nama skill baru...">
                                 <select name="custom_level" class="form-control">
@@ -959,7 +1071,9 @@ textarea.form-control {
                                     <option value="Advanced">Advanced</option>
                                 </select>
                             </div>
+                            <div class="hint" style="margin-top: 4px;">Custom skill baru akan tersimpan saat Anda menekan tombol "Simpan Perubahan".</div>
                         </div>
+                    </div>
                     @endif
 
                     <div style="margin-top: 32px; display: flex; justify-content: flex-end; gap: 14px;">
@@ -977,17 +1091,97 @@ textarea.form-control {
 
     </main>
 
-
+    <!-- Modal Peringatan Ukuran Foto (Tengah Layar) -->
+    <div class="modal-overlay" id="photoSizeModal" onclick="if(event.target === this) closePhotoSizeModal();">
+        <div class="modal-center-card" role="dialog" aria-modal="true" aria-labelledby="photoModalTitle">
+            <div class="modal-icon-box">
+                <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            </div>
+            <h3 class="modal-title-custom" id="photoModalTitle">Ukuran Foto Terlalu Besar</h3>
+            <p class="modal-desc-custom" id="photoModalDesc">
+                Ukuran foto profil tidak boleh melebihi <strong>2MB</strong>. Silakan pilih foto lain dengan ukuran yang lebih kecil.
+            </p>
+            <button type="button" class="modal-btn-confirm" onclick="closePhotoSizeModal()">
+                Mengerti & Pilih Foto Lain
+            </button>
+        </div>
+    </div>
 
 <script>
+function showPhotoSizeModal(fileSizeMB) {
+    const modal = document.getElementById('photoSizeModal');
+    const desc = document.getElementById('photoModalDesc');
+    if (desc) {
+        desc.innerHTML = 'Ukuran foto profil yang Anda pilih <strong>' + fileSizeMB + ' MB</strong>, melebihi batas maksimal <strong>2MB</strong>.<br><br>Foto tidak dapat diunggah. Silakan pilih foto lain dengan ukuran maksimal 2MB.';
+    }
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closePhotoSizeModal() {
+    const modal = document.getElementById('photoSizeModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    const photoInput = document.getElementById('foto_profil');
+    if (photoInput) {
+        photoInput.focus();
+    }
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePhotoSizeModal();
+    }
+});
+
 function previewAvatar(input) {
+    const errorEl = document.getElementById('foto_profil_error');
+    if (errorEl) {
+        errorEl.style.display = 'none';
+        errorEl.textContent = '';
+    }
+
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.size > 2 * 1024 * 1024) {
-            alert('Ukuran foto terlalu besar! Maksimal 2MB.');
+        const maxSizeBytes = 2 * 1024 * 1024; // 2MB
+
+        if (file.size > maxSizeBytes) {
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            
+            if (errorEl) {
+                errorEl.textContent = 'Ukuran file (' + fileSizeMB + ' MB) melebihi batas maksimal 2MB.';
+                errorEl.style.display = 'block';
+            }
+            
+            // Batalkan input file agar tidak dapat diunggah
             input.value = '';
-            return;
+
+            // Kembalikan preview ke kondisi sebelumnya
+            const previewImg = document.getElementById('avatar-preview-img');
+            const initialSpan = document.getElementById('avatar-preview-initial');
+            @if($user->foto_profil)
+                if (previewImg) {
+                    previewImg.src = "{{ asset('storage/' . $user->foto_profil) }}";
+                    previewImg.style.display = 'block';
+                }
+            @else
+                if (previewImg) previewImg.style.display = 'none';
+                if (initialSpan) initialSpan.style.display = 'block';
+            @endif
+
+            // Tampilkan modal popup di tengah layar (menggantikan browser alert)
+            showPhotoSizeModal(fileSizeMB);
+            return false;
         }
+
         const reader = new FileReader();
         reader.onload = function(e) {
             // 1. Preview pada form edit foto
@@ -1026,6 +1220,25 @@ function previewAvatar(input) {
         reader.readAsDataURL(file);
     }
 }
+
+// Pencegahan tambahan saat submit form
+document.addEventListener('DOMContentLoaded', function() {
+    const profileForm = document.querySelector('form[action="{{ route('profile.skill.update') }}"]');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            const photoInput = document.getElementById('foto_profil');
+            if (photoInput && photoInput.files && photoInput.files[0]) {
+                if (photoInput.files[0].size > 2 * 1024 * 1024) {
+                    e.preventDefault();
+                    const sizeMB = (photoInput.files[0].size / (1024 * 1024)).toFixed(2);
+                    showPhotoSizeModal(sizeMB);
+                    photoInput.value = '';
+                    return false;
+                }
+            }
+        });
+    }
+});
 </script>
 </body>
 </html>

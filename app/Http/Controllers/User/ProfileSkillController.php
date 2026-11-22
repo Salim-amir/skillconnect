@@ -108,7 +108,7 @@ class ProfileSkillController extends Controller
             'portofolio.url'   => 'Tautan bukti portofolio harus berupa URL yang valid (misal: https://github.com/username).',
             'foto_profil.image'=> 'File foto profil harus berupa gambar.',
             'foto_profil.mimes'=> 'Format foto profil harus JPG, JPEG, PNG, atau WEBP.',
-            'foto_profil.max'  => 'Ukuran foto profil maksimal 2MB.',
+            'foto_profil.max'  => 'Ukuran foto profil tidak boleh lebih dari 2MB.',
             'level.*.in'       => 'Tingkat keahlian harus Beginner, Intermediate, atau Advanced.',
         ]);
 

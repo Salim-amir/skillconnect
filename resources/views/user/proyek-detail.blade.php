@@ -675,7 +675,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 </div>
 
                                 <div class="cand-meta">
-                                    <strong>Ekspektasi Fee:</strong> Rp {{ number_format($cand->nominal_fee, 0, ',', '.') }}<br>
+                                    @if($cand->nominal_fee > 0)
+                                        <strong>Ekspektasi Fee:</strong> Rp {{ number_format($cand->nominal_fee, 0, ',', '.') }}<br>
+                                    @endif
                                     <strong>Mendaftar:</strong> {{ \Carbon\Carbon::parse($cand->applied_at)->diffForHumans() }}
                                 </div>
 
@@ -783,9 +785,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                     <span style="font-weight: 700; color: var(--ink);">Status Lamaran:</span>
                                     <span class="badge-status {{ $myApplication->status_keanggotaan }}">{{ $myApplication->status_keanggotaan }}</span>
                                 </div>
+                                @if($myApplication->nominal_fee > 0)
                                 <div style="margin-top: 10px; font-size: 13.5px; color: var(--mute);">
                                     Ekspektasi Fee Diajukan: <strong style="color: #2b3a8f;">Rp {{ number_format($myApplication->nominal_fee, 0, ',', '.') }}</strong>
                                 </div>
+                                @endif
                             </div>
                         </div>
                     @else
@@ -795,7 +799,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 Ajukan Lamaran ke Proyek
                             </h3>
                             <p style="font-size: 13.5px; color: var(--mute); margin-bottom: 20px;">
-                                Tentukan posisi yang ingin Anda isi dan ajukan ekspektasi fee Anda.
+                                Tentukan posisi yang ingin Anda isi untuk bergabung dengan proyek ini.
                             </p>
 
                             <form action="{{ route('proyek.apply', $project->id) }}" method="POST">
@@ -803,11 +807,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 <div style="margin-bottom: 16px;">
                                     <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Posisi / Peran <span style="color: #e0244d;">*</span></label>
                                     <input type="text" name="peran" required class="form-control" placeholder="Contoh: Frontend Developer, UI Designer" style="width: 100%; padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 12px; outline: none;">
-                                </div>
-
-                                <div style="margin-bottom: 16px;">
-                                    <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Ekspektasi Fee (Rp) <span style="color: #e0244d;">*</span></label>
-                                    <input type="number" name="nominal_fee" required min="0" value="{{ $project->budget }}" style="width: 100%; padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 12px; outline: none;">
                                 </div>
 
                                 <div style="margin-bottom: 16px;">

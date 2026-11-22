@@ -299,13 +299,10 @@ class ProyekController extends Controller
 
         $validated = $request->validate([
             'peran' => 'required|string|max:100',
-            'nominal_fee' => 'required|numeric|min:0',
             'pesan' => 'nullable|string|max:1000',
             'cv_link' => ['required', 'url', 'max:500', 'regex:~^https://(drive|docs)\.google\.com/~i'],
         ], [
             'peran.required' => 'Posisi/peran yang dilamar wajib dipilih atau diisi.',
-            'nominal_fee.required' => 'Nominal ekspektasi fee wajib diisi.',
-            'nominal_fee.numeric' => 'Nominal fee harus berupa angka.',
             'cv_link.required' => 'Tautan CV wajib diisi.',
             'cv_link.url' => 'Tautan CV harus berupa URL yang valid (misal: https://drive.google.com/...).',
             'cv_link.regex' => 'Tautan CV harus berupa tautan Google Drive (misal: https://drive.google.com/...).',
@@ -318,7 +315,7 @@ class ProyekController extends Controller
             'user_id' => $user->id,
             'project_id' => $project->id,
             'peran' => $validated['peran'],
-            'nominal_fee' => $validated['nominal_fee'],
+            'nominal_fee' => $request->input('nominal_fee', 0),
             'status_keanggotaan' => 'Pending',
             'nilai_evaluasi' => null,
             'cv_path' => $cvPath,
@@ -465,10 +462,14 @@ class ProyekController extends Controller
             ->where('peran', '!=', 'Project Creator / Leader')
             ->sum('nominal_fee');
 
-        $totalCompletedProjects = $joinedProjects->where('status_project', 'Selesai')->count()
+        // Proyek yang benar-benar diikuti oleh Member (sudah diterima oleh Creator)
+        $acceptedJoinedProjects = $joinedProjects->where('status_keanggotaan', 'Diterima');
+
+        $totalCompletedProjects = $acceptedJoinedProjects->where('status_project', 'Selesai')->count()
             + $createdProjects->where('status_project', 'Selesai')->count();
 
-        $totalActiveProjects = $joinedProjects->where('status_project', '!=', 'Selesai')->count()
+        // Hanya dihitung berjalan jika member sudah diterima dan proyek belum selesai
+        $totalActiveProjects = $acceptedJoinedProjects->where('status_project', '!=', 'Selesai')->count()
             + $createdProjects->where('status_project', '!=', 'Selesai')->count();
 
         // 4. GRAFIK PEMASUKAN BULANAN (Portofolio & Keuangan - UC-11)
