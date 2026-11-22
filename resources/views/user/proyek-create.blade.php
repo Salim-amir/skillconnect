@@ -147,24 +147,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 }
 .top-breadcrumb span { color: var(--ink); font-weight: 700; }
 
-.user-profile { display: flex; align-items: center; gap: 12px; }
-
-.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(123,108,246,.4);
-    border: 2px solid #fff;
-}
-
 /* Alerts */
 .alert {
     padding: 14px 20px;
@@ -346,13 +328,19 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             <div class="top-breadcrumb">
                 SkillConnect / <a href="{{ route('proyek') }}">Proyek</a> / <span>Buat & Kelola Proyek</span>
             </div>
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Tamu' }}</div>
                     <div class="role">Project Creator</div>
                 </div>
-                <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if(auth()->check() && auth()->user()->foto_profil)
+                        <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
         <!-- FLASH ERRORS -->

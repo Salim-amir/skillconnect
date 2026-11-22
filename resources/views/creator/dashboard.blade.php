@@ -168,48 +168,6 @@ button { font-family: inherit; }
     color: #1c2766;
 }
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #7b6cf6, #c26bf0);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(194,107,240,.35);
-    border: 2px solid #fff;
-}
-
-.user-info {
-    text-align: right;
-}
-.user-info .name {
-    font-weight: 700;
-    color: #1c2766;
-    font-size: 14.5px;
-    line-height: 1.2;
-}
-.user-info .role-badge {
-    display: inline-block;
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    background: rgba(123,108,246,0.14);
-    color: #5b21b6;
-    font-weight: 700;
-    margin-top: 3px;
-}
-
 /* Welcome Banner */
 .welcome-banner {
     background: linear-gradient(135deg, #1e295f 0%, #2b3a8f 55%, #7b6cf6 100%);
@@ -590,13 +548,19 @@ button { font-family: inherit; }
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                     Buat Proyek Baru
                 </a>
-                <div class="user-profile">
+                <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                     <div class="user-info">
                         <div class="name">{{ auth()->user()->name }}</div>
-                        <span class="role-badge">Creator</span>
+                        <span class="role">Project Creator</span>
                     </div>
-                    <div class="avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
-                </div>
+                    <div class="avatar">
+                        @if(auth()->user()->foto_profil)
+                            <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
+                    </div>
+                </a>
             </div>
         </header>
 
@@ -772,27 +736,6 @@ button { font-family: inherit; }
         </div>
     </main>
 
-    @if(session('success'))
-        <div class="toast-notification" id="toastNotif">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="toast-notification toast-error" id="toastNotif">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            {{ session('error') }}
-        </div>
-    @endif
 
-<script>
-    // Auto-remove toast dari DOM setelah animasi selesai
-    const toast = document.getElementById('toastNotif');
-    if (toast) {
-        setTimeout(() => {
-            toast.remove();
-        }, 4000);
-    }
-</script>
 </body>
 </html>

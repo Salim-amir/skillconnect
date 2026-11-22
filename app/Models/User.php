@@ -31,6 +31,7 @@ class User extends Authenticatable
         'pengalaman',
         'portofolio',
         'cv_path',
+        'foto_profil',
     ];
 
     /**

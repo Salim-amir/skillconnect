@@ -151,27 +151,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 .top-breadcrumb a:hover { color: var(--secondary); }
 .top-breadcrumb span { color: var(--ink); font-weight: 700; }
 
-.user-profile { display: flex; align-items: center; gap: 12px; }
-.user-info { text-align: right; }
-.user-info .name { font-weight: 700; font-size: 14.5px; color: var(--ink); line-height: 1.2; }
-.user-info .role { font-size: 12px; color: var(--mute); font-weight: 600; }
-
-.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(123,108,246,.4);
-    border: 2px solid #fff;
-}
-
 /* Alerts */
 .alert {
     padding: 14px 20px;
@@ -735,26 +714,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             <div class="top-breadcrumb">
                 SkillConnect / <a href="{{ route('proyek') }}">Proyek</a> / <a href="{{ route('proyek.detail', $project->id) }}">{{ $project->judul_project }}</a> / <span>Task Board</span>
             </div>
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Tamu' }}</div>
                     <div class="role">{{ auth()->check() ? ucfirst(auth()->user()->role) : 'Guest' }}</div>
                 </div>
-                <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if(auth()->check() && auth()->user()->foto_profil)
+                        <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
-        <!-- FLASH NOTIFICATION -->
-        @if(session('success'))
-            <div class="alert alert-success">
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger">
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
+
 
         <!-- TASK BOARD HEADER -->
         <div class="task-board-header">

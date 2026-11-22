@@ -141,41 +141,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     margin-bottom: 24px;
 }
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 17px;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 10px rgba(123,108,246,.3);
-}
-
-.user-info { text-align: right; }
-.user-info .name {
-    font-weight: 700;
-    color: #1c2766;
-    font-size: 14.5px;
-    line-height: 1.2;
-}
-.user-info .role {
-    font-size: 12px;
-    color: #7b6cf6;
-    font-weight: 600;
-}
-
 /* ===== PAGE HEADER ===== */
 .page-header {
     display: flex;
@@ -797,13 +762,19 @@ a.page-btn:hover {
     <main class="main-content">
         <!-- TOP BAR -->
         <header class="top-bar">
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Nama Admin' }}</div>
                     <div class="role">Administrator</div>
                 </div>
-                <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'A', 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if(auth()->check() && auth()->user()->foto_profil)
+                        <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ substr(auth()->check() ? auth()->user()->name : 'A', 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
         <!-- PAGE HEADER -->

@@ -160,43 +160,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     font-weight: 700;
 }
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(123,108,246,.4);
-    border: 2px solid #fff;
-}
-
-.user-info {
-    text-align: right;
-}
-.user-info .name {
-    font-weight: 700;
-    color: #1c2766;
-    font-size: 15px;
-    line-height: 1.2;
-}
-.user-info .role {
-    font-size: 12px;
-    color: #7b6cf6;
-    font-weight: 600;
-}
-
 /* Alerts */
 .alert {
     padding: 14px 20px;
@@ -505,28 +468,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     SkillConnect / <span>Eksplorasi Proyek</span>
                 @endif
             </div>
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ auth()->check() ? auth()->user()->name : 'Tamu' }}</div>
                     <div class="role">{{ auth()->check() ? ucfirst(auth()->user()->role) : 'Guest' }}</div>
                 </div>
-                <div class="avatar">{{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if(auth()->check() && auth()->user()->foto_profil)
+                        <img src="{{ asset('storage/' . auth()->user()->foto_profil) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ substr(auth()->check() ? auth()->user()->name : 'U', 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
-        <!-- FLASH NOTIFICATION -->
-        @if(session('success'))
-            <div class="alert alert-success">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
+
 
         @if(auth()->check() && auth()->user()->role === 'admin')
         {{-- ===================== ADMIN: TABEL MANAJEMEN PROYEK ===================== --}}

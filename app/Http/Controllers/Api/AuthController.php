@@ -183,25 +183,35 @@ class AuthController extends Controller
         }
 
         // Generate token pemulihan kata sandi
-        /** @var CanResetPassword $user */
-        $token = Password::createToken($user);
-        $resetUrl = route('password.reset', ['token' => $token, 'email' => $user->email]);
-
-        // Kirim email notification jika mailer aktif
         try {
-            $user->sendPasswordResetNotification($token);
-        } catch (\Exception $e) {
-            Log::error('Gagal mengirim email reset password: '.$e->getMessage());
-            if (config('mail.default') !== 'log') {
-                return redirect('/#lupa-sandi')
-                    ->withErrors(['email' => 'Gagal mengirim email via SMTP: '.$e->getMessage()])
-                    ->withInput($request->only('email', 'is_forgot'));
-            }
-        }
+            /** @var CanResetPassword $user */
+            $token = Password::createToken($user);
+            $resetUrl = route('password.reset', ['token' => $token, 'email' => $user->email]);
 
-        return redirect('/#lupa-sandi')
-            ->with('status', 'Tautan pemulihan kata sandi telah berhasil dikirim ke alamat email Anda!')
-            ->with('reset_url', $resetUrl);
+            // Kirim email notification jika mailer aktif
+            try {
+                $user->sendPasswordResetNotification($token);
+            } catch (\Throwable $e) {
+                Log::error('Gagal mengirim email reset password: '.$e->getMessage());
+                // Jika mailer bukan log tapi gagal kirim SMTP, tetap tampilkan tautan darurat / pesan error yang jelas
+                if (config('mail.default') !== 'log') {
+                    return redirect('/#lupa-sandi')
+                        ->withErrors(['email' => 'Gagal mengirim email verifikasi (SMTP error). Pastikan mailer server aktif: '.$e->getMessage()])
+                        ->with('reset_url', $resetUrl)
+                        ->withInput($request->only('email', 'is_forgot'));
+                }
+            }
+
+            return redirect('/#lupa-sandi')
+                ->with('status', 'Tautan pemulihan kata sandi telah berhasil dibuat!')
+                ->with('reset_url', $resetUrl);
+        } catch (\Throwable $e) {
+            Log::error('Gagal memproses lupa sandi: '.$e->getMessage());
+
+            return redirect('/#lupa-sandi')
+                ->withErrors(['email' => 'Gagal memproses pemulihan kata sandi: '.$e->getMessage()])
+                ->withInput($request->only('email', 'is_forgot'));
+        }
     }
 
     public function showResetPasswordForm(Request $request, $token = null)

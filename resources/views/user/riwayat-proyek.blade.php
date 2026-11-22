@@ -147,24 +147,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 }
 .top-breadcrumb span { color: var(--ink); font-weight: 700; }
 
-.user-profile { display: flex; align-items: center; gap: 12px; }
-
-.avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(123,108,246,.4);
-    border: 2px solid #fff;
-}
-
 /* Page Header */
 .page-header { margin-bottom: 24px; }
 .page-title {
@@ -365,9 +347,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="top-breadcrumb">
-                SkillConnect / <span>Portofolio & Fee</span>
+                SkillConnect / <span>@if(auth()->check() && auth()->user()->role === 'creator') Riwayat & Transaksi @else Portofolio & Fee @endif</span>
             </div>
-            <div class="user-profile">
+            <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
                     <div class="name">{{ $user->name }}</div>
                     <div class="role">
@@ -380,13 +362,19 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         @endif
                     </div>
                 </div>
-                <div class="avatar">{{ substr($user->name, 0, 1) }}</div>
-            </div>
+                <div class="avatar">
+                    @if($user->foto_profil)
+                        <img src="{{ asset('storage/' . $user->foto_profil) }}" alt="{{ $user->name }}">
+                    @else
+                        {{ substr($user->name, 0, 1) }}
+                    @endif
+                </div>
+            </a>
         </header>
 
         <div class="page-header">
-            <h1 class="page-title">Portofolio & Fee</h1>
-            <p class="page-desc">Rekam jejak kontribusi & portofolio pengerjaan proyek Anda.</p>
+            <h1 class="page-title">@if(auth()->check() && auth()->user()->role === 'creator') Riwayat & Transaksi Proyek @else Portofolio & Fee @endif</h1>
+            <p class="page-desc">@if(auth()->check() && auth()->user()->role === 'creator') Rekam jejak proyek yang Anda buat serta riwayat pengerjaan proyek. @else Rekam jejak kontribusi & portofolio pengerjaan proyek Anda. @endif</p>
         </div>
 
         <!-- 3 KOTAK FEE TERPISAH (SESUAI CATATAN REVISI) -->
@@ -420,16 +408,27 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <!-- TABEL RIWAYAT PROYEK BERSIH (TANPA KOLOM FEE) -->
         <div class="history-section">
             <div class="tabs-nav">
-                <button type="button" class="tab-btn active" onclick="switchTab('joined')">
-                    Proyek yang Diikuti (Member) • {{ $joinedProjects->count() }}
-                </button>
-                <button type="button" class="tab-btn" onclick="switchTab('created')">
-                    Proyek yang Dibuat (Creator) • {{ $createdProjects->count() }}
-                </button>
+                @if($user->role === 'creator')
+                    <button type="button" class="tab-btn active" style="cursor: default;">
+                        Proyek yang Dibuat (Creator) • {{ $createdProjects->count() }}
+                    </button>
+                @elseif($user->role === 'member')
+                    <button type="button" class="tab-btn active" style="cursor: default;">
+                        Proyek yang Diikuti (Member) • {{ $joinedProjects->count() }}
+                    </button>
+                @else
+                    <button type="button" class="tab-btn active" onclick="switchTab('created')">
+                        Proyek yang Dibuat • {{ $createdProjects->count() }}
+                    </button>
+                    <button type="button" class="tab-btn" onclick="switchTab('joined')">
+                        Proyek yang Diikuti • {{ $joinedProjects->count() }}
+                    </button>
+                @endif
             </div>
 
-            <!-- TAB 1: PROYEK YANG DIIKUTI (TANPA ADA FEE) -->
-            <div id="tab-joined">
+            @if($user->role !== 'creator')
+            <!-- TAB 1: PROYEK YANG DIIKUTI (HANYA UNTUK MEMBER / NON-CREATOR) -->
+            <div id="tab-joined" @if($user->role !== 'member') style="display: none;" @endif>
                 <table class="history-table">
                     <thead>
                         <tr>
@@ -467,9 +466,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </tbody>
                 </table>
             </div>
+            @endif
 
-            <!-- TAB 2: PROYEK YANG DIBUAT SENDIRI (TANPA ADA FEE) -->
-            <div id="tab-created" style="display: none;">
+            @if($user->role !== 'member')
+            <!-- TAB 2: PROYEK YANG DIBUAT SENDIRI (HANYA UNTUK CREATOR / NON-MEMBER) -->
+            <div id="tab-created">
                 <table class="history-table">
                     <thead>
                         <tr>
@@ -507,6 +508,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </tbody>
                 </table>
             </div>
+            @endif
         </div>
 
     </main>
@@ -517,16 +519,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             const tabCreated = document.getElementById('tab-created');
             const btns = document.querySelectorAll('.tab-btn');
 
-            if (type === 'joined') {
-                tabJoined.style.display = 'block';
-                tabCreated.style.display = 'none';
-                btns[0].classList.add('active');
-                btns[1].classList.remove('active');
-            } else {
-                tabJoined.style.display = 'none';
+            if (!tabJoined || !tabCreated) return;
+
+            if (type === 'created') {
                 tabCreated.style.display = 'block';
-                btns[0].classList.remove('active');
-                btns[1].classList.add('active');
+                tabJoined.style.display = 'none';
+                if (btns.length >= 2) {
+                    btns[0].classList.add('active');
+                    btns[1].classList.remove('active');
+                }
+            } else {
+                tabCreated.style.display = 'none';
+                tabJoined.style.display = 'block';
+                if (btns.length >= 2) {
+                    btns[0].classList.remove('active');
+                    btns[1].classList.add('active');
+                }
             }
         }
     </script>
