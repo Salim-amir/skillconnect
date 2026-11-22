@@ -811,23 +811,33 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
                                 <div style="margin-bottom: 16px;">
                                     <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Tautan CV (Google Drive) <span style="color: #e0244d;">*</span></label>
-                                    <div style="display: flex; align-items: center; gap: 10px; background: #f8f9ff; border: 2px solid #c4c9f0; border-radius: 14px; padding: 14px 18px; transition: border-color .2s; focus-within:border-color:#7b6cf6;">
+                                    <div id="apply_cv_wrapper" style="display: flex; align-items: center; gap: 10px; background: #f8f9ff; border: 2px solid #c4c9f0; border-radius: 14px; padding: 14px 18px; transition: all .2s;">
                                         <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                                        <input type="url" name="cv_link" required
+                                        <input type="url" id="apply_cv_link" name="cv_link" required
                                             style="border: none; outline: none; background: transparent; flex: 1; font-size: 14px; color: #1c2766;"
                                             placeholder="https://drive.google.com/file/d/..."
-                                            pattern="https://(drive|docs)\.google\.com/.*"
-                                            title="Harus berupa tautan Google Drive (https://drive.google.com/...)"
+                                            pattern="https://drive\.google\.com/(file/d/|open\?id=).+"
+                                            title="Tautan harus berupa file dokumen PDF di Google Drive (https://drive.google.com/file/d/...)"
                                             value="{{ old('cv_link', auth()->user()->cv_path) }}">
                                     </div>
-                                    <div style="display: flex; align-items: flex-start; gap: 8px; background: #fff8e1; border: 1.5px solid #ffe082; border-radius: 10px; padding: 10px 14px; margin-top: 10px; font-size: 13px; color: #795400;">
-                                        <svg width="16" height="16" fill="none" stroke="#b45309" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
-                                        </svg>
-                                        <span><strong>Penting:</strong> Pastikan tautan Google Drive sudah diatur agar <strong>dapat diakses oleh semua orang</strong> (Anyone with the link → Viewer).</span>
+                                    <div id="apply_cv_feedback" style="display: none; margin-top: 8px; font-size: 12.5px; border-radius: 10px; padding: 9px 13px; line-height: 1.45;"></div>
+
+                                    {{-- KOTAK PERINGATAN KETAT TAUTAN CV --}}
+                                    <div class="cv-strict-notice" style="background: #fff8f0; border: 1.5px solid #fbd38d; border-radius: 12px; padding: 12px 14px; margin-top: 10px; font-size: 12.5px; color: #744210;">
+                                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #c05621; margin-bottom: 6px; font-size: 13px;">
+                                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" style="flex-shrink:0;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                            <span>Ketentuan Ketat Tautan CV (Wajib Berkas Dokumen PDF)</span>
+                                        </div>
+                                        <ul style="margin: 0; padding-left: 20px; line-height: 1.55; color: #744210;">
+                                            <li><strong>Khusus Google Drive:</strong> Wajib format tautan file resmi (<code>https://drive.google.com/file/d/...</code>).</li>
+                                            <li><strong>Wajib Format PDF:</strong> Hanya dokumen CV berformat <strong>PDF</strong> yang diizinkan. Dilarang menautkan link folder, foto/gambar (JPG/PNG), video, atau audio.</li>
+                                            <li><strong>Akses Terbuka:</strong> Pastikan izin file disetel ke <strong>"Siapa saja yang memiliki tautan" (Anyone with the link → Viewer)</strong>.</li>
+                                        </ul>
                                     </div>
                                     @error('cv_link')
-                                        <p style="color: #e0244d; font-size: 12px; margin-top: 6px;">{{ $message }}</p>
+                                        <p style="color: #e0244d; font-size: 12px; margin-top: 6px; font-weight: 600;">{{ $message }}</p>
                                     @enderror
                                 </div>
 
@@ -1037,6 +1047,92 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             candConfirmCallback = null;
         }
 
+        function validateCvDriveUrl(val) {
+            val = (val || '').trim();
+            if (!val) return { valid: true, empty: true };
+
+            if (!/^https?:\/\//i.test(val)) {
+                return { valid: false, msg: 'Tautan harus diawali dengan https://' };
+            }
+
+            try {
+                const urlObj = new URL(val);
+                const host = urlObj.hostname.toLowerCase();
+
+                if (host !== 'drive.google.com') {
+                    if (host.includes('photos.google') || host.includes('photos.app.goo.gl')) {
+                        return { valid: false, msg: 'Tautan Google Photos ditolak! CV harus berupa dokumen file PDF di Google Drive, bukan foto/gambar.' };
+                    }
+                    if (host.includes('youtube.com') || host.includes('youtu.be') || host.includes('tiktok') || host.includes('instagram')) {
+                        return { valid: false, msg: 'Tautan video/sosmed ditolak! CV harus berupa dokumen file PDF di Google Drive, bukan video.' };
+                    }
+                    return { valid: false, msg: 'Tautan wajib berasal dari Google Drive resmi (https://drive.google.com/file/d/...). Tautan selain Google Drive tidak diterima.' };
+                }
+
+                if (val.includes('/folders/') || urlObj.pathname.includes('/folders/')) {
+                    return { valid: false, msg: 'Tautan folder ditolak! Anda menempelkan tautan folder. Harap buka file CV PDF di Google Drive, klik Bagikan > Salin tautan file (format: /file/d/...).' };
+                }
+
+                if (/\.(jpe?g|png|gif|webp|bmp|svg|mp4|mov|avi|mkv|webm|mp3|wav|m4a|zip|rar|7z)(\?|$)/i.test(val)) {
+                    return { valid: false, msg: 'Format file tidak sesuai! Tautan CV khusus berkas dokumen PDF. File foto, video, audio, atau arsip dilarang.' };
+                }
+
+                const isDriveFile = /^\/(file\/d\/[a-zA-Z0-9_-]+|open|uc)/i.test(urlObj.pathname) || urlObj.searchParams.has('id');
+                if (!isDriveFile) {
+                    return { valid: false, msg: 'Format tautan Google Drive tidak valid. Gunakan format file resmi: https://drive.google.com/file/d/<ID_FILE>/view.' };
+                }
+            } catch (e) {
+                return { valid: false, msg: 'Format tautan URL tidak valid.' };
+            }
+
+            return {
+                valid: true,
+                msg: 'Format tautan Google Drive terverifikasi. Pastikan file tersebut adalah dokumen CV (format PDF) dan hak akses "Anyone with the link" (Viewer) telah aktif.'
+            };
+        }
+
+        function checkCvLinkInput(inputEl, wrapperEl, feedbackEl) {
+            if (!inputEl) return true;
+            const res = validateCvDriveUrl(inputEl.value);
+
+            if (res.empty) {
+                if (wrapperEl) {
+                    wrapperEl.style.borderColor = '#c4c9f0';
+                    wrapperEl.style.boxShadow = 'none';
+                }
+                if (feedbackEl) feedbackEl.style.display = 'none';
+                return true;
+            }
+
+            if (!res.valid) {
+                if (wrapperEl) {
+                    wrapperEl.style.borderColor = '#dc2626';
+                    wrapperEl.style.boxShadow = '0 0 0 3px rgba(220, 38, 38, 0.15)';
+                }
+                if (feedbackEl) {
+                    feedbackEl.style.display = 'block';
+                    feedbackEl.style.background = '#fef2f2';
+                    feedbackEl.style.border = '1px solid #fca5a5';
+                    feedbackEl.style.color = '#b91c1c';
+                    feedbackEl.innerHTML = '<strong>⚠️ Peringatan Ketat:</strong> ' + res.msg;
+                }
+                return false;
+            } else {
+                if (wrapperEl) {
+                    wrapperEl.style.borderColor = '#16a34a';
+                    wrapperEl.style.boxShadow = '0 0 0 3px rgba(22, 163, 74, 0.15)';
+                }
+                if (feedbackEl) {
+                    feedbackEl.style.display = 'block';
+                    feedbackEl.style.background = '#f0fdf4';
+                    feedbackEl.style.border = '1px solid #86efac';
+                    feedbackEl.style.color = '#15803d';
+                    feedbackEl.innerHTML = '<strong>✓ Format Tautan Valid:</strong> ' + res.msg;
+                }
+                return true;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const btn = document.getElementById('btnProyekConfirmAction');
             if (btn) {
@@ -1045,6 +1141,34 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         const cb = candConfirmCallback;
                         closeProyekConfirm();
                         cb();
+                    }
+                });
+            }
+
+            // Real-time listener untuk input Tautan CV pada form lamaran
+            const cvInput = document.getElementById('apply_cv_link');
+            const cvWrapper = document.getElementById('apply_cv_wrapper');
+            const cvFeedback = document.getElementById('apply_cv_feedback');
+            const applyForm = document.querySelector('form[action="{{ route('proyek.apply', $project->id) }}"]');
+
+            if (cvInput) {
+                ['input', 'paste', 'change', 'blur'].forEach(evt => {
+                    cvInput.addEventListener(evt, () => {
+                        setTimeout(() => checkCvLinkInput(cvInput, cvWrapper, cvFeedback), 10);
+                    });
+                });
+
+                if (cvInput.value.trim()) {
+                    checkCvLinkInput(cvInput, cvWrapper, cvFeedback);
+                }
+            }
+
+            if (applyForm) {
+                applyForm.addEventListener('submit', function(e) {
+                    if (cvInput && !checkCvLinkInput(cvInput, cvWrapper, cvFeedback)) {
+                        e.preventDefault();
+                        cvInput.focus();
+                        return false;
                     }
                 });
             }
