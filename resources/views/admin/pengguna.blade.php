@@ -123,6 +123,47 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     margin-bottom: 30px;
 }
 
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.user-info {
+    text-align: right;
+}
+.user-info .name {
+    font-weight: 700;
+    color: #1c2766;
+    font-size: 15px;
+    line-height: 1.2;
+}
+.user-info .role {
+    font-size: 12px;
+    color: #7b6cf6;
+    font-weight: 600;
+}
+.avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(123,108,246,.4);
+    border: 2px solid #fff;
+    overflow: hidden;
+}
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* ===== PAGE CONTENT ===== */
 .page-header {
     display: flex;
@@ -181,7 +222,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 .badge.creator { background: #e5ffe5; color: #008000; }
 
 .btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     padding: 10px 20px;
     border-radius: 10px;
     font-weight: 700;
@@ -201,11 +245,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     box-shadow: 0 12px 24px -8px rgba(123,108,246,.8);
 }
 .btn.danger {
-    background: #d8000c;
+    background: linear-gradient(90deg, #e0244d, #d8000c);
     color: #fff;
+    box-shadow: 0 8px 20px -8px rgba(216, 0, 12, 0.55);
 }
 .btn.danger:hover {
-    background: #b00009;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px rgba(216, 0, 12, 0.7);
 }
 .btn.ghost {
     background: #eef0ff;
@@ -222,9 +268,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     margin-bottom: 20px;
     font-weight: 700;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.alert.success { background: #e6f7ed; color: #127345; border: 1px solid #b7e4c7; }
-.alert.error { background: #fdecec; color: #b00009; border: 1px solid #f5b5b5; }
+.alert.success { background: #e6f7ed; color: #127345; border: 1.5px solid #b7e4c7; }
+.alert.error { background: #fdecec; color: #b00009; border: 1.5px solid #f5b5b5; }
 
 /* ===== ACTION LINKS ===== */
 .action-link {
@@ -236,10 +285,184 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     padding: 0;
     font-family: 'Nunito', sans-serif;
 }
+.action-link.view {
+    background: linear-gradient(135deg, #4f6ef7, #38bdf8);
+    color: #ffffff;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    line-height: 1.3;
+    margin-right: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 3px 8px rgba(79, 110, 247, 0.25);
+    transition: all .2s ease;
+}
+.action-link.view:hover {
+    background: linear-gradient(135deg, #3b5bdb, #0ea5e9);
+    color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(79, 110, 247, 0.35);
+}
 .action-link.edit { color: #2b3a8f; margin-right: 12px; }
 .action-link.edit:hover { text-decoration: underline; }
 .action-link.delete { color: #d8000c; }
 .action-link.delete:hover { text-decoration: underline; }
+
+/* ===== PROFILE PREVIEW CARD IN MODAL ===== */
+.profile-modal-wrapper {
+    width: 100%;
+    max-width: 520px;
+    animation: pop .2s ease;
+    position: relative;
+}
+.profile-modal-wrapper .card {
+    padding: 32px;
+    box-shadow: 0 30px 60px -20px rgba(80,70,200,.5);
+}
+.card-header-styled {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f0f2ff;
+    padding-bottom: 18px;
+    margin-bottom: 24px;
+    gap: 12px;
+}
+.card-header-styled h2 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px;
+    color: #1c2766;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.role-pill {
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 800;
+    background: #eef0ff;
+    color: #4f5fe0;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.profile-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1.5px dashed #e0e3fa;
+    margin-bottom: 24px;
+}
+.big-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f5fe0, #7b6cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 42px;
+    box-shadow: 0 8px 25px rgba(123,108,246,.35);
+    margin-bottom: 16px;
+    border: 4px solid #fff;
+    overflow: hidden;
+}
+.big-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.profile-hero h3 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 22px;
+    color: #1c2766;
+    margin-bottom: 4px;
+}
+.profile-hero .email-badge {
+    font-size: 14px;
+    color: #7b6cf6;
+    background: #f4f6ff;
+    padding: 4px 14px;
+    border-radius: 99px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+.info-row {
+    margin-bottom: 18px;
+}
+.info-row label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #8f9bd8;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 4px;
+}
+.info-row .val {
+    font-size: 15px;
+    color: #2b3a8f;
+    font-weight: 600;
+    word-break: break-all;
+}
+.link-portfolio {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #7b6cf6;
+    background: #f4f1ff;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    border: 1px solid #e2dcff;
+    transition: .2s;
+}
+.link-portfolio:hover {
+    background: #7b6cf6;
+    color: #fff;
+}
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+.skill-tag {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #d6d9fb;
+    border-radius: 12px;
+    padding: 8px 14px;
+    gap: 10px;
+    box-shadow: 0 4px 10px -6px rgba(80,70,200,.15);
+}
+.skill-tag .skill-name {
+    font-weight: 700;
+    color: #1c2766;
+    font-size: 14px;
+}
+.skill-tag .level-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+.level-Beginner { background: #eef0ff; color: #5a6696; }
+.level-Intermediate { background: #e5ffe5; color: #198754; }
+.level-Advanced { background: #ffe5f1; color: #d63384; }
 
 /* ===== MODAL ===== */
 .modal-overlay {
@@ -297,6 +520,29 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+}
+
+/* Delete Modal Icon Styling */
+.delete-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #fdecec;
+    color: #d8000c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    border: 2px solid #f5b5b5;
+}
+.delete-user-highlight {
+    display: inline-block;
+    background: #f4f6ff;
+    color: #1c2766;
+    font-weight: 800;
+    padding: 2px 10px;
+    border-radius: 8px;
+    border: 1px solid #d6d9fb;
 }
 
 /* ===== FORM ===== */
@@ -415,9 +661,37 @@ a.page-btn:hover {
     opacity: .45;
     cursor: not-allowed;
 }
-/* ===== INJECTED RESPONSIVE CSS ===== */
 
-@media(max-width: 992px) {
+/* ===== INJECTED RESPONSIVE CSS ===== */
+.table-responsive {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.action-buttons {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.action-link.view,
+.action-link.edit {
+    margin-right: 0;
+}
+
+@media (max-width: 1150px) {
+    .data-table th,
+    .data-table td {
+        padding: 13px 14px;
+        font-size: 13.5px;
+    }
+    .data-table td[data-label="Alamat Email"] {
+        word-break: break-all;
+    }
+}
+
+@media (max-width: 992px) {
     .main-content {
         margin-left: 0 !important;
         padding: 16px !important;
@@ -427,20 +701,174 @@ a.page-btn:hover {
         overflow-x: hidden !important;
     }
     .top-bar { display: none !important; }
-    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    .grid-content { grid-template-columns: 1fr !important; }
-    .filter-bar { flex-direction: column !important; align-items: stretch !important; }
-}
-@media(max-width: 600px) {
-    .grid-stats, .grid-stats-4, .stats-grid { grid-template-columns: 1fr !important; }
-    .search-box, .btn { width: 100% !important; }
-}
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    .page-header {
+        margin-bottom: 16px;
+    }
+    .page-title {
+        font-size: 22px;
+    }
 }
 
+@media (max-width: 768px) {
+    .main-content > .card {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+    .data-table,
+    .data-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table tbody tr {
+        display: block;
+        background: #ffffff;
+        border: 1.5px solid #e0e3fa;
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 20px -14px rgba(80, 70, 200, 0.2);
+    }
+
+    .data-table tbody tr:hover td {
+        background: transparent;
+    }
+
+    .data-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 0;
+        border-bottom: 1px dashed #edf0ff;
+        text-align: right;
+        font-size: 13.5px;
+        word-break: break-word;
+    }
+
+    .data-table tbody td::before {
+        content: attr(data-label);
+        font-family: 'Fredoka', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #8f9bd8;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .data-table tbody td[data-label="Aksi"] {
+        border-bottom: none;
+        padding-top: 12px;
+        padding-bottom: 2px;
+    }
+
+    .action-buttons {
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .action-link.view {
+        padding: 6px 14px;
+        font-size: 12px;
+    }
+
+    .action-link.edit,
+    .action-link.delete {
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 12.5px;
+    }
+
+    .action-link.edit {
+        background: #eef0ff;
+    }
+
+    .action-link.delete {
+        background: #fdecec;
+    }
+
+    .pagination-bar {
+        background: #ffffff;
+        border: 1.5px solid #e0e3fa;
+        border-radius: 14px;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 14px 12px;
+        gap: 10px;
+    }
+
+    .pagination-controls {
+        justify-content: center;
+    }
+
+    .page-btn {
+        min-width: 32px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .modal-overlay {
+        padding: 12px;
+    }
+
+    .profile-modal-wrapper .card,
+    .modal {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .profile-modal-wrapper .card {
+        padding: 20px 18px;
+    }
+
+    .card-header-styled {
+        padding-bottom: 14px;
+        margin-bottom: 16px;
+    }
+
+    .card-header-styled h2 {
+        font-size: 16px;
+        gap: 6px;
+    }
+
+    .big-avatar {
+        width: 72px;
+        height: 72px;
+        font-size: 30px;
+        margin-bottom: 10px;
+    }
+
+    .profile-hero {
+        padding: 12px 0;
+        margin-bottom: 16px;
+    }
+
+    .profile-hero h3 {
+        font-size: 18px;
+    }
+
+    .profile-hero .email-badge {
+        font-size: 12.5px;
+        word-break: break-all;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 16px 18px;
+    }
+}
 </style>
 </head>
 <body>
@@ -471,6 +899,19 @@ a.page-btn:hover {
             {{-- <button type="button" class="btn pri" onclick="openCreateModal()">+ Tambah Pengguna</button> --}}
         </div>
 
+        @if(session('success'))
+            <div class="alert success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert error">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
 
         @if($errors->any() && !old('_edit_id') && old('_form') !== 'create')
             <div class="alert error">
@@ -493,15 +934,16 @@ a.page-btn:hover {
                             <th>Role</th>
                             <th>Tanggal Bergabung</th>
                             <th>Aksi</th>
+
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($users as $i => $user)
                         <tr>
-                            <td style="color: #8f9bd8; font-weight: 600;">#{{ $users->firstItem() + $i }}</td>
-                            <td style="font-weight: 700; color: #1c2766;">{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>
+                            <td data-label="ID" style="color: #8f9bd8; font-weight: 600;">#{{ $users->firstItem() + $i }}</td>
+                            <td data-label="Nama Lengkap" style="font-weight: 700; color: #1c2766;">{{ $user->name }}</td>
+                            <td data-label="Alamat Email">{{ $user->email }}</td>
+                            <td data-label="Role">
                                 @if($user->role === 'admin')
                                     <span class="badge admin">Admin</span>
                                 @elseif($user->role === 'creator')
@@ -510,21 +952,51 @@ a.page-btn:hover {
                                     <span class="badge member">Member</span>
                                 @endif
                             </td>
-                            <td style="color: #8f9bd8;">{{ $user->created_at->format('d M Y') }}</td>
-                            <td>
-                                <button type="button" class="action-link edit"
-                                    onclick="openEditModal(this)"
-                                    data-id="{{ $user->id }}"
-                                    data-name="{{ $user->name }}"
-                                    data-email="{{ $user->email }}"
-                                    data-role="{{ $user->role }}">Edit Role</button>
-                                <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
-                                    style="display:inline;"
-                                    onsubmit="return confirm('Yakin ingin menghapus pengguna {{ addslashes($user->name) }}? Tindakan ini tidak dapat dibatalkan.');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="action-link delete">Hapus</button>
-                                </form>
+                            
+                            <td data-label="Bergabung" style="color: #8f9bd8;">
+                                {{ $user->created_at->format('d M Y') }}
+                            </td>
+                            <td data-label="Aksi">
+                                @php
+                                    $userSkillsData = $user->skills->map(function ($s) {
+                                        return [
+                                            'nama_skill' => $s->nama_skill,
+                                            'tingkat_keahlian' => $s->pivot->tingkat_keahlian ?? 'Beginner',
+                                        ];
+                                    })->values();
+                                @endphp
+
+                                <div class="action-buttons">
+                                    @if($user->id !== Auth::id())
+                                    <button type="button" class="action-link view"
+                                        onclick="openViewModal(this)"
+                                        data-name="{{ $user->name }}"
+                                        data-email="{{ $user->email }}"
+                                        data-role="{{ $user->role }}"
+                                        data-foto="{{ $user->foto_profil ? asset('storage/' . $user->foto_profil) : '' }}"
+                                        data-cv="{{ $user->cv_path ?? '' }}"
+                                        data-portofolio="{{ $user->portofolio ?? '' }}"
+                                        data-skills='@json($userSkillsData)'>View</button>
+                                    @endif
+
+                                    @if($user->id !== Auth::id())
+                                    <button type="button" class="action-link edit"
+                                        onclick="openEditModal(this)"
+                                        data-id="{{ $user->id }}"
+                                        data-name="{{ $user->name }}"
+                                        data-email="{{ $user->email }}"
+                                        data-role="{{ $user->role }}">Edit Role</button>
+                                    @endif
+
+                                    @if(strtolower($user->role) !== 'admin' && $user->id !== Auth::id())
+                                        <button type="button" class="action-link delete"
+                                            onclick="openDeleteModal(this)"
+                                            data-id="{{ $user->id }}"
+                                            data-name="{{ $user->name }}"
+                                            data-email="{{ $user->email }}"
+                                            data-url="{{ route('pengguna.destroy', $user->id) }}">Hapus</button>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         @endforeach
@@ -564,11 +1036,60 @@ a.page-btn:hover {
 
     </main>
 
+    <!-- ===== MODAL VIEW PROFIL PENGGUNA ===== -->
+    <div class="modal-overlay" id="viewModal" onclick="if(event.target === this) closeViewModal();">
+        <div class="profile-modal-wrapper" role="dialog" aria-modal="true" aria-labelledby="viewModalTitle">
+            <div class="card">
+                <div class="card-header-styled">
+                    <h2 id="viewModalTitle">
+                        <svg width="22" height="22" fill="none" stroke="#7b6cf6" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Pratinjau Profil Pengguna
+                    </h2>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="role-pill" id="view_role">member</span>
+                        <button type="button" class="modal-close" onclick="closeViewModal()" aria-label="Tutup">&times;</button>
+                    </div>
+                </div>
+
+                <div class="profile-hero">
+                    <div class="big-avatar" id="view_avatar">U</div>
+                    <h3 id="view_name">Nama Pengguna</h3>
+                    <div class="email-badge" id="view_email">email@skillconnect.com</div>
+                </div>
+
+                <div class="info-row">
+                    <label>Tautan CV</label>
+                    <div id="view_cv_container">
+                        <div class="val" style="color: #9aa2cc; font-style: italic; font-size: 14px;">
+                            Belum ada tautan CV.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label>Tautan Bukti Portofolio</label>
+                    <div id="view_portofolio_container">
+                        <div class="val" style="color: #9aa2cc; font-style: italic;">Belum ada tautan portofolio.</div>
+                    </div>
+                </div>
+
+                <div class="info-row" style="margin-top: 24px;">
+                    <label id="view_skills_label">Skill Terverifikasi (0)</label>
+                    <div class="skills-container" id="view_skills_container">
+                        <p style="color: #9aa2cc; font-size: 14px; font-style: italic;">
+                            Belum ada keahlian yang ditambahkan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== MODAL EDIT PENGGUNA ===== -->
     <div class="modal-overlay" id="editModal" onclick="if(event.target === this) closeEditModal();">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
             <div class="modal-header">
-                <h2 class="modal-title" id="editModalTitle">Edit Pengguna : user ID {{ $user->id }}</h2>
+                <h2 class="modal-title" id="editModalTitle">Edit Pengguna</h2>
                 <button type="button" class="modal-close" onclick="closeEditModal()" aria-label="Tutup">&times;</button>
             </div>
             <form id="editForm" method="POST" action="">
@@ -590,6 +1111,46 @@ a.page-btn:hover {
                 <div class="modal-footer">
                     <button type="button" class="btn ghost" onclick="closeEditModal()">Batal</button>
                     <button type="submit" class="btn pri">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL KONFIRMASI HAPUS PENGGUNA ===== -->
+    <div class="modal-overlay" id="deleteModal" onclick="if(event.target === this) closeDeleteModal();">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+            <div class="modal-header">
+                <h2 class="modal-title" id="deleteModalTitle">Konfirmasi Hapus Pengguna</h2>
+                <button type="button" class="modal-close" onclick="closeDeleteModal()" aria-label="Tutup">&times;</button>
+            </div>
+            <form id="deleteForm" method="POST" action="">
+                @csrf
+                @method('DELETE')
+                <div class="modal-body" style="text-align: center;">
+                    <div class="delete-icon-box">
+                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                    <p style="font-size: 15px; color: #1c2766; font-weight: 600; margin-bottom: 8px;">
+                        Apakah Anda yakin ingin menghapus akun pengguna ini?
+                    </p>
+                    <div style="margin-bottom: 12px;">
+                        <span class="delete-user-highlight" id="delete_user_name">Nama Pengguna</span>
+                        <div style="font-size: 12.5px; color: #8f9bd8; font-weight: 600; margin-top: 4px;" id="delete_user_email">email@example.com</div>
+                    </div>
+                    <p style="font-size: 13px; color: #d8000c; font-weight: 600; background: #fdecec; padding: 10px 14px; border-radius: 10px; border: 1px solid #f5b5b5;">
+                        Tindakan ini permanen dan seluruh data terkait pengguna tersebut tidak dapat dipulihkan.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn ghost" onclick="closeDeleteModal()">Batal</button>
+                    <button type="submit" class="btn danger">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Ya, Hapus Pengguna
+                    </button>
                 </div>
             </form>
         </div>
@@ -641,24 +1202,105 @@ a.page-btn:hover {
     </div>
 
     <script>
-        const editModal = document.getElementById('editModal');
-        const editForm = document.getElementById('editForm');
+        const viewModal   = document.getElementById('viewModal');
+        const editModal   = document.getElementById('editModal');
+        const editForm    = document.getElementById('editForm');
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteForm  = document.getElementById('deleteForm');
         const createModal = document.getElementById('createModal');
-        const createForm = document.getElementById('createForm');
+        const createForm  = document.getElementById('createForm');
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ===== MODAL VIEW PROFIL =====
+        function openViewModal(button) {
+            const name       = button.getAttribute('data-name') || 'Pengguna';
+            const email      = button.getAttribute('data-email') || '-';
+            const role       = button.getAttribute('data-role') || 'member';
+            const foto       = button.getAttribute('data-foto') || '';
+            const cv         = button.getAttribute('data-cv') || '';
+            const portofolio = button.getAttribute('data-portofolio') || '';
+            let skills       = [];
+
+            try {
+                skills = JSON.parse(button.getAttribute('data-skills') || '[]');
+            } catch (err) {
+                skills = [];
+            }
+
+            document.getElementById('view_role').textContent = role;
+            document.getElementById('view_name').textContent = name;
+            document.getElementById('view_email').textContent = email;
+
+            const avatarEl = document.getElementById('view_avatar');
+            if (foto) {
+                avatarEl.innerHTML = '<img src="' + escapeHtml(foto) + '" alt="' + escapeHtml(name) + '">';
+            } else {
+                avatarEl.textContent = name.charAt(0).toUpperCase();
+            }
+
+            const cvContainer = document.getElementById('view_cv_container');
+            if (cv) {
+                cvContainer.innerHTML = '<a href="' + escapeHtml(cv) + '" target="_blank" class="link-portfolio" style="background: #eef0ff; color: #2b3a8f; border-color: #d6d9fb;">' +
+                    '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>' +
+                    'Lihat Dokumen CV</a>';
+            } else {
+                cvContainer.innerHTML = '<div class="val" style="color: #9aa2cc; font-style: italic; font-size: 14px;">Belum ada tautan CV.</div>';
+            }
+
+            const portofolioContainer = document.getElementById('view_portofolio_container');
+            if (portofolio) {
+                portofolioContainer.innerHTML = '<a href="' + escapeHtml(portofolio) + '" target="_blank" class="link-portfolio">' +
+                    '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>' +
+                    'Buka Tautan Portofolio</a>';
+            } else {
+                portofolioContainer.innerHTML = '<div class="val" style="color: #9aa2cc; font-style: italic;">Belum ada tautan portofolio.</div>';
+            }
+
+            const skillsLabel = document.getElementById('view_skills_label');
+            const skillsContainer = document.getElementById('view_skills_container');
+            skillsLabel.textContent = 'Skill Terverifikasi (' + skills.length + ')';
+
+            if (skills.length > 0) {
+                skillsContainer.innerHTML = skills.map(function (skill) {
+                    const level = skill.tingkat_keahlian || 'Beginner';
+                    return '<div class="skill-tag">' +
+                        '<span class="skill-name">' + escapeHtml(skill.nama_skill) + '</span>' +
+                        '<span class="level-badge level-' + escapeHtml(level) + '">' + escapeHtml(level) + '</span>' +
+                        '</div>';
+                }).join('');
+            } else {
+                skillsContainer.innerHTML = '<p style="color: #9aa2cc; font-size: 14px; font-style: italic;">' +
+                    'Belum ada keahlian yang ditambahkan.' +
+                    '</p>';
+            }
+
+            viewModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewModal() {
+            viewModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
 
         // ===== MODAL EDIT =====
         function openEditModal(button) {
-            const id    = button.getAttribute('data-id');
-            const role  = button.getAttribute('data-role');
+            const id   = button.getAttribute('data-id');
+            const role = button.getAttribute('data-role');
 
-            // Set action form ke route update
             editForm.action = '/pengguna/' + id;
             document.getElementById('edit_id').value = id;
-
-            // Isi nilai form
+            document.getElementById('editModalTitle').textContent = 'Edit Pengguna : user ID ' + id;
             document.getElementById('edit_role').value = role;
 
-            // Hapus pesan error lama (jika ada)
             document.querySelectorAll('#editForm .form-error').forEach(el => el.remove());
 
             editModal.classList.add('active');
@@ -670,12 +1312,28 @@ a.page-btn:hover {
             document.body.style.overflow = '';
         }
 
+        // ===== MODAL KONFIRMASI HAPUS =====
+        function openDeleteModal(button) {
+            const name  = button.getAttribute('data-name') || 'Pengguna';
+            const email = button.getAttribute('data-email') || '';
+            const url   = button.getAttribute('data-url');
+
+            deleteForm.action = url;
+            document.getElementById('delete_user_name').textContent = name;
+            document.getElementById('delete_user_email').textContent = email;
+
+            deleteModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            deleteModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
         // ===== MODAL TAMBAH =====
         function openCreateModal() {
-            // Reset form ke kondisi bersih
             createForm.reset();
-
-            // Hapus pesan error lama (jika ada)
             document.querySelectorAll('#createForm .form-error').forEach(el => el.remove());
 
             createModal.classList.add('active');
@@ -690,21 +1348,19 @@ a.page-btn:hover {
         // Tutup modal aktif dengan tombol ESC
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
-                if (editModal.classList.contains('active')) {
-                    closeEditModal();
-                }
-                if (createModal.classList.contains('active')) {
-                    closeCreateModal();
-                }
+                if (viewModal.classList.contains('active')) closeViewModal();
+                if (editModal.classList.contains('active')) closeEditModal();
+                if (deleteModal.classList.contains('active')) closeDeleteModal();
+                if (createModal.classList.contains('active')) closeCreateModal();
             }
         });
 
-        // Jika ada error validasi setelah submit, buka kembali modal yang sesuai
+        // Buka kembali modal jika terjadi error validasi
         @if($errors->any())
             @if(old('_form') === 'create')
                 createModal.classList.add('active');
                 document.body.style.overflow = 'hidden';
-            @else
+            @elseif(old('_edit_id'))
                 editForm.action = '/pengguna/' + document.getElementById('edit_id').value;
                 editModal.classList.add('active');
                 document.body.style.overflow = 'hidden';

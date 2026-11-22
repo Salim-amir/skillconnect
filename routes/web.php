@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\PenggunaController;
 use App\Http\Controllers\Api\AuthController;
@@ -18,9 +19,6 @@ use Illuminate\Support\Facades\Route;
 // ===================== PUBLIC / GUEST ROUTES =====================
 
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
     return view('shared.welcome');
 })->name('welcome');
 

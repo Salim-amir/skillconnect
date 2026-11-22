@@ -347,7 +347,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="top-breadcrumb">
-                SkillConnect / <span>Portofolio & Fee</span>
+                SkillConnect / <span>@if(auth()->check() && auth()->user()->role === 'creator') Riwayat & Transaksi @else Portofolio & Fee @endif</span>
             </div>
             <a href="{{ route('profile.skill') }}" class="user-profile" title="Kelola Profil">
                 <div class="user-info">
@@ -373,8 +373,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         </header>
 
         <div class="page-header">
-            <h1 class="page-title">Portofolio & Fee</h1>
-            <p class="page-desc">Rekam jejak kontribusi & portofolio pengerjaan proyek Anda.</p>
+            <h1 class="page-title">@if(auth()->check() && auth()->user()->role === 'creator') Riwayat & Transaksi Proyek @else Portofolio & Fee @endif</h1>
+            <p class="page-desc">@if(auth()->check() && auth()->user()->role === 'creator') Rekam jejak proyek yang Anda buat serta riwayat pengerjaan proyek. @else Rekam jejak kontribusi & portofolio pengerjaan proyek Anda. @endif</p>
         </div>
 
         <!-- 3 KOTAK FEE TERPISAH (SESUAI CATATAN REVISI) -->
@@ -408,13 +408,28 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
         <!-- TABEL RIWAYAT PROYEK BERSIH (TANPA KOLOM FEE) -->
         <div class="history-section">
             <div class="tabs-nav">
-                <button type="button" class="tab-btn active" style="cursor: default;">
-                    Proyek yang Diikuti (Member) • {{ $joinedProjects->count() }}
-                </button>
+            <div class="tabs-nav">
+                @if($user->role === 'creator')
+                    <button type="button" class="tab-btn active" style="cursor: default;">
+                        Proyek yang Dibuat (Creator) • {{ $createdProjects->count() }}
+                    </button>
+                @elseif($user->role === 'member')
+                    <button type="button" class="tab-btn active" style="cursor: default;">
+                        Proyek yang Diikuti (Member) • {{ $joinedProjects->count() }}
+                    </button>
+                @else
+                    <button type="button" class="tab-btn active" onclick="switchTab('created')">
+                        Proyek yang Dibuat • {{ $createdProjects->count() }}
+                    </button>
+                    <button type="button" class="tab-btn" onclick="switchTab('joined')">
+                        Proyek yang Diikuti • {{ $joinedProjects->count() }}
+                    </button>
+                @endif
             </div>
 
-            <!-- TAB: PROYEK YANG DIIKUTI (TANPA ADA FEE) -->
-            <div id="tab-joined">
+            @if($user->role !== 'creator')
+            <!-- TAB 1: PROYEK YANG DIIKUTI (HANYA UNTUK MEMBER / NON-CREATOR) -->
+            <div id="tab-joined" @if($user->role !== 'member') style="display: none;" @endif>
                 <table class="history-table">
                     <thead>
                         <tr>
@@ -464,9 +479,77 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </tbody>
                 </table>
             </div>
+            @endif
+
+            @if($user->role !== 'member')
+            <!-- TAB 2: PROYEK YANG DIBUAT SENDIRI (HANYA UNTUK CREATOR / NON-MEMBER) -->
+            <div id="tab-created">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Judul Proyek</th>
+                            <th>Kategori</th>
+                            <th>Jumlah Anggota</th>
+                            <th>Status Proyek</th>
+                            <th>Tanggal Publikasi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($createdProjects as $cp)
+                            <tr>
+                                <td style="font-weight: 700; color: var(--ink);">{{ $cp->judul_project }}</td>
+                                <td>{{ $cp->kategori }}</td>
+                                <td>{{ $cp->members->count() }} Anggota</td>
+                                <td>
+                                    <span class="status-badge status-{{ str_replace(' ', '-', $cp->status_project) }}">
+                                        {{ $cp->status_project }}
+                                    </span>
+                                </td>
+                                <td>{{ $cp->created_at->format('d M Y') }}</td>
+                                <td>
+                                    <a href="{{ route('proyek.detail', $cp->id) }}" class="btn-detail">Kelola Tim</a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #9aa2cc; padding: 40px;">
+                                    Anda belum pernah membuat proyek. Buat proyek baru untuk merekrut anggota tim!
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @endif
         </div>
 
     </main>
 
+    <script>
+        function switchTab(type) {
+            const tabJoined = document.getElementById('tab-joined');
+            const tabCreated = document.getElementById('tab-created');
+            const btns = document.querySelectorAll('.tab-btn');
+
+            if (!tabJoined || !tabCreated) return;
+
+            if (type === 'created') {
+                tabCreated.style.display = 'block';
+                tabJoined.style.display = 'none';
+                if (btns.length >= 2) {
+                    btns[0].classList.add('active');
+                    btns[1].classList.remove('active');
+                }
+            } else {
+                tabCreated.style.display = 'none';
+                tabJoined.style.display = 'block';
+                if (btns.length >= 2) {
+                    btns[0].classList.remove('active');
+                    btns[1].classList.add('active');
+                }
+            }
+        }
+    </script>
 </body>
 </html>

@@ -305,7 +305,7 @@ class ProyekController extends Controller
             'peran.required' => 'Posisi/peran yang dilamar wajib dipilih atau diisi.',
             'cv_link.required' => 'Tautan CV wajib diisi.',
             'cv_link.url' => 'Tautan CV harus berupa URL yang valid (misal: https://drive.google.com/...).',
-            'cv_link.regex' => 'Link CV harus berupa tautan Google Drive (misal: https://drive.google.com/...).',
+            'cv_link.regex' => 'Tautan CV harus berupa tautan Google Drive (misal: https://drive.google.com/...).',
         ]);
 
         // Simpan tautan CV (Google Drive atau link lainnya)
