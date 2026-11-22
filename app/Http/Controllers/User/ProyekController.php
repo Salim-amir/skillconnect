@@ -301,13 +301,14 @@ class ProyekController extends Controller
             'peran' => 'required|string|max:100',
             'nominal_fee' => 'required|numeric|min:0',
             'pesan' => 'nullable|string|max:1000',
-            'cv_link' => 'required|url|max:500',
+            'cv_link' => ['required', 'url', 'max:500', 'regex:~^https://(drive|docs)\.google\.com/~i'],
         ], [
             'peran.required' => 'Posisi/peran yang dilamar wajib dipilih atau diisi.',
             'nominal_fee.required' => 'Nominal ekspektasi fee wajib diisi.',
             'nominal_fee.numeric' => 'Nominal fee harus berupa angka.',
             'cv_link.required' => 'Tautan CV wajib diisi.',
             'cv_link.url' => 'Tautan CV harus berupa URL yang valid (misal: https://drive.google.com/...).',
+            'cv_link.regex' => 'Tautan CV harus berupa tautan Google Drive (misal: https://drive.google.com/...).',
         ]);
 
         // Simpan tautan CV (Google Drive atau link lainnya)
