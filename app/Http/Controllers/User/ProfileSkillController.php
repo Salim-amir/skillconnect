@@ -51,7 +51,9 @@ class ProfileSkillController extends Controller
         // Validasi input, format tautan, dan kelengkapan data sesuai diagram
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
-            'cv_link'     => $isCreator ? 'nullable|url|max:500' : 'required|url|max:500',
+            'cv_link'     => $isCreator
+                ? ['nullable', 'url', 'max:500', 'regex:~^https://(drive|docs)\.google\.com/~i']
+                : ['required', 'url', 'max:500', 'regex:~^https://(drive|docs)\.google\.com/~i'],
             'portofolio'  => 'nullable|url|max:255',
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'skill_id'    => 'nullable|array',
@@ -64,10 +66,11 @@ class ProfileSkillController extends Controller
             'name.required'    => 'Nama lengkap wajib diisi.',
             'cv_link.required' => 'Tautan CV wajib diisi.',
             'cv_link.url'      => 'Link CV harus berupa URL yang valid (misal: https://drive.google.com/...).',
+            'cv_link.regex'    => 'Link CV harus berupa tautan Google Drive (misal: https://drive.google.com/...).',
             'portofolio.url'   => 'Tautan bukti portofolio harus berupa URL yang valid (misal: https://github.com/username).',
             'foto_profil.image'=> 'File foto profil harus berupa gambar.',
             'foto_profil.mimes'=> 'Format foto profil harus JPG, JPEG, PNG, atau WEBP.',
-            'foto_profil.max'  => 'Ukuran foto profil maksimal 2MB.',
+            'foto_profil.max'  => 'Ukuran foto profil tidak boleh lebih dari 2MB.',
             'level.*.in'       => 'Tingkat keahlian harus Beginner, Intermediate, atau Advanced.',
         ]);
 
