@@ -1,17 +1,18 @@
 <?php
 
-use App\Models\User;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\PenggunaController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SocialiteController;
+use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileSkillController;
+use App\Http\Controllers\User\ProjectChatController;
 use App\Http\Controllers\User\ProyekController;
 use App\Http\Controllers\User\TaskController;
 use App\Models\Project;
 use App\Models\Transaction;
-use App\Http\Controllers\User\PaymentController;
-use App\Http\Controllers\DashboardController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -94,6 +95,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::get('/pengguna', function () {
         $users = User::with('skills')->paginate(8)->withQueryString();
+
         return view('admin.pengguna', compact('users'));
     })->name('pengguna');
 
@@ -114,12 +116,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/transaksi', function () {
         $allTransactions = Transaction::with(['project.members', 'user'])->latest()->get();
         $totalTransactions = $allTransactions->count();
-        $totalLunas        = $allTransactions->where('status_pembayaran', 'lunas')->count();
-        $totalPending      = $allTransactions->where('status_pembayaran', 'pending')->count();
-        $totalBatal        = $allTransactions->whereNotIn('status_pembayaran', ['lunas', 'pending'])->count();
-        $nominalLunas      = $allTransactions->where('status_pembayaran', 'lunas')->sum('jumlah_fee');
-        $nominalPending    = $allTransactions->where('status_pembayaran', 'pending')->sum('jumlah_fee');
-        $transactions      = Transaction::with(['project.members', 'user'])->latest()->paginate(8)->withQueryString();
+        $totalLunas = $allTransactions->where('status_pembayaran', 'lunas')->count();
+        $totalPending = $allTransactions->where('status_pembayaran', 'pending')->count();
+        $totalBatal = $allTransactions->whereNotIn('status_pembayaran', ['lunas', 'pending'])->count();
+        $nominalLunas = $allTransactions->where('status_pembayaran', 'lunas')->sum('jumlah_fee');
+        $nominalPending = $allTransactions->where('status_pembayaran', 'pending')->sum('jumlah_fee');
+        $transactions = Transaction::with(['project.members', 'user'])->latest()->paginate(8)->withQueryString();
 
         return view('admin.transaksi', compact(
             'transactions',
@@ -169,13 +171,24 @@ Route::middleware('auth')->group(function () {
     // MOD-09: Evaluasi Anggota Tim oleh Creator
     Route::post('/proyek/{id}/evaluasi/{memberId}', [TaskController::class, 'evaluateMember'])->name('proyek.evaluasi');
 
+    // Kolaborasi Tim: Sumber Daya & Tautan Tim (GitHub, Figma, Live Demo, Docs)
+    Route::post('/proyek/{id}/links', [ProjectChatController::class, 'updateLinks'])->name('proyek.links.update');
+
+    // Kolaborasi Tim: Ruang Diskusi Proyek (Team Chat)
+    Route::get('/proyek/{id}/messages', [ProjectChatController::class, 'getMessages'])->name('proyek.messages');
+    Route::post('/proyek/{id}/messages', [ProjectChatController::class, 'sendMessage'])->name('proyek.messages.send');
+
+    // Kolaborasi Tim: Diskusi/Komentar pada Task
+    Route::get('/proyek/{id}/tasks/{taskId}/comments', [TaskController::class, 'getComments'])->name('proyek.tasks.comments');
+    Route::post('/proyek/{id}/tasks/{taskId}/comments', [TaskController::class, 'storeComment'])->name('proyek.tasks.comments.store');
+
     // Integrasi Pembayaran Dana Proyek via Midtrans (Full Escrow Opsi A)
-    Route::post('/proyek/{id}/bayar',                       [PaymentController::class, 'initiate'])->name('proyek.bayar');
-    Route::get('/proyek/{id}/bayar/status',                 [PaymentController::class, 'checkStatus'])->name('proyek.bayar.status');
-    Route::post('/proyek/{id}/bayar/sync',                  [PaymentController::class, 'syncStatus'])->name('proyek.bayar.sync');
+    Route::post('/proyek/{id}/bayar', [PaymentController::class, 'initiate'])->name('proyek.bayar');
+    Route::get('/proyek/{id}/bayar/status', [PaymentController::class, 'checkStatus'])->name('proyek.bayar.status');
+    Route::post('/proyek/{id}/bayar/sync', [PaymentController::class, 'syncStatus'])->name('proyek.bayar.sync');
 
     // Penyelesaian Proyek & Pencairan Fee Escrow ke Member
-    Route::post('/proyek/{id}/selesaikan',                  [ProyekController::class, 'completeProject'])->name('proyek.selesaikan');
+    Route::post('/proyek/{id}/selesaikan', [ProyekController::class, 'completeProject'])->name('proyek.selesaikan');
 
 });
 
@@ -190,21 +203,23 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/pengguna', function () {
         $users = User::with('skills')->paginate(8)->withQueryString();
+
         return view('admin.pengguna', compact('users'));
     })->name('pengguna');
 
-    Route::post('/pengguna',            [PenggunaController::class, 'store'])->name('pengguna.store');
-    Route::put('/pengguna/{id}',       [PenggunaController::class, 'update'])->name('pengguna.update');
-    Route::delete('/pengguna/{id}',    [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
+    Route::post('/pengguna', [PenggunaController::class, 'store'])->name('pengguna.store');
+    Route::put('/pengguna/{id}', [PenggunaController::class, 'update'])->name('pengguna.update');
+    Route::delete('/pengguna/{id}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
 
 });
 
 // Fallback penyajian file bukti kerja (jika storage:link belum dibuat di sistem operasi Windows)
 Route::get('/storage/bukti-kerja/{filename}', function ($filename) {
-    $path = storage_path('app/public/bukti-kerja/' . $filename);
-    if (!file_exists($path)) {
+    $path = storage_path('app/public/bukti-kerja/'.$filename);
+    if (! file_exists($path)) {
         abort(404);
     }
+
     return response()->file($path);
 })->name('storage.bukti');
 
@@ -220,12 +235,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::middleware(['auth', 'admin'])->get('/transaksi', function () {
     $allTransactions = Transaction::with(['project.members', 'user'])->latest()->get();
     $totalTransactions = $allTransactions->count();
-    $totalLunas        = $allTransactions->where('status_pembayaran', 'lunas')->count();
-    $totalPending      = $allTransactions->where('status_pembayaran', 'pending')->count();
-    $totalBatal        = $allTransactions->whereNotIn('status_pembayaran', ['lunas', 'pending'])->count();
-    $nominalLunas      = $allTransactions->where('status_pembayaran', 'lunas')->sum('jumlah_fee');
-    $nominalPending    = $allTransactions->where('status_pembayaran', 'pending')->sum('jumlah_fee');
-    $transactions      = Transaction::with(['project.members', 'user'])->latest()->paginate(8)->withQueryString();
+    $totalLunas = $allTransactions->where('status_pembayaran', 'lunas')->count();
+    $totalPending = $allTransactions->where('status_pembayaran', 'pending')->count();
+    $totalBatal = $allTransactions->whereNotIn('status_pembayaran', ['lunas', 'pending'])->count();
+    $nominalLunas = $allTransactions->where('status_pembayaran', 'lunas')->sum('jumlah_fee');
+    $nominalPending = $allTransactions->where('status_pembayaran', 'pending')->sum('jumlah_fee');
+    $transactions = Transaction::with(['project.members', 'user'])->latest()->paginate(8)->withQueryString();
 
     return view('admin.transaksi', compact(
         'transactions',

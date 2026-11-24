@@ -600,12 +600,31 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         });
                     @endphp
                     @if($isTeamMember || (auth()->user() && auth()->user()->role === 'creator' && auth()->id() === $project->creator_id) || (auth()->user() && auth()->user()->role === 'admin'))
-                        <div style="margin-top: 20px;">
+                        <div style="margin-top: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                             @if($isPaid)
                                 <a href="{{ route('proyek.tasks', $project->id) }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; background: linear-gradient(90deg, #2b3a8f, #7b6cf6); color: #fff; box-shadow: 0 6px 18px -4px rgba(123,108,246,.5); transition: all .2s;">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                                    Buka Task Board
+                                    Buka Task Board & Diskusi
                                 </a>
+
+                                @if($project->github_url)
+                                    <a href="{{ $project->github_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 13px; background: #f3f4f6; color: #1f2937; border: 1.5px solid #e5e7eb; transition: all .2s;" title="Repositori GitHub">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                                        GitHub
+                                    </a>
+                                @endif
+                                @if($project->figma_url)
+                                    <a href="{{ $project->figma_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 13px; background: #fff1f2; color: #e11d48; border: 1.5px solid #fecdd3; transition: all .2s;" title="Desain Figma">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h8M4 16h8m4-8h4m-4 8h4M4 4h16v16H4z"/></svg>
+                                        Figma
+                                    </a>
+                                @endif
+                                @if($project->demo_url)
+                                    <a href="{{ $project->demo_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 13px; background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; transition: all .2s;" title="Demo Live Website">
+                                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                                        Demo Web
+                                    </a>
+                                @endif
                             @else
                                 <div style="display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 12px; background: #f8fafc; border: 1.5px dashed #cbd5e1; color: #64748b; font-size: 13.5px; font-weight: 700;">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>

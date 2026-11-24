@@ -422,6 +422,170 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 }
 .revision-note strong { display: block; margin-bottom: 2px; font-size: 11px; }
 
+/* ===== TIM & KOLABORASI TOOLBAR ===== */
+.collab-toolbar {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px 22px;
+    border: 1.5px solid var(--line);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    box-shadow: 0 4px 20px -5px rgba(28,39,102,.06);
+}
+.collab-links-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.collab-link-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all .2s;
+    border: 1.5px solid transparent;
+}
+.collab-link-pill.github { background: #f3f4f6; color: #1f2937; border-color: #e5e7eb; }
+.collab-link-pill.github:hover { background: #1f2937; color: #fff; }
+.collab-link-pill.figma { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
+.collab-link-pill.figma:hover { background: #e11d48; color: #fff; }
+.collab-link-pill.demo { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+.collab-link-pill.demo:hover { background: #2563eb; color: #fff; }
+.collab-link-pill.docs { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+.collab-link-pill.docs:hover { background: #16a34a; color: #fff; }
+.collab-link-pill.empty { background: #f8fafc; color: #94a3b8; border-color: #e2e8f0; border-style: dashed; }
+.collab-link-pill.empty:hover { background: #f1f5f9; color: #64748b; }
+.btn-collab-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    transition: all .2s;
+}
+.btn-chat-toggle {
+    background: linear-gradient(135deg, #7000ff, #7b6cf6);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 14px -3px rgba(112,0,255,.4);
+}
+.btn-chat-toggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px -3px rgba(112,0,255,.5);
+}
+.btn-edit-links {
+    background: #fff;
+    color: var(--ink);
+    border: 1.5px solid var(--line);
+}
+.btn-edit-links:hover {
+    background: #f4f6ff;
+    border-color: var(--accent);
+}
+
+/* Chat & Komentar styles */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 480px;
+}
+.chat-messages-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 14px;
+    border: 1.5px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.chat-bubble-row {
+    display: flex;
+    gap: 10px;
+    max-width: 85%;
+}
+.chat-bubble-row.me {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+.chat-bubble-row.other {
+    align-self: flex-start;
+}
+.chat-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    color: #4338ca;
+    font-weight: 800;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+.chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.chat-bubble-content {
+    display: flex;
+    flex-direction: column;
+}
+.chat-bubble-row.me .chat-bubble-content { align-items: flex-end; }
+.chat-bubble-row.other .chat-bubble-content { align-items: flex-start; }
+.chat-sender-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--mute);
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.chat-role-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 99px;
+    background: #e2e8f0;
+    color: #475569;
+}
+.chat-bubble-body {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    word-break: break-word;
+}
+.chat-bubble-row.me .chat-bubble-body {
+    background: linear-gradient(135deg, #7000ff, #7b6cf6);
+    color: #fff;
+    border-bottom-right-radius: 2px;
+}
+.chat-bubble-row.other .chat-bubble-body {
+    background: #ffffff;
+    color: #1e293b;
+    border: 1.5px solid #e2e8f0;
+    border-bottom-left-radius: 2px;
+}
+.chat-time {
+    font-size: 10.5px;
+    color: #94a3b8;
+    margin-top: 3px;
+}
+
 /* ===== MODAL ===== */
 .modal-overlay {
     display: none;
@@ -785,6 +949,69 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             </div>
         @endif
 
+        <!-- TIM & KOLABORASI TOOLBAR -->
+        <div class="collab-toolbar">
+            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                <div style="font-size: 13.5px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 8px;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    Tautan Tim:
+                </div>
+                <div class="collab-links-group">
+                    {{-- GitHub Link --}}
+                    @if($project->github_url)
+                        <a href="{{ $project->github_url }}" target="_blank" class="collab-link-pill github" title="Buka Repositori GitHub">
+                            <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                            GitHub
+                        </a>
+                    @else
+                        <span class="collab-link-pill empty" onclick="openEditLinksModal()" style="cursor: pointer;" title="Klik untuk mengatur tautan GitHub">+ GitHub</span>
+                    @endif
+
+                    {{-- Figma Link --}}
+                    @if($project->figma_url)
+                        <a href="{{ $project->figma_url }}" target="_blank" class="collab-link-pill figma" title="Buka Desain Figma">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h8M4 16h8m4-8h4m-4 8h4M4 4h16v16H4z"/></svg>
+                            Figma
+                        </a>
+                    @else
+                        <span class="collab-link-pill empty" onclick="openEditLinksModal()" style="cursor: pointer;" title="Klik untuk mengatur tautan Figma">+ Figma</span>
+                    @endif
+
+                    {{-- Demo Web Link --}}
+                    @if($project->demo_url)
+                        <a href="{{ $project->demo_url }}" target="_blank" class="collab-link-pill demo" title="Buka Demo Website">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                            Demo Web
+                        </a>
+                    @else
+                        <span class="collab-link-pill empty" onclick="openEditLinksModal()" style="cursor: pointer;" title="Klik untuk mengatur tautan Demo Web">+ Demo Web</span>
+                    @endif
+
+                    {{-- Docs Link --}}
+                    @if($project->docs_url)
+                        <a href="{{ $project->docs_url }}" target="_blank" class="collab-link-pill docs" title="Buka Dokumen Proyek">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Dokumen
+                        </a>
+                    @else
+                        <span class="collab-link-pill empty" onclick="openEditLinksModal()" style="cursor: pointer;" title="Klik untuk mengatur tautan Dokumen">+ Dokumen</span>
+                    @endif
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button type="button" class="btn-collab-action btn-edit-links" onclick="openEditLinksModal()">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    Atur Tautan
+                </button>
+                <button type="button" class="btn-collab-action btn-chat-toggle" onclick="openTeamChat()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    Diskusi Tim
+                    <span id="chatTotalBadge" style="background: rgba(255,255,255,.25); color: #fff; padding: 2px 7px; border-radius: 99px; font-size: 11px;">{{ $project->messages->count() }}</span>
+                </button>
+            </div>
+        </div>
+
         <!-- STATS ROW -->
         @php
             $totalTasks = collect($tasksByStatus)->flatten()->count();
@@ -888,6 +1115,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 @endif
                             @endif
 
+                            {{-- Tautan Demo / Hasil Kerja --}}
+                            @if($task->link_demo)
+                                <a href="{{ $task->link_demo }}" target="_blank" class="bukti-badge" style="background: #eef2ff; color: #4338ca; border-color: #c7d2fe; margin-top: 6px;" title="Buka tautan hasil kerja (Demo/Repo)">
+                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    Buka Hasil (Demo/Repo)
+                                </a>
+                            @endif
+
                             {{-- Catatan Revisi --}}
                             @if($task->catatan_revisi)
                                 <div class="revision-note">
@@ -898,6 +1133,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
                             {{-- ACTIONS --}}
                             <div class="task-card-actions">
+                                {{-- Tombol Diskusi Task (Bisa diakses seluruh tim) --}}
+                                <button type="button" class="btn-task-action" onclick="openTaskCommentsModal({{ $task->id }}, '{{ addslashes($task->nama_task) }}')" style="display:inline-flex; align-items:center; gap:4px; background: #f8fafc; color: #475569; border-color: #cbd5e1;" title="Diskusi terkait tugas ini">
+                                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                    Diskusi (<span id="taskCommentCount{{ $task->id }}">{{ $task->comments->count() }}</span>)
+                                </button>
+
                                 {{-- Pemilik task: bisa upload bukti & ubah status --}}
                                 @if(auth()->id() === $task->user_id)
                                     @if($task->status_task !== 'Selesai')
@@ -1067,12 +1308,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     <div class="modal-overlay" id="modalUploadBukti">
         <div class="modal-box">
             <h2 class="modal-title">Upload Bukti Kerja</h2>
-            <form id="formUploadBukti" method="POST" enctype="multipart/form-data">
+            <form id="formUploadBukti" method="POST" enctype="multipart/form-data" onsubmit="return validateBuktiForm(event)">
                 @csrf
                 <div class="form-group">
-                    <label>File Bukti Kerja <span class="req">*</span></label>
-                    <input type="file" name="bukti_kerja" id="buktiFileInput" class="form-input" required accept=".jpg,.jpeg,.png,.webp,.pdf,.zip,.doc,.docx">
-                    <p style="font-size: 12px; color: var(--mute); margin-top: 4px;">Format didukung: Foto (JPG, PNG, WEBP), Dokumen (PDF, DOC, DOCX, ZIP). Maks 10MB.</p>
+                    <label>Tautan Hasil Kerja / Demo (Web / Repo PR)</label>
+                    <input type="url" name="link_demo" id="linkDemoInput" class="form-input" placeholder="https://demo-website.vercel.app atau https://github.com/...">
+                    <p style="font-size: 12px; color: var(--mute); margin-top: 4px;">Sangat disarankan untuk hasil website, repositori GitHub, atau link hosting.</p>
+                </div>
+                <div class="form-group">
+                    <label>File Bukti Kerja (Foto/Dokumen/ZIP)</label>
+                    <input type="file" name="bukti_kerja" id="buktiFileInput" class="form-input" accept=".jpg,.jpeg,.png,.webp,.pdf,.zip,.doc,.docx">
+                    <p style="font-size: 12px; color: var(--mute); margin-top: 4px;">Format didukung: Foto (JPG, PNG, WEBP), Dokumen/Arsip (PDF, DOC, DOCX, ZIP). Maks 10MB.</p>
                     
                     {{-- Live Image Preview --}}
                     <div id="imagePreviewContainer" style="display: none; margin-top: 12px; text-align: center;">
@@ -1139,6 +1385,133 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     </div>
     @endif
 
+    {{-- MODAL: Atur Tautan Tim (GitHub, Figma, Demo Web, Dokumen) --}}
+    <div class="modal-overlay" id="modalEditLinks">
+        <div class="modal-box" style="max-width: 540px;">
+            <h2 class="modal-title">Atur Tautan & Sumber Daya Tim</h2>
+            <p style="font-size: 13.5px; color: var(--mute); margin-bottom: 18px;">
+                Cantumkan repositori kode, desain, atau tautan live preview agar seluruh anggota tim dapat berkolaborasi secara terpadu.
+            </p>
+            <form action="{{ route('proyek.links.update', $project->id) }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                        Repositori GitHub / GitLab
+                    </label>
+                    <input type="url" name="github_url" class="form-input" placeholder="https://github.com/organisasi/proyek-website" value="{{ old('github_url', $project->github_url) }}">
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h8M4 16h8m4-8h4m-4 8h4M4 4h16v16H4z"/></svg>
+                        Desain Figma / Prototype
+                    </label>
+                    <input type="url" name="figma_url" class="form-input" placeholder="https://www.figma.com/design/..." value="{{ old('figma_url', $project->figma_url) }}">
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                        Demo Live Website / Staging
+                    </label>
+                    <input type="url" name="demo_url" class="form-input" placeholder="https://proyek-kamu.vercel.app" value="{{ old('demo_url', $project->demo_url) }}">
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Dokumentasi / Panduan Tim (Notion / GDocs)
+                    </label>
+                    <input type="url" name="docs_url" class="form-input" placeholder="https://docs.google.com/... atau https://notion.so/..." value="{{ old('docs_url', $project->docs_url) }}">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeEditLinksModal()">Batal</button>
+                    <button type="submit" class="btn-submit">Simpan Tautan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- MODAL: Ruang Obrolan & Diskusi Tim --}}
+    <div class="modal-overlay" id="modalTeamChat">
+        <div class="modal-box" style="max-width: 680px; width: 95%; max-height: 90vh; display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--line); padding-bottom: 14px; margin-bottom: 14px;">
+                <div>
+                    <h2 class="modal-title" style="margin-bottom: 2px; font-size: 20px; display: flex; align-items: center; gap: 8px;">
+                        <svg width="22" height="22" fill="none" stroke="#7000ff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+                        Ruang Diskusi Tim
+                    </h2>
+                    <p style="font-size: 12.5px; color: var(--mute);">
+                        {{ $project->judul_project }} &bull; {{ $acceptedMembers->count() + 1 }} Peserta (Creator + Anggota)
+                    </p>
+                </div>
+                <button type="button" onclick="closeTeamChat()" style="background: none; border: none; font-size: 24px; color: var(--mute); cursor: pointer; padding: 4px;">&times;</button>
+            </div>
+
+            {{-- Pesan Obrolan --}}
+            <div class="chat-messages-box" id="chatMessagesBox">
+                <div id="chatLoadingState" style="text-align: center; color: var(--mute); font-size: 13px; padding: 30px;">
+                    Memuat percakapan tim...
+                </div>
+            </div>
+
+            {{-- Formulir Kirim Pesan --}}
+            <form id="formSendChatMessage" onsubmit="handleSendChatMessage(event)" style="margin-top: 14px;" enctype="multipart/form-data">
+                @csrf
+                <div id="chatAttachmentPreview" style="display: none; align-items: center; justify-content: space-between; background: #e0e7ff; padding: 6px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; color: #3730a3;">
+                    <span id="chatAttachmentName" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%;"></span>
+                    <button type="button" onclick="removeChatAttachment()" style="background: none; border: none; color: #dc2626; cursor: pointer; font-weight: 800;">&times; Hapus</button>
+                </div>
+
+                <div style="display: flex; gap: 8px; align-items: flex-end;">
+                    <label style="padding: 10px 12px; border-radius: 10px; background: #f1f5f9; border: 1.5px solid var(--line); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--mute);" title="Lampirkan foto / dokumen / zip (Maks 10MB)">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                        <input type="file" name="attachment" id="chatFileInput" style="display: none;" accept=".jpg,.jpeg,.png,.webp,.pdf,.zip,.doc,.docx" onchange="handleChatFileSelect(this)">
+                    </label>
+                    <textarea name="pesan" id="chatPesanInput" rows="1" class="form-input" placeholder="Ketik pesan untuk tim atau koordinasi tugas..." style="resize: none; border-radius: 12px; min-height: 42px; max-height: 100px; padding: 10px 14px;" onkeydown="handleChatKeyDown(event)"></textarea>
+                    <button type="submit" id="btnSendChat" class="btn-submit" style="min-width: 44px; height: 42px; padding: 0 16px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 12px;">
+                        <span>Kirim</span>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- MODAL: Diskusi / Komentar Spesifik Task --}}
+    <div class="modal-overlay" id="modalTaskComments">
+        <div class="modal-box" style="max-width: 580px; width: 95%; max-height: 85vh; display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--line); padding-bottom: 12px; margin-bottom: 14px;">
+                <div>
+                    <h2 class="modal-title" style="margin-bottom: 2px; font-size: 19px; display: flex; align-items: center; gap: 8px;">
+                        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                        Diskusi Tugas
+                    </h2>
+                    <p id="taskCommentTaskTitle" style="font-size: 13px; font-weight: 700; color: var(--ink);">
+                        -
+                    </p>
+                </div>
+                <button type="button" onclick="closeTaskCommentsModal()" style="background: none; border: none; font-size: 24px; color: var(--mute); cursor: pointer; padding: 4px;">&times;</button>
+            </div>
+
+            {{-- Daftar Komentar --}}
+            <div class="chat-messages-box" id="taskCommentsBox" style="min-height: 250px; max-height: 380px;">
+                <div id="taskCommentsLoading" style="text-align: center; color: var(--mute); font-size: 13px; padding: 30px;">
+                    Memuat komentar...
+                </div>
+            </div>
+
+            {{-- Input Komentar --}}
+            <form id="formSendTaskComment" onsubmit="handleSendTaskComment(event)" style="margin-top: 14px;">
+                @csrf
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="taskCommentInput" name="komentar" class="form-input" placeholder="Tulis komentar atau pertanyaan terkait tugas ini..." required maxlength="1000" style="border-radius: 10px;">
+                    <button type="submit" id="btnSendTaskComment" class="btn-submit" style="padding: 10px 18px; border-radius: 10px; font-weight: 700;">
+                        Kirim
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @php
         $snapUrl = config('midtrans.is_production')
             ? 'https://app.midtrans.com/snap/snap.js'
@@ -1153,10 +1526,322 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
             // Reset input dan live preview
             const fileInput = document.getElementById('buktiFileInput');
             if (fileInput) fileInput.value = '';
+            const linkInput = document.getElementById('linkDemoInput');
+            if (linkInput) linkInput.value = '';
             const previewContainer = document.getElementById('imagePreviewContainer');
             if (previewContainer) previewContainer.style.display = 'none';
 
             document.getElementById('modalUploadBukti').classList.add('active');
+        }
+
+        function validateBuktiForm(e) {
+            const fileInput = document.getElementById('buktiFileInput');
+            const linkInput = document.getElementById('linkDemoInput');
+            const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+            const hasLink = linkInput && linkInput.value.trim().length > 0;
+            if (!hasFile && !hasLink) {
+                alert('Silakan unggah berkas bukti kerja atau cantumkan tautan demo/repositori hasil pekerjaan.');
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        }
+
+        function openEditLinksModal() {
+            document.getElementById('modalEditLinks').classList.add('active');
+        }
+        function closeEditLinksModal() {
+            document.getElementById('modalEditLinks').classList.remove('active');
+        }
+
+        let chatPollInterval = null;
+        let isChatLoading = false;
+
+        function openTeamChat() {
+            document.getElementById('modalTeamChat').classList.add('active');
+            fetchTeamMessages(true);
+            if (!chatPollInterval) {
+                chatPollInterval = setInterval(() => fetchTeamMessages(false), 5000);
+            }
+        }
+
+        function closeTeamChat() {
+            document.getElementById('modalTeamChat').classList.remove('active');
+            if (chatPollInterval) {
+                clearInterval(chatPollInterval);
+                chatPollInterval = null;
+            }
+        }
+
+        function handleChatKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('formSendChatMessage').requestSubmit();
+            }
+        }
+
+        function handleChatFileSelect(input) {
+            const preview = document.getElementById('chatAttachmentPreview');
+            const nameEl = document.getElementById('chatAttachmentName');
+            if (input.files && input.files[0]) {
+                nameEl.textContent = 'Lampiran: ' + input.files[0].name;
+                preview.style.display = 'flex';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        function removeChatAttachment() {
+            const input = document.getElementById('chatFileInput');
+            if (input) input.value = '';
+            document.getElementById('chatAttachmentPreview').style.display = 'none';
+        }
+
+        function fetchTeamMessages(scrollToBottom = false) {
+            if (isChatLoading) return;
+            isChatLoading = true;
+
+            fetch('{{ route("proyek.messages", $project->id) }}', {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                isChatLoading = false;
+                if (!data.success) return;
+                renderTeamMessages(data.messages, scrollToBottom);
+                const badge = document.getElementById('chatTotalBadge');
+                if (badge && data.messages) badge.textContent = data.messages.length;
+            })
+            .catch(err => {
+                isChatLoading = false;
+                console.error('Error fetching chat messages:', err);
+            });
+        }
+
+        function renderTeamMessages(messages, forceScroll = false) {
+            const container = document.getElementById('chatMessagesBox');
+            if (!messages || messages.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--mute); font-size: 13.5px; padding: 40px;">Belum ada pesan di ruang obrolan. Mulai percakapan sekarang untuk berkoordinasi dengan tim!</div>';
+                return;
+            }
+
+            const isScrolledToBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
+
+            let html = '';
+            messages.forEach(msg => {
+                const bubbleRowClass = msg.is_me ? 'chat-bubble-row me' : 'chat-bubble-row other';
+                const avatarContent = msg.user_avatar 
+                    ? `<img src="${msg.user_avatar}" alt="${msg.user_name}">`
+                    : msg.user_name.charAt(0).toUpperCase();
+
+                let attachmentHtml = '';
+                if (msg.file_path) {
+                    const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(msg.file_path);
+                    if (isImg) {
+                        attachmentHtml = `
+                            <div style="margin-top: 6px;">
+                                <a href="${msg.file_path}" target="_blank">
+                                    <img src="${msg.file_path}" style="max-width: 220px; max-height: 160px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); object-fit: cover;">
+                                </a>
+                            </div>`;
+                    } else {
+                        attachmentHtml = `
+                            <div style="margin-top: 6px;">
+                                <a href="${msg.file_path}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(0,0,0,0.06); border-radius: 6px; font-size: 12px; font-weight: 700; color: inherit; text-decoration: underline;">
+                                    📎 ${msg.file_name || 'Lihat Berkas Lampiran'}
+                                </a>
+                            </div>`;
+                    }
+                }
+
+                html += `
+                    <div class="${bubbleRowClass}">
+                        <div class="chat-avatar" title="${msg.user_name}">${avatarContent}</div>
+                        <div class="chat-bubble-content">
+                            <div class="chat-sender-name">
+                                <span>${msg.user_name}</span>
+                                <span class="chat-role-badge">${msg.user_role === 'creator' ? 'Creator' : 'Anggota Tim'}</span>
+                            </div>
+                            <div class="chat-bubble-body">
+                                ${msg.pesan ? `<div>${escapeHtml(msg.pesan)}</div>` : ''}
+                                ${attachmentHtml}
+                            </div>
+                            <div class="chat-time">${msg.time} &bull; ${msg.date}</div>
+                        </div>
+                    </div>`;
+            });
+
+            container.innerHTML = html;
+
+            if (forceScroll || isScrolledToBottom) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        function handleSendChatMessage(e) {
+            e.preventDefault();
+            const form = document.getElementById('formSendChatMessage');
+            const pesanInput = document.getElementById('chatPesanInput');
+            const fileInput = document.getElementById('chatFileInput');
+            const btn = document.getElementById('btnSendChat');
+
+            const text = pesanInput.value.trim();
+            const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+            if (!text && !hasFile) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '...';
+
+            const formData = new FormData(form);
+
+            fetch('{{ route("proyek.messages.send", $project->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Kirim</span> <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>';
+                if (data.success) {
+                    pesanInput.value = '';
+                    removeChatAttachment();
+                    fetchTeamMessages(true);
+                } else {
+                    alert(data.message || 'Gagal mengirim pesan');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Kirim</span>';
+                console.error(err);
+                alert('Terjadi kesalahan saat mengirim pesan.');
+            });
+        }
+
+        // ================= TASK COMMENTS LOGIC =================
+        let currentCommentTaskId = null;
+
+        function openTaskCommentsModal(taskId, taskTitle) {
+            currentCommentTaskId = taskId;
+            document.getElementById('taskCommentTaskTitle').textContent = taskTitle;
+            document.getElementById('taskCommentInput').value = '';
+            document.getElementById('modalTaskComments').classList.add('active');
+            fetchTaskComments(taskId);
+        }
+
+        function closeTaskCommentsModal() {
+            document.getElementById('modalTaskComments').classList.remove('active');
+            currentCommentTaskId = null;
+        }
+
+        function fetchTaskComments(taskId) {
+            const container = document.getElementById('taskCommentsBox');
+            container.innerHTML = '<div style="text-align: center; color: var(--mute); font-size: 13px; padding: 25px;">Memuat komentar...</div>';
+
+            fetch('/proyek/{{ $project->id }}/tasks/' + taskId + '/comments', {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) return;
+                renderTaskComments(data.comments);
+            })
+            .catch(err => {
+                console.error(err);
+                container.innerHTML = '<div style="text-align: center; color: #dc2626; font-size: 13px; padding: 20px;">Gagal memuat komentar.</div>';
+            });
+        }
+
+        function renderTaskComments(comments) {
+            const container = document.getElementById('taskCommentsBox');
+            if (!comments || comments.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--mute); font-size: 13px; padding: 35px;">Belum ada komentar untuk task ini. Tanyakan sesuatu atau berikan masukan!</div>';
+                return;
+            }
+
+            let html = '';
+            comments.forEach(c => {
+                const bubbleRowClass = c.is_me ? 'chat-bubble-row me' : 'chat-bubble-row other';
+                const avatarContent = c.user_avatar 
+                    ? `<img src="${c.user_avatar}" alt="${c.user_name}">`
+                    : c.user_name.charAt(0).toUpperCase();
+
+                html += `
+                    <div class="${bubbleRowClass}">
+                        <div class="chat-avatar" title="${c.user_name}">${avatarContent}</div>
+                        <div class="chat-bubble-content">
+                            <div class="chat-sender-name">
+                                <span>${c.user_name}</span>
+                                <span class="chat-role-badge">${c.user_role === 'creator' ? 'Creator' : 'Anggota Tim'}</span>
+                            </div>
+                            <div class="chat-bubble-body">
+                                ${escapeHtml(c.komentar)}
+                            </div>
+                            <div class="chat-time">${c.time}</div>
+                        </div>
+                    </div>`;
+            });
+
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function handleSendTaskComment(e) {
+            e.preventDefault();
+            if (!currentCommentTaskId) return;
+
+            const input = document.getElementById('taskCommentInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const btn = document.getElementById('btnSendTaskComment');
+            btn.disabled = true;
+
+            fetch('/proyek/{{ $project->id }}/tasks/' + currentCommentTaskId + '/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                },
+                body: JSON.stringify({ komentar: text })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    input.value = '';
+                    fetchTaskComments(currentCommentTaskId);
+                    // update count badge on card
+                    const badge = document.getElementById('taskCommentCount' + currentCommentTaskId);
+                    if (badge) {
+                        const currentVal = parseInt(badge.textContent) || 0;
+                        badge.textContent = currentVal + 1;
+                    }
+                } else {
+                    alert(data.message || 'Gagal mengirim komentar.');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                console.error(err);
+                alert('Terjadi kesalahan saat mengirim komentar.');
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;")
+                .replace(/\n/g, "<br>");
         }
 
         // Live image preview listener

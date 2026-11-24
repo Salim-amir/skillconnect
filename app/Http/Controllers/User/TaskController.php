@@ -5,11 +5,15 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\TaskComment;
 use App\Models\TaskStatusHistory;
 use App\Models\Transaction;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TaskController extends Controller
 {
@@ -19,7 +23,12 @@ class TaskController extends Controller
      */
     public function index($projectId)
     {
-        $project = Project::with(['creator', 'tasks.user'])->findOrFail($projectId);
+        $project = Project::with([
+            'creator',
+            'tasks.user',
+            'tasks.comments.user',
+            'messages.user',
+        ])->findOrFail($projectId);
 
         // Verifikasi: hanya anggota tim yang sudah diterima
         $this->authorizeProjectMember($project);
@@ -50,14 +59,14 @@ class TaskController extends Controller
         $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
 
         // Sinkronisasi & Cek Status Pembayaran Proyek (Midtrans Escrow - Opsi A)
-        \App\Http\Controllers\User\PaymentController::checkAndSyncProjectPayment($project->id);
+        PaymentController::checkAndSyncProjectPayment($project->id);
         $latestPayment = Transaction::where('project_id', $project->id)->where('status_pembayaran', '!=', 'batal')->latest()->first();
         $isPaid = $latestPayment && $latestPayment->status_pembayaran === 'lunas';
 
         // Cegah akses Task Board jika dana proyek belum disetor (Escrow belum lunas)
-        if (!$isPaid && Auth::user()?->role !== 'admin') {
+        if (! $isPaid && Auth::user()?->role !== 'admin') {
             return redirect()->route('proyek.detail', $project->id)
-                ->with('error', 'Papan kerja (Task Board) terkunci. Creator wajib mengunci dana proyek sebesar Rp ' . number_format($project->budget, 0, ',', '.') . ' ke Rekening Bersama terlebih dahulu agar tugas dapat dimulai.');
+                ->with('error', 'Papan kerja (Task Board) terkunci. Creator wajib mengunci dana proyek sebesar Rp '.number_format($project->budget, 0, ',', '.').' ke Rekening Bersama terlebih dahulu agar tugas dapat dimulai.');
         }
 
         // Evaluasi milik user yang sedang login (untuk tampilan anggota)
@@ -145,7 +154,7 @@ class TaskController extends Controller
 
         // Hanya pemilik task atau creator yang boleh ubah status
         $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
-        if (Auth::id() !== $task->user_id && !$isCreator) {
+        if (Auth::id() !== $task->user_id && ! $isCreator) {
             return redirect()->back()->with('error', 'Anda tidak memiliki hak untuk mengubah status task ini.');
         }
 
@@ -188,20 +197,35 @@ class TaskController extends Controller
         }
 
         $validated = $request->validate([
-            'bukti_kerja' => 'required|file|mimes:jpg,jpeg,png,pdf,zip,doc,docx|max:2048',
+            'bukti_kerja' => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf,zip,doc,docx|max:2048',
+            'link_demo' => 'nullable|url|max:255',
         ], [
-            'bukti_kerja.required' => 'File bukti kerja wajib diunggah.',
-            'bukti_kerja.mimes' => 'Format file harus: jpg, png, pdf, zip, doc, atau docx.',
+            'bukti_kerja.mimes' => 'Format file harus: jpg, png, webp, pdf, zip, doc, atau docx.',
             'bukti_kerja.max' => 'Ukuran file bukti kerja maksimal 2 MB.',
+            'link_demo.url' => 'Tautan demo/repositori harus berupa URL yang valid (misal: https://...).',
         ]);
 
-        // Simpan file
-        $file = $request->file('bukti_kerja');
-        $filename = 'bukti_'.$task->id.'_'.time().'.'.$file->getClientOriginalExtension();
-        $path = $file->storeAs('bukti-kerja', $filename, 'public');
+        if (! $request->hasFile('bukti_kerja') && empty(trim($validated['link_demo'] ?? '')) && ! $task->bukti_kerja && ! $task->link_demo) {
+            if ($request->wantsJson()) {
+                throw ValidationException::withMessages([
+                    'bukti_kerja' => ['Unggah berkas bukti kerja atau cantumkan tautan demo/repositori hasil pekerjaan.'],
+                ]);
+            }
+
+            return redirect()->back()->with('error', 'Unggah berkas bukti kerja atau cantumkan tautan demo/repositori hasil pekerjaan.');
+        }
+
+        $path = $task->bukti_kerja;
+        // Simpan file baru jika diunggah
+        if ($request->hasFile('bukti_kerja')) {
+            $file = $request->file('bukti_kerja');
+            $filename = 'bukti_'.$task->id.'_'.time().'.'.$file->getClientOriginalExtension();
+            $path = $file->storeAs('bukti-kerja', $filename, 'public');
+        }
 
         $task->update([
             'bukti_kerja' => $path,
+            'link_demo' => ! empty($validated['link_demo']) ? $validated['link_demo'] : $task->link_demo,
             'status_task' => 'Menunggu Review',
         ]);
 
@@ -212,7 +236,7 @@ class TaskController extends Controller
         ]);
 
         return redirect()->route('proyek.tasks', $project->id)
-            ->with('success', 'Bukti kerja untuk task "'.$task->nama_task.'" berhasil diunggah!');
+            ->with('success', 'Bukti kerja untuk task "'.$task->nama_task.'" berhasil dikirim!');
     }
 
     /**
@@ -224,7 +248,7 @@ class TaskController extends Controller
         $task = Task::where('project_id', $project->id)->findOrFail($taskId);
 
         $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
-        if (!$isCreator) {
+        if (! $isCreator) {
             return redirect()->back()->with('error', 'Hanya creator proyek yang dapat memberikan catatan revisi.');
         }
 
@@ -258,7 +282,7 @@ class TaskController extends Controller
 
         // Hanya creator atau admin yang boleh mengevaluasi
         $isCreator = (Auth::user()?->role === 'creator' && Auth::id() === $project->creator_id) || Auth::user()?->role === 'admin';
-        if (!$isCreator) {
+        if (! $isCreator) {
             return redirect()->back()->with('error', 'Hanya creator proyek yang dapat memberikan evaluasi.');
         }
 
@@ -294,6 +318,82 @@ class TaskController extends Controller
 
         return redirect()->route('proyek.tasks', $project->id)
             ->with('success', 'Evaluasi anggota tim berhasil disimpan!');
+    }
+
+    /**
+     * MOD-08: Mengambil daftar komentar/diskusi pada task
+     */
+    public function getComments(int $projectId, int $taskId): JsonResponse
+    {
+        $project = Project::findOrFail($projectId);
+        $task = Task::where('project_id', $project->id)->findOrFail($taskId);
+        $this->authorizeProjectMember($project);
+
+        $comments = TaskComment::with('user:id,name,role,foto_profil')
+            ->where('task_id', $task->id)
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'user_id' => $comment->user_id,
+                    'user_name' => $comment->user->name ?? 'Anggota',
+                    'user_role' => $comment->user->role ?? 'member',
+                    'user_avatar' => $comment->user->foto_profil ? asset('storage/'.$comment->user->foto_profil) : null,
+                    'komentar' => $comment->komentar,
+                    'is_me' => Auth::id() === $comment->user_id,
+                    'time' => $comment->created_at->format('H:i, d M Y'),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'comments' => $comments,
+        ]);
+    }
+
+    /**
+     * MOD-08: Menambahkan komentar pada task
+     */
+    public function storeComment(Request $request, int $projectId, int $taskId): JsonResponse|RedirectResponse
+    {
+        $project = Project::findOrFail($projectId);
+        $task = Task::where('project_id', $project->id)->findOrFail($taskId);
+        $this->authorizeProjectMember($project);
+
+        $validated = $request->validate([
+            'komentar' => 'required|string|max:1000',
+        ], [
+            'komentar.required' => 'Komentar tidak boleh kosong.',
+            'komentar.max' => 'Komentar maksimal 1000 karakter.',
+        ]);
+
+        $comment = TaskComment::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'komentar' => $validated['komentar'],
+        ]);
+
+        $comment->load('user:id,name,role,foto_profil');
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Komentar berhasil ditambahkan.',
+                'data' => [
+                    'id' => $comment->id,
+                    'user_id' => $comment->user_id,
+                    'user_name' => $comment->user->name ?? 'Anggota',
+                    'user_role' => $comment->user->role ?? 'member',
+                    'user_avatar' => $comment->user->foto_profil ? asset('storage/'.$comment->user->foto_profil) : null,
+                    'komentar' => $comment->komentar,
+                    'is_me' => true,
+                    'time' => $comment->created_at->format('H:i, d M Y'),
+                ],
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Komentar berhasil dikirim.');
     }
 
     /**
