@@ -15,6 +15,10 @@ class Project extends Model
         'deskripsi',
         'kategori',
         'budget',
+        'github_url',
+        'figma_url',
+        'demo_url',
+        'docs_url',
         'status_project',
     ];
 
@@ -39,6 +43,11 @@ class Project extends Model
     public function tasks()
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(ProjectMessage::class)->orderBy('created_at', 'asc');
     }
 
     public function transactions()
