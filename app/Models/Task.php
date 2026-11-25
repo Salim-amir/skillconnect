@@ -16,6 +16,7 @@ class Task extends Model
         'deadline',
         'status_task',
         'bukti_kerja',
+        'link_demo',
         'catatan_revisi',
     ];
 
@@ -45,5 +46,13 @@ class Task extends Model
     public function statusHistories()
     {
         return $this->hasMany(TaskStatusHistory::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Relasi: Komentar/diskusi di dalam task
+     */
+    public function comments()
+    {
+        return $this->hasMany(TaskComment::class)->orderBy('created_at', 'asc');
     }
 }

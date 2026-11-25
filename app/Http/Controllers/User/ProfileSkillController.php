@@ -86,12 +86,48 @@ class ProfileSkillController extends Controller
         // 2. UNTUK ROLE CREATOR & MEMBER
         $isCreator = ($user->role === 'creator');
 
+        $cvValidationRule = function ($attribute, $value, $fail) {
+            if (empty($value)) return;
+
+            $parsed = parse_url($value);
+            $host = strtolower($parsed['host'] ?? '');
+
+            if ($host !== 'drive.google.com') {
+                if (str_contains($host, 'photos.google') || str_contains($host, 'photos.app.goo.gl')) {
+                    $fail('Tautan CV tidak boleh berupa tautan Google Photos. Wajib berupa tautan file dokumen CV berformat PDF di Google Drive.');
+                    return;
+                }
+                if (str_contains($host, 'youtube') || str_contains($host, 'youtu.be') || str_contains($host, 'tiktok')) {
+                    $fail('Tautan CV tidak boleh berupa tautan video. Wajib berupa tautan file dokumen CV berformat PDF di Google Drive.');
+                    return;
+                }
+                $fail('Tautan CV wajib menggunakan Google Drive resmi (format: https://drive.google.com/file/d/...). Tautan selain Google Drive tidak diterima.');
+                return;
+            }
+
+            if (str_contains($value, '/folders/')) {
+                $fail('Tautan CV tidak boleh berupa tautan folder. Harap cantumkan tautan langsung ke berkas dokumen PDF CV (format: /file/d/...).');
+                return;
+            }
+
+            $isDriveFile = preg_match('~^https://drive\.google\.com/(file/d/[a-zA-Z0-9_-]+|open\?id=[a-zA-Z0-9_-]+|uc\?id=[a-zA-Z0-9_-]+)~i', $value);
+            if (!$isDriveFile) {
+                $fail('Format tautan Google Drive tidak valid. Gunakan format file resmi: https://drive.google.com/file/d/<ID_FILE>/view.');
+                return;
+            }
+
+            if (preg_match('/\.(jpe?g|png|gif|webp|bmp|svg|mp4|mov|avi|mkv|webm|mp3|wav|m4a|zip|rar|7z)(\?|$)/i', $value)) {
+                $fail('Tautan CV khusus untuk dokumen berkas PDF. Tautan file foto/gambar, video, audio, atau arsip dilarang.');
+                return;
+            }
+        };
+
         // Validasi input, format tautan, dan kelengkapan data sesuai diagram
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
             'cv_link'     => $isCreator
-                ? ['nullable', 'url', 'max:500', 'regex:~^https://(drive|docs)\.google\.com/~i']
-                : ['required', 'url', 'max:500', 'regex:~^https://(drive|docs)\.google\.com/~i'],
+                ? ['nullable', 'url', 'max:500', $cvValidationRule]
+                : ['required', 'url', 'max:500', $cvValidationRule],
             'portofolio'  => 'nullable|url|max:255',
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'skill_id'    => 'nullable|array',
@@ -103,8 +139,7 @@ class ProfileSkillController extends Controller
         ], [
             'name.required'    => 'Nama lengkap wajib diisi.',
             'cv_link.required' => 'Tautan CV wajib diisi.',
-            'cv_link.url'      => 'Link CV harus berupa URL yang valid (misal: https://drive.google.com/...).',
-            'cv_link.regex'    => 'Link CV harus berupa tautan Google Drive (misal: https://drive.google.com/...).',
+            'cv_link.url'      => 'Link CV harus berupa URL yang valid (misal: https://drive.google.com/file/d/...).',
             'portofolio.url'   => 'Tautan bukti portofolio harus berupa URL yang valid (misal: https://github.com/username).',
             'foto_profil.image'=> 'File foto profil harus berupa gambar.',
             'foto_profil.mimes'=> 'Format foto profil harus JPG, JPEG, PNG, atau WEBP.',
