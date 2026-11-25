@@ -454,15 +454,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
     font-size: 14px;
 }
 .skill-tag .level-badge {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-weight: 800;
-    text-transform: uppercase;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
-.level-Beginner { background: #eef0ff; color: #5a6696; }
-.level-Intermediate { background: #e5ffe5; color: #198754; }
-.level-Advanced { background: #ffe5f1; color: #d63384; }
+.level-Beginner { background: #3b82f6; box-shadow: 0 0 0 2px #dbeafe; }
+.level-Intermediate { background: #8b5cf6; box-shadow: 0 0 0 2px #ede9fe; }
+.level-Advanced { background: #10b981; box-shadow: 0 0 0 2px #d1fae5; }
 
 /* ===== MODAL ===== */
 .modal-overlay {
@@ -1271,9 +1271,9 @@ a.page-btn:hover {
             if (skills.length > 0) {
                 skillsContainer.innerHTML = skills.map(function (skill) {
                     const level = skill.tingkat_keahlian || 'Beginner';
-                    return '<div class="skill-tag">' +
+                    return '<div class="skill-tag" title="Tingkat: ' + escapeHtml(level) + '">' +
+                        '<span class="level-badge level-' + escapeHtml(level) + '"></span>' +
                         '<span class="skill-name">' + escapeHtml(skill.nama_skill) + '</span>' +
-                        '<span class="level-badge level-' + escapeHtml(level) + '">' + escapeHtml(level) + '</span>' +
                         '</div>';
                 }).join('');
             } else {

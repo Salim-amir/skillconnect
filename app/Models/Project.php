@@ -15,6 +15,7 @@ class Project extends Model
         'deskripsi',
         'kategori',
         'budget',
+        'max_members',
         'status_project',
     ];
 

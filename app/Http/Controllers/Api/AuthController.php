@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -19,7 +20,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/i'],
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:member,creator',
         ], [
@@ -28,6 +29,7 @@ class AuthController extends Controller
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email ini sudah terdaftar.',
+            'email.regex' => 'Pendaftaran hanya diperbolehkan menggunakan email @gmail.com.',
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal harus 8 karakter.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
@@ -42,11 +44,24 @@ class AuthController extends Controller
             'role' => $request->role, // Menyimpan role 'member' atau 'creator' secara dinamis
         ]);
 
+        // Buat tautan verifikasi email bertanda tangan (signed URL)
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
+        );
+
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim email verifikasi: '.$e->getMessage());
+        }
+
         if ($request->expectsJson()) {
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
-                'message' => 'Registrasi berhasil',
+                'message' => 'Registrasi berhasil! Silakan verifikasi email @gmail.com Anda.',
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user' => $user,
@@ -58,7 +73,14 @@ class AuthController extends Controller
             $request->session()->forget('url.intended');
         }
 
-        return redirect('/?role='.$request->role.'#masuk')->with('success', 'Registrasi berhasil! Silakan masuk dengan akun Anda.');
+        $redirect = redirect('/?role='.$request->role.'#masuk')
+            ->with('success', 'Registrasi berhasil! Tautan verifikasi telah dikirim ke email @gmail.com Anda. Silakan verifikasi sebelum masuk.');
+
+        if (config('mail.default') === 'log') {
+            $redirect->with('verification_url', $verificationUrl);
+        }
+
+        return $redirect;
     }
 
     public function login(Request $request)
@@ -112,8 +134,32 @@ class AuthController extends Controller
 
                 return redirect('/?role=' . $requestedRole . '#masuk')
                     ->withErrors(['email' => $errorMessage])
-                    ->with('error', $errorMessage)
                     ->withInput($request->only('email', 'login_role'));
+            }
+
+            // Pastikan email sudah terverifikasi sebelum masuk
+            if (!$user->hasVerifiedEmail()) {
+                $unverifiedEmail = $user->email;
+                $verificationUrl = URL::temporarySignedRoute(
+                    'verification.verify',
+                    now()->addMinutes(60),
+                    ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
+                );
+
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                $redirect = redirect('/?role=' . $requestedRole . '#masuk')
+                    ->withErrors(['email' => 'Email Anda belum diverifikasi. Silakan klik tautan verifikasi yang dikirim ke email @gmail.com Anda.'])
+                    ->with('unverified_email', $unverifiedEmail)
+                    ->withInput($request->only('email', 'login_role'));
+
+                if (config('mail.default') === 'log') {
+                    $redirect->with('verification_url', $verificationUrl);
+                }
+
+                return $redirect;
             }
 
             $request->session()->regenerate();
@@ -136,8 +182,61 @@ class AuthController extends Controller
 
         return redirect('/'.($requestedRole ? '?role='.$requestedRole : '').'#masuk')
             ->withErrors(['email' => 'Email atau kata sandi yang Anda masukkan salah.'])
-            ->with('error', 'Email atau kata sandi salah. Silakan coba lagi.')
             ->withInput($request->only('email', 'login_role'));
+    }
+
+    public function verifyEmail(Request $request, $id, $hash)
+    {
+        $user = User::findOrFail($id);
+
+        if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return redirect('/#masuk')->withErrors(['email' => 'Tautan verifikasi email tidak valid atau sudah kedaluwarsa.']);
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        return redirect('/?role='.$user->role.'#masuk')
+            ->with('success', 'Email Anda berhasil diverifikasi! Silakan masuk dengan akun Anda.');
+    }
+
+    public function resendVerification(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return redirect('/#masuk')->withErrors(['email' => 'Alamat email tidak ditemukan.']);
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect('/?role='.$user->role.'#masuk')->with('success', 'Email Anda sudah terverifikasi. Silakan langsung masuk.');
+        }
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
+        );
+
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim ulang email verifikasi: '.$e->getMessage());
+        }
+
+        $redirect = redirect('/?role='.$user->role.'#masuk')
+            ->with('success', 'Tautan verifikasi baru telah dikirim ke email Anda.');
+
+        if (config('mail.default') === 'log') {
+            $redirect->with('verification_url', $verificationUrl);
+        }
+
+        return $redirect;
     }
 
     public function logout(Request $request)

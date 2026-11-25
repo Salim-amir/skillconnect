@@ -407,10 +407,18 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     Kebutuhan Posisi & Skill
                 </div>
 
-                <div class="form-group">
-                    <label for="posisi">Menambahkan Posisi / Peran yang Dibutuhkan <span class="req">*</span></label>
-                    <input type="text" id="posisi" name="posisi" class="form-control" value="{{ old('posisi') }}" required placeholder="Contoh: UI/UX Lead, Backend Developer, QA Tester">
-                    <div class="hint">Tentukan spesifikasi peran anggota tim yang ingin Anda rekrut.</div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="posisi">Menambahkan Posisi / Peran yang Dibutuhkan <span class="req">*</span></label>
+                        <input type="text" id="posisi" name="posisi" class="form-control" value="{{ old('posisi') }}" required placeholder="Contoh: UI/UX Lead, Backend Developer, QA Tester">
+                        <div class="hint">Tentukan spesifikasi peran anggota tim yang ingin Anda rekrut.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="max_members">Kebutuhan Maksimal Anggota Tim <span style="font-size: 12px; color: #64748b; font-weight: normal;">(Opsional)</span></label>
+                        <input type="number" id="max_members" name="max_members" class="form-control" value="{{ old('max_members', 3) }}" min="1" max="50" placeholder="Contoh: 3">
+                        <div class="hint">Batas maksimal anggota yang akan diterima (pelamar tetap bebas mendaftar).</div>
+                    </div>
                 </div>
 
                 <div class="form-group">
