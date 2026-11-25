@@ -402,6 +402,7 @@ class ProyekController extends Controller
             'skills' => 'required|array|min:1',
             'skills.*' => 'exists:skills,id',
             'posisi' => 'required|string|max:255',
+            'max_members' => 'nullable|integer|min:1|max:50',
             'posisi_fee' => 'nullable|numeric|lte:budget',
         ], [
             'judul_project.required' => 'Judul proyek wajib diisi.',
@@ -411,6 +412,8 @@ class ProyekController extends Controller
             'budget.numeric' => 'Budget harus berupa angka valid.',
             'skills.required' => 'Pilih minimal 1 kebutuhan skill untuk proyek.',
             'posisi.required' => 'Posisi atau peran yang dicari wajib diisi.',
+            'max_members.integer' => 'Kebutuhan anggota tim harus berupa angka bulat.',
+            'max_members.min' => 'Kebutuhan anggota tim minimal 1 orang.',
             'posisi_fee.lte' => 'Total alokasi fee posisi tidak boleh melebihi budget proyek.',
         ]);
 
@@ -422,6 +425,7 @@ class ProyekController extends Controller
                 'kategori' => $validated['kategori'],
                 'deskripsi' => $validated['deskripsi']."\n\n[Posisi Dibutuhkan: ".$validated['posisi'].']',
                 'budget' => $validated['budget'],
+                'max_members' => $validated['max_members'] ?? null,
                 'status_project' => 'Mencari Tim',
             ]);
 

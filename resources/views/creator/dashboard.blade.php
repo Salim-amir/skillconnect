@@ -566,6 +566,27 @@ button { font-family: inherit; }
 
         {{-- Toast notifications are rendered as fixed bottom popups --}}
 
+        @if($pendingApplicantsCount > 0)
+            <div style="background: linear-gradient(90deg, #eef2ff, #f5f3ff); border: 1.5px solid #c7d2fe; border-radius: 14px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #4f46e5; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    </div>
+                    <div>
+                        <div style="font-weight: 800; font-size: 14.5px; color: #1e1b4b;">
+                            Ada {{ $pendingApplicantsCount }} Pelamar Baru Menunggu Review!
+                        </div>
+                        <div style="font-size: 13px; color: #4338ca;">
+                            Talenta baru telah mendaftar ke proyek Anda. Segera tinjau profil dan CV mereka.
+                        </div>
+                    </div>
+                </div>
+                <a href="#lamaran-masuk" class="btn-sm pri" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; text-decoration: none;">
+                    Lihat Pelamar &rarr;
+                </a>
+            </div>
+        @endif
+
         <!-- 4 STATS CARDS -->
         <div class="grid-stats">
             <div class="stat-card">
@@ -612,12 +633,17 @@ button { font-family: inherit; }
         <!-- ROW 1 CONTENT: RECENT APPLICANTS & MY PROJECTS -->
         <div class="grid-content">
             <!-- Pelamar Masuk Terbaru -->
-            <div class="card">
+            <div class="card" id="lamaran-masuk">
                 <div class="card-header-row">
                     <h3 class="card-title">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         Lamaran Masuk Menunggu Review
                     </h3>
+                    @if($pendingApplicantsCount > 0)
+                        <span style="background: #fee2e2; color: #dc2626; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 99px;">
+                            {{ $pendingApplicantsCount }} Baru
+                        </span>
+                    @endif
                 </div>
 
                 @if($recentApplicants->isEmpty())

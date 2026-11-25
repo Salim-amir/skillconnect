@@ -53,16 +53,20 @@ class SocialiteController extends Controller
                     : $targetRole;
 
                 $user = User::create([
-                    'name'      => $googleUser->getName(),
-                    'email'     => $googleUser->getEmail(),
-                    'google_id' => $googleUser->getId(),
-                    'role'      => $role,
-                    'password'  => Hash::make(Str::random(16)),
+                    'name'              => $googleUser->getName(),
+                    'email'             => $googleUser->getEmail(),
+                    'email_verified_at' => now(),
+                    'google_id'         => $googleUser->getId(),
+                    'role'              => $role,
+                    'password'          => Hash::make(Str::random(16)),
                 ]);
             } else {
                 // Tautkan google_id jika user mendaftar lewat manual sebelumnya
                 if (!$user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
+                }
+                if (!$user->hasVerifiedEmail()) {
+                    $user->markEmailAsVerified();
                 }
             }
 

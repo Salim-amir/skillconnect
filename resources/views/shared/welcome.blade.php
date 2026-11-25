@@ -1613,7 +1613,14 @@
                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                     clip-rule="evenodd" />
                             </svg>
-                            <div style="flex:1;">{{ session('success') }}</div>
+                            <div style="flex:1;">
+                                <div>{{ session('success') }}</div>
+                                @if (session('verification_url'))
+                                    <div style="margin-top:6px;">
+                                        <a href="{{ session('verification_url') }}" style="color:#065f46;font-weight:700;text-decoration:underline;">Klik di sini untuk verifikasi email sekarang &rarr;</a>
+                                    </div>
+                                @endif
+                            </div>
                             <button type="button" class="alert-close"
                                 onclick="var p=this.parentElement;p.style.opacity='0';p.style.transition='opacity .2s';setTimeout(function(){p.remove()},200)">&times;</button>
                         </div>
@@ -1645,6 +1652,11 @@
                                             @endforeach
                                         </ul>
                                     @endif
+                                @endif
+                                @if (session('verification_url'))
+                                    <div style="margin-top:6px;">
+                                        <a href="{{ session('verification_url') }}" style="color:#991b1b;font-weight:700;text-decoration:underline;">Klik di sini untuk verifikasi email sekarang &rarr;</a>
+                                    </div>
                                 @endif
                             </div>
                             <button type="button" class="alert-close"
@@ -1734,8 +1746,11 @@
                     <label class="f"><span>Nama lengkap</span><input name="name" type="text"
                             autocomplete="name" placeholder="Nama lengkap" value="{{ old('name') }}"
                             required></label>
-                    <label class="f"><span>Email</span><input name="email" type="email"
-                            autocomplete="email" placeholder="nama@email.com" value="{{ old('email') }}"
+                    <label class="f"><span>Email (@gmail.com)</span><input name="email" type="email"
+                            autocomplete="email" placeholder="nama@gmail.com"
+                            pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$"
+                            title="Pendaftaran hanya diperbolehkan menggunakan email @gmail.com"
+                            value="{{ old('email') }}"
                             required></label>
                     <label class="f"><span>Kata sandi</span>
                         <div class="pw"><input name="password" id="np" type="password" data-pw

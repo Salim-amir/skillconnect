@@ -46,7 +46,7 @@ class DashboardController extends Controller
 
             $pendingApplicantsCount = DB::table('project_member')
                 ->whereIn('project_id', $myProjectIds)
-                ->where('status_keanggotaan', 'Menunggu')
+                ->whereIn('status_keanggotaan', ['Pending', 'Menunggu'])
                 ->count();
 
             $totalTeamMembers = DB::table('project_member')
@@ -59,7 +59,7 @@ class DashboardController extends Controller
                 ->join('users', 'project_member.user_id', '=', 'users.id')
                 ->join('projects', 'project_member.project_id', '=', 'projects.id')
                 ->whereIn('project_member.project_id', $myProjectIds)
-                ->where('project_member.status_keanggotaan', 'Menunggu')
+                ->whereIn('project_member.status_keanggotaan', ['Pending', 'Menunggu'])
                 ->select(
                     'project_member.*',
                     'users.name as applicant_name',

@@ -514,7 +514,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 </div>
 
                 <!-- ANGGOTA TIM RESMI YANG DITERIMA (ACCEPTED) -->
-                <div class="section-label" style="margin-top: 10px;">Anggota Tim Resmi ({{ $acceptedMembers->count() }})</div>
+                @php
+                    $acceptedNonCreatorCount = $acceptedMembers->where('peran', '!=', 'Project Creator / Leader')->count();
+                @endphp
+                <div class="section-label" style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <span>Anggota Tim Resmi ({{ $acceptedMembers->count() }})</span>
+                    @if($project->max_members)
+                        <span style="font-size: 12px; font-weight: 700; color: #3730a3; background: #eef2ff; padding: 3px 10px; border-radius: 8px; border: 1px solid #c7d2fe;">
+                            Kebutuhan Tim: {{ $acceptedNonCreatorCount }}/{{ $project->max_members }} Orang
+                        </span>
+                    @endif
+                </div>
                 <div style="margin-top: 8px;">
                     @forelse($acceptedMembers as $mem)
                         <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f8f9ff; border: 1px solid #edf0ff; border-radius: 12px; margin-bottom: 8px;">

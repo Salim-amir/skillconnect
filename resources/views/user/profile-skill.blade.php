@@ -352,14 +352,30 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 }
 
 .level-badge {
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
-.level-Beginner { background: #e5f2ff; color: #0055cc; }
-.level-Intermediate { background: #f3e8ff; color: #7000ff; }
-.level-Advanced { background: #e5ffe8; color: #008736; }
+.level-Beginner { background: #3b82f6; box-shadow: 0 0 0 2px #dbeafe; }
+.level-Intermediate { background: #8b5cf6; box-shadow: 0 0 0 2px #ede9fe; }
+.level-Advanced { background: #10b981; box-shadow: 0 0 0 2px #d1fae5; }
+.level-legend {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: #64748b;
+    font-weight: 600;
+}
+.level-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
 
 .btn-remove-skill {
     background: transparent;
@@ -897,11 +913,9 @@ textarea.form-control {
                         <label>Skill Terverifikasi ({{ $userSkills->count() }})</label>
                         <div class="skills-container">
                             @forelse($userSkills as $skill)
-                                <div class="skill-tag">
+                                <div class="skill-tag" title="Tingkat keahlian: {{ $skill->pivot->tingkat_keahlian }}">
+                                    <span class="level-badge level-{{ $skill->pivot->tingkat_keahlian }}" aria-label="{{ $skill->pivot->tingkat_keahlian }}"></span>
                                     <span class="skill-name">{{ $skill->nama_skill }}</span>
-                                    <span class="level-badge level-{{ $skill->pivot->tingkat_keahlian }}">
-                                        {{ $skill->pivot->tingkat_keahlian }}
-                                    </span>
                                     <form action="{{ route('profile.skill.remove', $skill->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Hapus skill {{ $skill->nama_skill }}?')">
                                         @csrf
                                         @method('DELETE')
@@ -916,6 +930,13 @@ textarea.form-control {
                                 </p>
                             @endforelse
                         </div>
+                        @if($userSkills->count() > 0)
+                            <div class="level-legend">
+                                <span class="level-legend-item"><span class="level-badge level-Beginner"></span> Beginner</span>
+                                <span class="level-legend-item"><span class="level-badge level-Intermediate"></span> Intermediate</span>
+                                <span class="level-legend-item"><span class="level-badge level-Advanced"></span> Advanced</span>
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>

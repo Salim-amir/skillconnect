@@ -58,6 +58,15 @@ Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCa
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// ===================== EMAIL VERIFICATION ROUTES =====================
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+    ->middleware(['signed'])
+    ->name('verification.verify');
+
+Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])
+    ->middleware(['throttle:6,1'])
+    ->name('verification.send');
+
 // ===================== PASSWORD RESET ROUTES =====================
 Route::get('/forgot-password', function () {
     return redirect('/#lupa-sandi');
