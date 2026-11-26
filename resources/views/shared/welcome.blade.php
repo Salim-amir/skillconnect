@@ -752,11 +752,31 @@
 
         @media(max-width:560px) {
             .fg {
-                grid-template-columns: 1fr
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            footer p {
+                max-width: 100%;
+            }
+
+            .kan {
+                grid-template-columns: 1fr;
             }
 
             .cand {
-                flex-wrap: wrap
+                flex-wrap: wrap;
+                padding: 14px;
+            }
+
+            .sc {
+                text-align: left;
+                width: 100%;
+            }
+
+            .proj .row {
+                flex-wrap: wrap;
+                gap: 10px;
             }
         }
 
@@ -1029,7 +1049,7 @@
         }
 
         .pw input {
-            padding-right: 90px
+            padding-right: 44px
         }
 
         .pw button {
@@ -1039,15 +1059,21 @@
             transform: translateY(-50%);
             border: 0;
             background: none;
-            color: var(--navy);
-            font: 600 11.5px 'Nunito', sans-serif;
-            padding: 5px 8px;
+            color: var(--mute);
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            border-radius: 8px
+            border-radius: 8px;
+            transition: background .2s, color .2s;
         }
 
         .pw button:hover {
-            background: #eef0ff
+            background: #eef0ff;
+            color: var(--navy);
         }
 
         .meter {
@@ -1231,10 +1257,7 @@
 
         .mobile-menu-btn {
             display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 4px;
+            position: relative;
             width: 38px;
             height: 38px;
             background: #fff;
@@ -1253,16 +1276,31 @@
         }
 
         .mobile-menu-btn .bar {
+            position: absolute;
+            left: 9px;
             width: 18px;
             height: 2px;
             background: var(--ink);
             border-radius: 2px;
-            transition: all .25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: top .22s ease, transform .22s cubic-bezier(0.16, 1, 0.3, 1), opacity .18s ease;
             transform-origin: center;
         }
 
+        .mobile-menu-btn .bar1 {
+            top: 11px;
+        }
+
+        .mobile-menu-btn .bar2 {
+            top: 17px;
+        }
+
+        .mobile-menu-btn .bar3 {
+            top: 23px;
+        }
+
         .mobile-menu-btn.active .bar1 {
-            transform: translateY(6px) rotate(45deg);
+            top: 17px;
+            transform: rotate(45deg);
         }
 
         .mobile-menu-btn.active .bar2 {
@@ -1271,7 +1309,8 @@
         }
 
         .mobile-menu-btn.active .bar3 {
-            transform: translateY(-6px) rotate(-45deg);
+            top: 17px;
+            transform: rotate(-45deg);
         }
 
         .btn-mobile-masuk {
@@ -1372,7 +1411,14 @@
             -webkit-backdrop-filter: blur(4px);
             z-index: 98;
             opacity: 0;
+            pointer-events: none;
             transition: opacity .25s ease;
+        }
+
+        .landing-menu-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
             pointer-events: none;
         }
 
@@ -1383,11 +1429,17 @@
 
         .auth .header-mobile-actions,
         .auth .landing-mobile-menu,
-        .auth .landing-menu-backdrop {
+        .auth .landing-menu-backdrop,
+        .auth .header-mobile-actions {
             display: none !important;
         }
 
         @media(max-width:820px) {
+            html,
+            body {
+                overflow-x: hidden;
+            }
+
             header {
                 padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
                 z-index: 100;
@@ -1426,28 +1478,48 @@
             }
 
             .hero {
-                min-height: 560px;
+                height: auto;
+                min-height: min(100svh, 580px);
+                padding: 84px 16px 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #fx {
+                opacity: 0.75;
             }
 
             .copy {
-                max-width: none;
+                width: 100%;
+                max-width: 520px;
+                height: auto;
                 justify-content: center;
-                padding: 80px 20px 40px;
+                padding: 26px 22px;
+                background: rgba(255, 255, 255, 0.78);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+                border: 1.5px solid rgba(255, 255, 255, 0.92);
+                border-radius: 24px;
+                box-shadow: 0 20px 50px -16px rgba(79, 70, 229, 0.18);
             }
 
             h1 {
-                font-size: clamp(30px, 8vw, 44px);
+                font-size: clamp(28px, 7.4vw, 40px);
+                line-height: 1.12;
             }
 
             .cta {
-                flex-direction: column;
+                flex-direction: row;
+                flex-wrap: wrap;
                 gap: 10px;
             }
 
             .cta .btn {
-                width: 100%;
+                flex: 1 1 140px;
                 text-align: center;
                 justify-content: center;
+                padding: 12px 18px;
             }
 
             .hint {
@@ -1456,7 +1528,12 @@
 
             .about {
                 grid-template-columns: 1fr;
-                gap: 28px
+                gap: 24px
+            }
+
+            .plate {
+                box-shadow: 0 20px 44px -20px rgba(123, 108, 246, .45);
+                border-radius: 18px;
             }
 
             .copy p {
@@ -1465,7 +1542,22 @@
             }
 
             section {
-                padding: 60px 20px;
+                padding: 52px 18px;
+            }
+
+            .final {
+                margin: 0 18px 48px;
+                border-radius: 24px;
+                padding: 44px 20px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card,
+            .proj {
+                padding: 22px 20px;
             }
         }
 
@@ -1558,7 +1650,6 @@
         <canvas id="fx"
             aria-label="Logo tak terhingga dari partikel. Arahkan kursor untuk menyebarkan partikel."></canvas>
         <div class="copy">
-            <div class="eyebrow">Platform Manajemen Tim Proyek</div>
             <h1>Hubungkan skill, <span>bangun tim</span>, selesaikan proyek.</h1>
             <p>SkillConnect mempertemukan <b>Project Creator</b> dengan anggota yang tepat melalui pencocokan skill,
                 lalu mengelola <b>tugas, progres, dan fee</b> dalam satu sistem yang terdokumentasi.</p>
@@ -1678,7 +1769,7 @@
                         </div>
                         <div class="pw"><input name="password" type="password" data-pw
                                 autocomplete="current-password" placeholder="Masukkan kata sandi" required><button
-                                type="button" class="tg">Tampilkan</button></div>
+                                type="button" class="tg" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
                     </label>
                     <button class="go" type="submit" id="loginBtnSubmit">Masuk sebagai Member</button>
                     <p class="js-msg" role="alert"></p>
@@ -1755,14 +1846,14 @@
                     <label class="f"><span>Kata sandi</span>
                         <div class="pw"><input name="password" id="np" type="password" data-pw
                                 autocomplete="new-password" placeholder="Minimal 8 karakter" required><button
-                                type="button" class="tg">Tampilkan</button></div>
+                                type="button" class="tg" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
                         <div class="meter" id="meter"><i></i><i></i><i></i><i></i></div>
                         <div class="mt" id="mt"></div>
                     </label>
                     <label class="f"><span>Konfirmasi kata sandi</span>
                         <div class="pw"><input name="password_confirmation" type="password" data-pw
                                 autocomplete="new-password" placeholder="Ulangi kata sandi" required><button
-                                type="button" class="tg">Tampilkan</button></div>
+                                type="button" class="tg" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
                     </label>
                     <button class="go" type="submit" id="registerBtnSubmit">Daftar sebagai Member</button>
                     <p class="js-msg" role="alert"></p>
@@ -2042,19 +2133,19 @@
                 <p>Pembangunan situs untuk usaha kecil dengan katalog dan formulir pemesanan.</p>
                 <div><span class="ck">Laravel</span> <span class="ck">React</span> <span
                         class="ck">UI/UX</span></div>
-                <div class="row"><b>Rp3.000.000</b><a class="btn ghost" href="#">Lihat Detail</a></div>
+                <div class="row"><b>Rp3.000.000</b><a class="btn ghost" href="#daftar" data-open="r">Daftar</a></div>
             </div>
             <div class="proj">
                 <h3>Sistem Inventori Kampus</h3>
                 <p>Aplikasi pencatatan aset laboratorium dengan laporan berkala.</p>
                 <div><span class="ck">Laravel</span> <span class="ck">MySQL</span></div>
-                <div class="row"><b>Rp2.500.000</b><a class="btn ghost" href="#">Lihat Detail</a></div>
+                <div class="row"><b>Rp2.500.000</b><a class="btn ghost" href="#daftar" data-open="r">Daftar</a></div>
             </div>
             <div class="proj">
                 <h3>Redesain Aplikasi Komunitas</h3>
                 <p>Penyegaran antarmuka dan sistem desain untuk aplikasi komunitas.</p>
                 <div><span class="ck">UI/UX</span> <span class="ck">Tailwind</span></div>
-                <div class="row"><b>Rp1.800.000</b><a class="btn ghost" href="#">Lihat Detail</a></div>
+                <div class="row"><b>Rp1.800.000</b><a class="btn ghost" href="#daftar" data-open="r">Daftar</a></div>
             </div>
         </div>
     </section>
@@ -2598,6 +2689,8 @@
             document.addEventListener('focusout', function() {
                 setTimeout(sync, 0)
             });
+            var eyeOpenSvg = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+            var eyeOffSvg = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
             [].forEach.call(document.querySelectorAll('.tg'), function(b) {
                 b.addEventListener('mousedown', function(e) {
                     e.preventDefault()
@@ -2606,7 +2699,9 @@
                     var i = b.parentNode.querySelector('input'),
                         s = i.type === 'password';
                     i.type = s ? 'text' : 'password';
-                    b.textContent = s ? 'Sembunyikan' : 'Tampilkan';
+                    b.innerHTML = s ? eyeOffSvg : eyeOpenSvg;
+                    b.setAttribute('aria-label', s ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+                    b.setAttribute('title', s ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
                     i.focus();
                     sync()
                 })

@@ -710,6 +710,30 @@ button { font-family: inherit; }
                 @endif
             </div>
         </div>
+
+        <!-- ROW 3: PANDUAN PENGGUNA BARU (MEMBER) -->
+        <div class="card" style="margin-top: 22px;">
+            <div class="card-header-row">
+                <h3 class="card-title">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Panduan Singkat Pengguna Baru SkillConnect
+                </h3>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 8px;">
+                <div style="background: #f8f9ff; border: 1.5px solid #e6e9fc; border-radius: 16px; padding: 16px;">
+                    <div style="font-weight: 800; font-size: 13px; color: #4f5fe0; margin-bottom: 6px;">1. Lengkapi Profil &amp; Skill</div>
+                    <p style="font-size: 13px; color: #5b6594; line-height: 1.5; margin: 0;">Tambahkan keahlian dan tautan CV PDF Anda di menu Profil agar sistem dapat merekomendasikan proyek yang sesuai.</p>
+                </div>
+                <div style="background: #f8f9ff; border: 1.5px solid #e6e9fc; border-radius: 16px; padding: 16px;">
+                    <div style="font-weight: 800; font-size: 13px; color: #4f5fe0; margin-bottom: 6px;">2. Jelajahi &amp; Lamar Proyek</div>
+                    <p style="font-size: 13px; color: #5b6594; line-height: 1.5; margin: 0;">Buka menu Jelajahi Proyek, cek sisa kuota dan nominal fee yang ditetapkan Creator, lalu ajukan lamaran.</p>
+                </div>
+                <div style="background: #f8f9ff; border: 1.5px solid #e6e9fc; border-radius: 16px; padding: 16px;">
+                    <div style="font-weight: 800; font-size: 13px; color: #4f5fe0; margin-bottom: 6px;">3. Kerjakan Task &amp; Terima Fee</div>
+                    <p style="font-size: 13px; color: #5b6594; line-height: 1.5; margin: 0;">Selesaikan tugas di Task Board dan unggah bukti kerja. Fee akan masuk ke Total Fee Diterima setelah proyek selesai dan dibayar lunas.</p>
+                </div>
+            </div>
+        </div>
     </main>
 
 

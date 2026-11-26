@@ -702,9 +702,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                         @endphp
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; font-size: 12px; font-weight: 700;">
                             @if($p->max_members)
-                                <span style="display: inline-flex; align-items: center; gap: 5px; background: #eef2ff; color: #3730a3; padding: 4px 10px; border-radius: 8px; border: 1px solid #c7d2fe;">
+                                @php $remainingSlots = max(0, (int) $p->max_members - $acceptedMemberCount); @endphp
+                                <span style="display: inline-flex; align-items: center; gap: 5px; background: {{ $remainingSlots > 0 ? '#eef2ff' : '#fff1f2' }}; color: {{ $remainingSlots > 0 ? '#3730a3' : '#be123c' }}; padding: 4px 10px; border-radius: 8px; border: 1px solid {{ $remainingSlots > 0 ? '#c7d2fe' : '#fecdd3' }};">
                                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                    Kebutuhan Tim: {{ $acceptedMemberCount }}/{{ $p->max_members }} Orang
+                                    Kuota: {{ $acceptedMemberCount }}/{{ $p->max_members }} ({{ $remainingSlots > 0 ? 'Sisa ' . $remainingSlots : 'Penuh' }})
                                 </span>
                             @endif
                             <span style="display: inline-flex; align-items: center; gap: 4px; background: #f8fafc; color: #475569; padding: 4px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">

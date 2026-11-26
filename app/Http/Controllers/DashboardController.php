@@ -107,9 +107,18 @@ class DashboardController extends Controller
             ->count();
 
         $totalEarned = (float) DB::table('project_member')
-            ->where('user_id', $currentUser->id)
-            ->where('status_keanggotaan', 'Diterima')
-            ->sum('nominal_fee');
+            ->join('projects', 'project_member.project_id', '=', 'projects.id')
+            ->where('project_member.user_id', $currentUser->id)
+            ->where('project_member.status_keanggotaan', 'Diterima')
+            ->where('project_member.peran', '!=', 'Project Creator / Leader')
+            ->where('projects.status_project', 'Selesai')
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('transactions')
+                    ->whereColumn('transactions.project_id', 'projects.id')
+                    ->where('transactions.status_pembayaran', 'lunas');
+            })
+            ->sum('project_member.nominal_fee');
 
         $myApplications = DB::table('project_member')
             ->join('projects', 'project_member.project_id', '=', 'projects.id')

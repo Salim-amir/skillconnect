@@ -153,7 +153,7 @@ class ProyekController extends Controller
             'action' => 'required|in:terima,tolak',
         ]);
 
-        $maxSlots = (int) $request->input('max_slots', 3);
+        $maxSlots = $project->max_members ? (int) $project->max_members : (int) $request->input('max_slots', 3);
         $currentAccepted = DB::table('project_member')
             ->where('project_id', $project->id)
             ->where('status_keanggotaan', 'Diterima')
@@ -297,6 +297,18 @@ class ProyekController extends Controller
             return redirect()->back()->with('info', 'Anda sudah pernah mengajukan lamaran untuk proyek ini (Status: '.ucfirst($existing->status_keanggotaan).').');
         }
 
+        if ($project->max_members) {
+            $acceptedCount = DB::table('project_member')
+                ->where('project_id', $project->id)
+                ->where('status_keanggotaan', 'Diterima')
+                ->where('peran', '!=', 'Project Creator / Leader')
+                ->count();
+
+            if ($acceptedCount >= (int) $project->max_members) {
+                return redirect()->back()->with('error', 'Maaf, kuota pendaftaran anggota untuk proyek ini sudah penuh.');
+            }
+        }
+
         $cvValidationRule = function ($attribute, $value, $fail) {
             $parsed = parse_url($value);
             $host = strtolower($parsed['host'] ?? '');
@@ -348,7 +360,7 @@ class ProyekController extends Controller
             'user_id' => $user->id,
             'project_id' => $project->id,
             'peran' => $validated['peran'],
-            'nominal_fee' => $request->input('nominal_fee', 0),
+            'nominal_fee' => $project->budget ?? 0,
             'status_keanggotaan' => 'Pending',
             'nilai_evaluasi' => null,
             'cv_path' => $cvPath,
@@ -392,6 +404,12 @@ class ProyekController extends Controller
         // Hanya Creator yang berhak membuat proyek baru
         if ($user->role !== 'creator') {
             return redirect()->route('dashboard')->with('error', 'Akses ditolak: Hanya pengguna dengan peran Creator yang dapat membuat proyek baru.');
+        }
+
+        // Bersihkan titik ribuan dari input budget jika dikirim dalam format angka berformat (cth: 5.000.000)
+        if ($request->has('budget') && is_string($request->budget)) {
+            $cleanedBudget = str_replace(['.', ','], '', $request->budget);
+            $request->merge(['budget' => $cleanedBudget]);
         }
 
         $validated = $request->validate([
@@ -486,18 +504,54 @@ class ProyekController extends Controller
             ->orderBy('projects.created_at', 'desc')
             ->get();
 
-        // 3. KOTAK FEE TERPISAH (Sesuai revisi teman: Fee punya kotak sendiri)
+        // 3. KOTAK FEE TERPISAH
+        // Total Fee Diterima: hanya bertambah jika member diterima, proyek berstatus Selesai, dan transaksi sudah Lunas
         $totalEarnedFee = DB::table('project_member')
-            ->where('user_id', $user->id)
-            ->where('status_keanggotaan', 'Diterima')
-            ->where('peran', '!=', 'Project Creator / Leader')
-            ->sum('nominal_fee');
+            ->join('projects', 'project_member.project_id', '=', 'projects.id')
+            ->where('project_member.user_id', $user->id)
+            ->where('project_member.status_keanggotaan', 'Diterima')
+            ->where('project_member.peran', '!=', 'Project Creator / Leader')
+            ->where('projects.status_project', 'Selesai')
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('transactions')
+                    ->whereColumn('transactions.project_id', 'projects.id')
+                    ->where('transactions.status_pembayaran', 'lunas');
+            })
+            ->sum('project_member.nominal_fee');
 
+        // Fee Dalam Proses: lamaran pending/menunggu, atau sudah diterima tapi proyek belum selesai / pembayaran belum lunas
         $pendingFee = DB::table('project_member')
-            ->where('user_id', $user->id)
-            ->where('status_keanggotaan', 'Pending')
-            ->where('peran', '!=', 'Project Creator / Leader')
-            ->sum('nominal_fee');
+            ->join('projects', 'project_member.project_id', '=', 'projects.id')
+            ->where('project_member.user_id', $user->id)
+            ->where('project_member.peran', '!=', 'Project Creator / Leader')
+            ->where(function ($query) {
+                $query->whereIn('project_member.status_keanggotaan', ['Pending', 'Menunggu'])
+                    ->orWhere(function ($q) {
+                        $q->where('project_member.status_keanggotaan', 'Diterima')
+                            ->where(function ($sub) {
+                                $sub->where('projects.status_project', '!=', 'Selesai')
+                                    ->orWhereNotExists(function ($tx) {
+                                        $tx->select(DB::raw(1))
+                                            ->from('transactions')
+                                            ->whereColumn('transactions.project_id', 'projects.id')
+                                            ->where('transactions.status_pembayaran', 'lunas');
+                                    });
+                            });
+                    });
+            })
+            ->sum('project_member.nominal_fee');
+
+        $inProgressProjectIds = $joinedProjects
+            ->whereIn('status_keanggotaan', ['Pending', 'Menunggu', 'Diterima'])
+            ->where('status_project', '!=', 'Selesai')
+            ->pluck('id');
+
+        $totalInProgressTasks = DB::table('tasks')->whereIn('project_id', $inProgressProjectIds)->count();
+        $completedInProgressTasks = DB::table('tasks')
+            ->whereIn('project_id', $inProgressProjectIds)
+            ->where('status_task', 'Selesai')
+            ->count();
 
         // Proyek yang benar-benar diikuti oleh Member (sudah diterima oleh Creator)
         $acceptedJoinedProjects = $joinedProjects->where('status_keanggotaan', 'Diterima');
@@ -511,13 +565,21 @@ class ProyekController extends Controller
 
         // 4. GRAFIK PEMASUKAN BULANAN (Portofolio & Keuangan - UC-11)
         $isSqlite = DB::connection()->getDriverName() === 'sqlite';
-        $monthExpr = $isSqlite ? "CAST(strftime('%m', updated_at) AS INTEGER)" : "MONTH(updated_at)";
+        $monthExpr = $isSqlite ? "CAST(strftime('%m', project_member.updated_at) AS INTEGER)" : "MONTH(project_member.updated_at)";
         $monthlyFeeData = DB::table('project_member')
-            ->where('user_id', $user->id)
-            ->where('status_keanggotaan', 'Diterima')
-            ->where('peran', '!=', 'Project Creator / Leader')
-            ->whereYear('updated_at', now()->year)
-            ->selectRaw("{$monthExpr} as bulan, SUM(nominal_fee) as total")
+            ->join('projects', 'project_member.project_id', '=', 'projects.id')
+            ->where('project_member.user_id', $user->id)
+            ->where('project_member.status_keanggotaan', 'Diterima')
+            ->where('project_member.peran', '!=', 'Project Creator / Leader')
+            ->where('projects.status_project', 'Selesai')
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('transactions')
+                    ->whereColumn('transactions.project_id', 'projects.id')
+                    ->where('transactions.status_pembayaran', 'lunas');
+            })
+            ->whereYear('project_member.updated_at', now()->year)
+            ->selectRaw("{$monthExpr} as bulan, SUM(project_member.nominal_fee) as total")
             ->groupByRaw($monthExpr)
             ->orderBy('bulan')
             ->get();
@@ -528,6 +590,8 @@ class ProyekController extends Controller
             'joinedProjects',
             'totalEarnedFee',
             'pendingFee',
+            'totalInProgressTasks',
+            'completedInProgressTasks',
             'totalCompletedProjects',
             'totalActiveProjects',
             'monthlyFeeData'
