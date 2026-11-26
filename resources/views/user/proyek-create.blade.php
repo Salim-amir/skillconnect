@@ -391,8 +391,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                     </div>
 
                     <div class="form-group">
-                        <label for="budget">Estimasi Budget (Rp) <span class="req">*</span></label>
-                        <input type="number" id="budget" name="budget" class="form-control" value="{{ old('budget') }}" required min="100000" placeholder="Contoh: 5000000">
+                        <label for="budget_display">Estimasi Budget (Rp) <span class="req">*</span></label>
+                        <input type="text" id="budget_display" class="form-control" value="{{ old('budget') ? number_format((float) str_replace('.', '', old('budget')), 0, ',', '.') : '' }}" required placeholder="Contoh: 5.000.000" autocomplete="off">
+                        <input type="hidden" id="budget" name="budget" value="{{ old('budget') }}">
                     </div>
                 </div>
 
@@ -446,5 +447,30 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
     </main>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const displayInput = document.getElementById('budget_display');
+        const hiddenInput = document.getElementById('budget');
+
+        function formatRupiah(value) {
+            const rawNumbers = value.replace(/\D/g, '');
+            if (!rawNumbers) return '';
+            return new Intl.NumberFormat('id-ID').format(rawNumbers);
+        }
+
+        if (displayInput && hiddenInput) {
+            displayInput.addEventListener('input', function(e) {
+                const rawNumbers = this.value.replace(/\D/g, '');
+                hiddenInput.value = rawNumbers;
+                this.value = formatRupiah(this.value);
+            });
+
+            // Sinkronkan saat load jika ada data awal
+            if (displayInput.value) {
+                hiddenInput.value = displayInput.value.replace(/\D/g, '');
+            }
+        }
+    });
+    </script>
 </body>
 </html>

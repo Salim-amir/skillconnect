@@ -392,7 +392,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <div class="fee-card-label">Fee Dalam Proses (Pending)</div>
                 <div class="fee-amount" style="color: #b37400;">Rp {{ number_format($pendingFee, 0, ',', '.') }}</div>
                 <div class="fee-badge-desc" style="color: #8b95b5;">
-                    Menunggu approval / pengerjaan selesai
+                    Progres tugas: {{ $completedInProgressTasks ?? 0 }}/{{ $totalInProgressTasks ?? 0 }} selesai &bull; Menunggu proyek selesai &amp; pelunasan
                 </div>
             </div>
 

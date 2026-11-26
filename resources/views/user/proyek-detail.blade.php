@@ -516,12 +516,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                 <!-- ANGGOTA TIM RESMI YANG DITERIMA (ACCEPTED) -->
                 @php
                     $acceptedNonCreatorCount = $acceptedMembers->where('peran', '!=', 'Project Creator / Leader')->count();
+                    $remainingSlots = $project->max_members ? max(0, (int) $project->max_members - $acceptedNonCreatorCount) : null;
+                    $isQuotaFull = $project->max_members && $remainingSlots === 0;
                 @endphp
                 <div class="section-label" style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                     <span>Anggota Tim Resmi ({{ $acceptedMembers->count() }})</span>
                     @if($project->max_members)
-                        <span style="font-size: 12px; font-weight: 700; color: #3730a3; background: #eef2ff; padding: 3px 10px; border-radius: 8px; border: 1px solid #c7d2fe;">
-                            Kebutuhan Tim: {{ $acceptedNonCreatorCount }}/{{ $project->max_members }} Orang
+                        <span style="font-size: 12px; font-weight: 700; color: {{ $isQuotaFull ? '#be123c' : '#3730a3' }}; background: {{ $isQuotaFull ? '#fff1f2' : '#eef2ff' }}; padding: 4px 12px; border-radius: 8px; border: 1px solid {{ $isQuotaFull ? '#fecdd3' : '#c7d2fe' }};">
+                            Kuota Tim: {{ $acceptedNonCreatorCount }}/{{ $project->max_members }} Orang ({{ $isQuotaFull ? 'Kuota Penuh' : 'Sisa ' . $remainingSlots . ' slot' }})
                         </span>
                     @endif
                 </div>
@@ -821,6 +823,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
                                 @endif
                             </div>
                         </div>
+                    @elseif($isQuotaFull)
+                        <div class="card" style="border: 1.5px solid #fecdd3; background: #fff1f2; text-align: center; padding: 28px 20px;">
+                            <h3 style="font-family: 'Fredoka', sans-serif; font-size: 20px; color: #be123c; margin-bottom: 8px;">
+                                Kuota Pendaftaran Penuh
+                            </h3>
+                            <p style="font-size: 13.5px; color: #9f1239; margin: 0;">
+                                Proyek ini telah memenuhi batas maksimal anggota tim ({{ $project->max_members }} orang). Anda dapat mencari proyek lain yang masih membuka kuota pendaftaran.
+                            </p>
+                        </div>
                     @else
                         <!-- FORM AJUKAN LAMARAN -->
                         <div class="card">
@@ -833,6 +844,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--secondary); out
 
                             <form action="{{ route('proyek.apply', $project->id) }}" method="POST">
                                 @csrf
+                                <div style="margin-bottom: 16px; background: #f4f6ff; border: 1.5px solid #dbe2ff; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                                    <div>
+                                        <div style="font-size: 12px; font-weight: 700; color: #5b6594;">Nominal Fee Proyek (Ditetapkan Creator)</div>
+                                        <div style="font-size: 16px; font-weight: 800; color: #1c2766;">Rp {{ number_format($project->budget ?? 0, 0, ',', '.') }}</div>
+                                    </div>
+                                    <span style="font-size: 11px; font-weight: 700; color: #4f5fe0; background: #eef2ff; padding: 4px 10px; border-radius: 999px; border: 1px solid #c7d2fe;">Tetap</span>
+                                </div>
                                 <div style="margin-bottom: 16px;">
                                     <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px;">Posisi / Peran <span style="color: #e0244d;">*</span></label>
                                     <input type="text" name="peran" required class="form-control" placeholder="Contoh: Frontend Developer, UI Designer" style="width: 100%; padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 12px; outline: none;">

@@ -453,6 +453,48 @@
     text-transform: capitalize;
 }
 
+.btn-guide {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    background: #f4f6ff;
+    border: 1.5px solid #dbe2ff;
+    color: #2b3a8f;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 13.5px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto;
+}
+.sidebar.expanded .btn-guide {
+    width: 100%;
+    height: auto;
+    padding: 10px 14px;
+    border-radius: 999px;
+}
+.sidebar:not(.expanded) .btn-guide:hover {
+    background: #eef1ff;
+    border-color: #c7cff9;
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 8px 20px -4px rgba(123, 108, 246, 0.25);
+}
+.sidebar.expanded .btn-guide:hover {
+    background: #eef1ff;
+    border-color: #c7cff9;
+}
+.btn-guide .nav-text {
+    display: none;
+}
+.sidebar.expanded .btn-guide .nav-text {
+    display: inline;
+}
+
 .btn-logout {
     width: 48px;
     height: 48px;
@@ -667,6 +709,15 @@
     }
     .sidebar-user-mini .mini-meta {
         display: block;
+    }
+    .btn-guide {
+        width: 100%;
+        height: auto;
+        padding: 10px 14px;
+        border-radius: 999px;
+    }
+    .btn-guide .nav-text {
+        display: inline;
     }
     .btn-logout {
         width: 100%;
@@ -925,6 +976,10 @@
                 </div>
             </a>
         @endif
+        <button type="button" class="btn-guide" title="Panduan Pengguna" onclick="openGuideModal()">
+            <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="nav-text">Panduan Pengguna</span>
+        </button>
         <form id="global-logout-form" action="{{ route('logout') }}" method="POST">
             @csrf
             <button type="button" class="btn-logout" title="Keluar Akun" onclick="openLogoutModal()">
@@ -1006,6 +1061,36 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- POPUP MODAL PANDUAN PENGGUNA BARU -->
+<div id="guideModal" class="logout-modal-backdrop" onclick="if(event.target.id==='guideModal'){closeGuideModal();}">
+    <div class="logout-modal-card" style="max-width: 520px; text-align: left;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+            <h3 class="logout-modal-title" style="margin:0;">Panduan Singkat SkillConnect</h3>
+            <button type="button" onclick="closeGuideModal()" style="background:#f1f5f9; border:none; width:32px; height:32px; border-radius:8px; cursor:pointer; font-weight:700; color:#475569;">&times;</button>
+        </div>
+        <p style="font-size:13.5px; color:#64748b; margin-bottom:16px; line-height:1.5;">
+            Berikut ringkasan fitur utama untuk membantu Anda memulai kolaborasi di SkillConnect:
+        </p>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+            <div style="background:#f8f9ff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px;">
+                <div style="font-weight:700; color:#1c2766; font-size:13.5px;">1. Profil &amp; Keahlian</div>
+                <div style="font-size:12.5px; color:#475569; margin-top:2px;">Klik avatar di pojok kanan atas atau bawah sidebar untuk melengkapi skill, portofolio, dan tautan CV PDF.</div>
+            </div>
+            <div style="background:#f8f9ff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px;">
+                <div style="font-weight:700; color:#1c2766; font-size:13.5px;">2. Proyek &amp; Kuota Tim</div>
+                <div style="font-size:12.5px; color:#475569; margin-top:2px;">Creator dapat membuat proyek dan menentukan kuota tim serta nominal fee. Member dapat melamar selama kuota masih tersedia.</div>
+            </div>
+            <div style="background:#f8f9ff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px;">
+                <div style="font-weight:700; color:#1c2766; font-size:13.5px;">3. Task Board, Escrow &amp; Fee</div>
+                <div style="font-size:12.5px; color:#475569; margin-top:2px;">Kerjakan tugas di Task Board dan unggah bukti kerja. Total Fee Diterima hanya bertambah setelah proyek selesai dan pembayaran lunas.</div>
+            </div>
+        </div>
+        <button type="button" id="guideConfirmBtn" disabled onclick="closeGuideModal()" style="width:100%; padding:12px 18px; border-radius:12px; font-weight:700; font-size:14px; font-family:inherit; border:1px solid #cbd5e1; background:#e2e8f0; color:#94a3b8; cursor:not-allowed; transition:all .3s ease;">
+            Mengerti, Tutup Panduan (3)
+        </button>
+    </div>
+</div>
+
 <!-- POPUP MODAL KONFIRMASI LOGOUT -->
 <div id="logoutModal" class="logout-modal-backdrop" onclick="closeLogoutModalOnBackdrop(event)">
     <div class="logout-modal-card">
@@ -1043,6 +1128,68 @@ function closeMobileSidebar() {
     if (sb && bd) {
         sb.classList.remove('open');
         bd.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+
+let guideCountdownTimer = null;
+
+function setGuideButtonReady(btn, isReady, secondsLeft) {
+    if (!btn) return;
+    if (isReady) {
+        btn.disabled = false;
+        btn.textContent = 'Mengerti, Tutup Panduan';
+        btn.style.background = 'linear-gradient(135deg, #2b3a8f, #7b6cf6)';
+        btn.style.color = '#ffffff';
+        btn.style.borderColor = 'transparent';
+        btn.style.boxShadow = '0 8px 20px -5px rgba(123, 108, 246, 0.45)';
+        btn.style.cursor = 'pointer';
+    } else {
+        btn.disabled = true;
+        btn.textContent = 'Mengerti, Tutup Panduan (' + secondsLeft + ')';
+        btn.style.background = '#e2e8f0';
+        btn.style.color = '#94a3b8';
+        btn.style.borderColor = '#cbd5e1';
+        btn.style.boxShadow = 'none';
+        btn.style.cursor = 'not-allowed';
+    }
+}
+
+function openGuideModal() {
+    const modal = document.getElementById('guideModal');
+    const btn = document.getElementById('guideConfirmBtn');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+
+        if (guideCountdownTimer) {
+            clearInterval(guideCountdownTimer);
+            guideCountdownTimer = null;
+        }
+
+        let remaining = 3;
+        setGuideButtonReady(btn, false, remaining);
+
+        guideCountdownTimer = setInterval(function() {
+            remaining -= 1;
+            if (remaining <= 0) {
+                clearInterval(guideCountdownTimer);
+                guideCountdownTimer = null;
+                setGuideButtonReady(btn, true, 0);
+            } else {
+                setGuideButtonReady(btn, false, remaining);
+            }
+        }, 1000);
+    }
+}
+function closeGuideModal() {
+    const modal = document.getElementById('guideModal');
+    if (guideCountdownTimer) {
+        clearInterval(guideCountdownTimer);
+        guideCountdownTimer = null;
+    }
+    if (modal) {
+        modal.classList.remove('show');
         document.body.style.overflow = '';
     }
 }
